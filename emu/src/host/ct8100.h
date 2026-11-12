@@ -1,12 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2026 Hugo José Pinto <hugo.pinto@gmail.com>
-// The CT8100 CRT Terminal, the 8002's system terminal, as far as it is documented: a 9-inch
-// refreshed crt "to display up to 1920 characters" (24 lines of 80) in the "ASCII set of 96
-// upper/lower case characters" (1978 catalogue), with a TAB key (070-2701 §4), on the 8002's
-// RS-232 terminal port. Its control sequences are not documented, and TEKDOS needs none: it
-// writes text, CR, LF, BS, BEL and TAB. Modelled as a glass terminal: printable characters
-// at the cursor, CR, LF (scrolling at the bottom), BS, BEL, HT (stops every 8 columns), a
-// line wraps at column 80; other control characters are ignored.
+// The CT8100 CRT Terminal, the 8002's system terminal: Tektronix's version of its 4023
+// Computer Display Terminal (CT8100 Users Manual 070-2359-00, preface; notes/ct8100.md), 24
+// lines of 80 on the 8002's RS-232 terminal port. Modelled in DIRECT mode, with the format
+// effectors TEKDOS uses, as Table 2-2 (pp. 2-7 to 2-10) gives them: printable characters at
+// the cursor; BS one position left, none at the left margin (not destructive: TEKDOS's BACK
+// SPACE echoes a bare BS, so a deleted character stays until it is typed over); HT a
+// non-destructive space right; LF down a line, rolling the screen up past the 24th; CR to the
+// left margin; BEL the tone; DEL neither writes nor spaces. Not modelled (TEKDOS sends none of
+// them): buffer mode and formatted fields (US, FAC codes), cursor addressing (FS), the ESC
+// commands (clear page, send, read cursor, hard copy), the rulings character set (SO/SI).
+// Other control characters are ignored. A line wraps at column 80 (inferred).
 #ifndef TEK_HOST_CT8100_H
 #define TEK_HOST_CT8100_H
 #include <cstdint>
