@@ -44,6 +44,8 @@ private:
 	unsigned long m_wait_total = 0;     // v3: WAIT T-states reported by the target, not yet charged
 	bool m_power = true;     // v3: target power/clock present (H reply)
 	double m_clock_hz = 0;   // v4: the prototype's clock (K)
+	bool m_reset_prev = false, m_clock_due = false;   // v4: K is read again after a RESET pulse
+	void read_clock();
 	bool m_cyc_valid = false;
 	unsigned long m_cyc_last = 0;
 	double m_us_frac = 0;

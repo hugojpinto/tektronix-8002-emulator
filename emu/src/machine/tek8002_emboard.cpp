@@ -14,7 +14,12 @@ void tek8002_emboard::step()
 		m_prom_cycles += 40;               // the routine (its real timing is not known)
 	} else {
 		if (proto_io() && target->connected()) {
-			target->poll((unsigned long)(double(cpu_cycles()) * 4.0e6 / clock_hz()));
+			// the link's time is in 4 MHz T-states (its microseconds); each stretch is converted at
+			// the clock it ran at (the board's own, or the prototype's under link v4)
+			const u64 c = cpu_cycles();
+			if (c >= m_link_last) m_link_cyc += double(c - m_link_last) * 4.0e6 / clock_hz();
+			m_link_last = c;
+			target->poll((unsigned long)m_link_cyc);
 			const bool rs = target->reset_line(), n = target->nmi();
 			const bool user = command_byte() & 0x10;          // control bit 4: the prototype's interrupts reach the processor
 			target_lines(rs && !m_trst, user && n && !m_tnmi, user && target->irq());

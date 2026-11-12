@@ -95,12 +95,20 @@ from the socket's clock pin (070-3665 §1, §3). Version 4 carries its rate:
   served as before.
 - `K`, clock: addr 0 returns the rate in kHz, low byte; addr 1 the high byte. 0 = not reported.
   The emulator asks once, after `H`.
-- With a rate, the board runs at it in modes 1/2, and `T` and WAIT count that clock: WAIT
-  T-states are the processor's own. Without one, the board's own clock is used, and the v3
-  meaning holds.
+- With a rate, the board runs at it in modes 1/2, and WAIT (reply bits 7-4) counts the
+  processor's own T-states at that clock. Without one, the board's own clock is used, and the
+  v3 meaning holds (WAIT in 4 MHz T-states).
+- `T` is unchanged: microseconds of elapsed processor time, whatever the clock. The emulator
+  converts each stretch of cycles at the clock it ran at (the board's own while its firmware
+  or mode 0 runs, the prototype's otherwise).
+- After a RESET pulse (reply bit 2 rising) the emulator reads `K` again, since a target that
+  switches machines raises RESET and may change its clock (FUSE: 48K 3500, 128K 3547 kHz ...).
+- `K` replies are not bus cycles: their WAIT bits are ignored.
 - `tools/proto_target.py --clock MHZ` reports one, and prints the target time it saw at
   disconnect.
-- The sibling tektronix-8550-emulator and FUSE still speak v3. Nothing changes for them.
+- The sibling tektronix-8550-emulator and FUSE still speak v3. Nothing changes for them. v4 was
+  proposed to FUSE's maintainers (2026-11-12) and agreed in principle, with the two points above
+  (T stays in microseconds; K again after RESET).
 
 **Not modelled:** bus timing beyond WAIT,
 DMA from the target, and the copying of mode-1 writes to P blocks that the 8550's board does

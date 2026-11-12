@@ -110,5 +110,7 @@ private:
 	int m_svc = -1;
 	prototype_bus m_no_target;
 	bool m_trst = false, m_tnmi = false;
+	u64 m_link_last = 0;                  // cpu_cycles() at the last link poll
+	double m_link_cyc = 0;                // link time so far, in 4 MHz T-states
 };
 #endif
