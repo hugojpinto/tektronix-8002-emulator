@@ -25,6 +25,8 @@ int main(int argc, char **argv)
 	t.clear(); send(t, "\b"); check(t.cursor_col() == 0, "BS at the left margin: no effect");
 	t.clear(); send(t, "A\tB"); check(row(t, 0) == "A B", "HT: one non-destructive space right (DIRECT)");
 	t.clear(); send(t, "AB\x7f" "C"); check(row(t, 0) == "ABC", "DEL neither writes nor spaces");
+	t.clear(); send(t, "LDIR\n\x13" "X"); check(t.cell(1, 0) == 'X', "LF DOES CR: TEKDOS's echo of RETURN (LF, DC3) starts a new line");
+	t.lf_does_cr = false; t.clear(); send(t, "AB\nC"); check(t.cell(1, 2) == 'C', "without the strap, LF keeps the column"); t.lf_does_cr = true;
 
 	t.clear(); send(t, std::string("\x1c") + char(32 + 18) + char(32 + 10) + "Z");
 	check(t.cell(10, 18) == 'Z', "FS X Y: the manual's example, column 18 line 10 ('2', '*')");

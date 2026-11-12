@@ -69,7 +69,7 @@ void ct8100::receive(uint8_t c)
 	case 0x07: m_bell = true; return;
 	case 0x08: if (m_col > 0) m_col--; return;
 	case 0x09: if (m_col < COLS - 1) m_col++; return;              // DIRECT: a non-destructive space
-	case 0x0a: line_feed(); return;
+	case 0x0a: if (lf_does_cr) m_col = 0; line_feed(); return;
 	case 0x0d: m_col = 0; return;
 	case 0x0e: m_so = true; return;                                 // SO: the rulings set
 	case 0x0f: m_so = false; return;                                // SI: the standard set

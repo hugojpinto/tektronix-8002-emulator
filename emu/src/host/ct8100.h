@@ -16,6 +16,10 @@
 //   the next FAC or the end of the line (Table 2-1): normal, inverse, blinking or blanked, dim
 //   when protected-dim;
 // - SO / SI: the optional rulings character set for codes 32-63 (Fig. 2-2, Table 2-3).
+// - the LF DOES CR strap (p. 2-1: "The LF (line feed) code ... can be strapped to also perform a
+//   carriage return") is set: TEKDOS echoes RETURN as LF (and DC3) with no CR, and its next output
+//   would otherwise start where the command line ended (inferred from that echo). CR DOES LF is
+//   not set: TEKDOS ends its lines with CR LF.
 // Not modelled: BUFFER mode (form fill-out, keyboard editing in terminal memory, ESC SO / ESC SI
 // send page), VT (back tab: "does not work in DIRECT"). Other control characters are ignored.
 // A line wraps at column 80 (inferred), and a US FAC moves the cursor on by one (inferred).
@@ -39,6 +43,7 @@ public:
 	// of condition of SHIFT key". TEKDOS takes commands in upper case only.
 	void type(uint8_t c) { if (tty_lock && c >= 'a' && c <= 'z') c -= 0x20; if (on_key) on_key(c); }
 	bool tty_lock = true;
+	bool lf_does_cr = true;                      // the LF DOES CR strap (see above)
 	std::function<void(uint8_t)> on_key;
 
 	uint8_t cell(int row, int col) const { return m_cell[row][col]; }
