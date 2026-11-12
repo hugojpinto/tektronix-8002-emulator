@@ -11,8 +11,9 @@
 //   Debug & Front Panel I/O (670-5299): ports F8-FF, master/slave hand-over, debug
 //       interrupts (tek8002_debug)
 //   Assembler Processor (670-5220): the Z80 slave, control port E7 (tek8002_asmproc)
-// Not yet: System Communications (3x 6850, memory map), emulator boards, PROM
-// programmers, RTPA, parity.
+//   System Communications (670-5219): three ACIAs and the memory map, ports C9-CF
+//       (tek8002_syscomm)
+// Not yet: emulator boards, PROM programmers, RTPA, parity.
 #ifndef TEK_TEK8002_H
 #define TEK_TEK8002_H
 #include "emu.h"
@@ -21,6 +22,7 @@
 #include "machine/tek8002_fdu.h"
 #include "machine/tek8002_debug.h"
 #include "machine/tek8002_asmproc.h"
+#include "machine/tek8002_syscomm.h"
 #include <string>
 #include <vector>
 
@@ -46,7 +48,8 @@ public:
 	s2650_device cpu;
 	ay31015 term;                   // system terminal
 	tek8002_fdu fdu;                // Flexible Disc Unit (drives 0-3)
-	tek8002_debug debug;            // Debug and Front Panel I/O module
+	tek8002_debug debug{*this};     // Debug and Front Panel I/O module
+	tek8002_syscomm syscomm;        // System Communications: modem, printer, paper tape ACIAs; memory map
 	tek8002_asmproc asmproc{*this}; // Assembler Processor (Z80)
 	tek8002_slave *active_slave() const;   // the slave the Debug module runs, if any
 	int program_boards = 2;         // 8002A: two 16K program memory boards standard (up to 4)

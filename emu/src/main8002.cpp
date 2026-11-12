@@ -2,9 +2,12 @@
 // Copyright (C) 2026 Hugo José Pinto <hugo.pinto@gmail.com>
 // tek8002: run the Tektronix 8002A µProcessor Lab; the system terminal is this terminal.
 //   tek8002 [-prom FILE] [-0 IMG] [-1 IMG] [-2 IMG] [-3 IMG] [-rw] [-cycles N] [-type T TEXT]
-//           [-trace FILE] [-io] [-log FILE]
+//           [-rem SPEC] [-lpt SPEC] [-ppt SPEC] [-trace FILE] [-io] [-log FILE]
+// SPEC: what is plugged into a System Communications port (host/serial_link.h):
+// tcp:HOST:PORT, listen:PORT, unix:PATH, file:PATH (output only), loop
 // Ctrl-] enters the monitor.
 #include "machine/tek8002.h"
+#include "host/serial_link.h"
 #include "cpu/s2650/2650dasm.h"
 #include "host/tty.h"
 #include <cstdio>
@@ -58,7 +61,8 @@ static bool monitor(tek8002 &m)
 		case 's': { if (k < 1) a = 1; for (unsigned i = 0; i < a; i++) m.cpu.run(1); show_regs(m); break; }
 		case 'i': m.trace_io = !m.trace_io; printf("io trace %s\n", m.trace_io ? "on" : "off"); break;
 		case 'R': m.restart(); show_regs(m); break;
-		case 'h': printf("c continue | q quit | r regs | d [addr [n]] | u [addr [n]] | s [n] step | i io-trace | R restart\n"); break;
+		case 'D': m.debug.diag_switch(); printf("DIAG INTRPT\n"); break;
+		case 'h': printf("c continue | q quit | r regs | d [addr [n]] | u [addr [n]] | s [n] step | i io-trace | R restart (SYSTEM RESTART) | D DIAG INTRPT\n"); break;
 		default: printf("?\n");
 		}
 	}
@@ -82,6 +86,7 @@ int main(int argc, char **argv)
 {
 	std::string prom, tracefile, logfile, img[tek8002_fdu::DRIVES];
 	long long max_cycles = -1; bool io = false, rw = false, fdu_trace = false;
+	std::string link_spec[tek8002_syscomm::PORTS];
 	struct typed { double t; std::string s; }; std::vector<typed> types;
 	for (int i = 1; i < argc; i++) {
 		std::string a = argv[i];
@@ -94,8 +99,11 @@ int main(int argc, char **argv)
 		else if (a == "-trace") tracefile = next();
 		else if (a == "-log") logfile = next();
 		else if (a == "-io") io = true;
+		else if (a == "-rem") link_spec[tek8002_syscomm::MODEM] = next();
+		else if (a == "-lpt") link_spec[tek8002_syscomm::PRINTER] = next();
+		else if (a == "-ppt") link_spec[tek8002_syscomm::TAPE] = next();
 		else if (a == "-fdutrace") fdu_trace = true;
-		else { fprintf(stderr, "usage: %s [-prom FILE] [-0..-3 IMG] [-rw] [-cycles N] [-type SEC TEXT] [-trace FILE] [-io] [-fdutrace] [-log FILE]\n", argv[0]); return 1; }
+		else { fprintf(stderr, "usage: %s [-prom FILE] [-0..-3 IMG] [-rw] [-cycles N] [-type SEC TEXT] [-rem SPEC] [-lpt SPEC] [-ppt SPEC] [-trace FILE] [-io] [-fdutrace] [-log FILE]\n", argv[0]); return 1; }
 	}
 	auto m = std::make_unique<tek8002>();
 	std::string err;
@@ -109,6 +117,14 @@ int main(int argc, char **argv)
 	m->trace_io = io || getenv("TEK_IOTRACE"); m->fdu.trace = fdu_trace || getenv("TEK_FDCTRACE"); m->debug.trace = getenv("TEK_EPTRACE");
 	FILE *logf = logfile.empty() ? nullptr : fopen(logfile.c_str(), "wb");
 	m->term.on_tx = [&](u8 c) { c &= 0x7f; if (c) { fputc(c, stdout); fflush(stdout); } if (logf) { fputc(c, logf); fflush(logf); } };
+	// the System Communications ports: modem (REMI/REMO), printer (LPT1), paper tape (PPTR/PPTP)
+	static const char *const port_name[] = { "modem port", "printer port", "paper tape port" };
+	serial_link link[tek8002_syscomm::PORTS];
+	for (int n = 0; n < tek8002_syscomm::PORTS; n++) {
+		if (link_spec[n].empty()) continue;
+		if (!link[n].open(link_spec[n], err, port_name[n])) { fprintf(stderr, "%s\n", err.c_str()); return 1; }
+		m->syscomm.acia[n].on_tx = [&link, n](u8 c) { link[n].send(c); };
+	}
 	FILE *tf = tracefile.empty() ? nullptr : fopen(tracefile.c_str(), "w");
 	if (tf) m->cpu.trace_hook = [&](u16 pc) { fprintf(tf, "%04x: %s\n", pc, dasm(*m, pc).c_str()); };
 
@@ -129,6 +145,7 @@ int main(int argc, char **argv)
 			m->term.host_rx(u8(k == '\n' ? '\r' : k));
 		}
 		if (k == -2 && !interactive && max_cycles < 0 && types.empty()) break;   // stdin ended: nothing more will be typed
+		for (int n = 0; n < tek8002_syscomm::PORTS; n++) link[n].poll([&](u8 c) { m->syscomm.acia[n].host_rx(c); });
 		m->run_slice(slice);
 		if (interactive) {
 			auto want = t0 + std::chrono::microseconds(long(m->cycles() / tek8002::CPU_HZ * 1e6));

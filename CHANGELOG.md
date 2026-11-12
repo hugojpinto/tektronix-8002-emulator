@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-12 — Step 3: System Communications; the rest of the Debug module
+- `tek8002_syscomm`: three MC6850s (modem, printer, paper tape) at CA–CF on interrupts 6–8, and the memory map at C9. The front end connects them with `-rem`, `-lpt` and `-ppt` (`host/serial_link`, copied from the 8550 emulator: socket, printer file or wrap-back).
+- Debug module: breakpoints, single cycle, the interrupt mask and DIAG INTRPT (monitor `D`), with a unit test (`emu/tests/debug_test.cpp`, `make test`).
+- Fixed while doing it: the ACIAs' interrupts are levels, and the MC6850's transmitter is double-buffered. Before, TEKDOS's printer output lost every other character.
+- TEKDOS 3.3 prints to LPT1 and copies to REMO and PPTP (`tests/syscomm.sh`).
+
 ## 2026-11-12 — Step 2: the Assembler Processor
 - `tek8002_slave`: what a slave board supplies. `tek8002_debug::run_slave` runs whichever slave is active, once for all: forced reset/jump on F9 edges, SVCs (OUT F7–F0 → interrupts 16–23), slave HALT → 27, pausing for the master's interrupts, PC last/next.
 - `tek8002_asmproc`: the Z80 Assembler Processor, control port E7, on program memory.

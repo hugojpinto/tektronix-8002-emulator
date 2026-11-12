@@ -1,6 +1,6 @@
 # Tektronix 8002A µProcessor Lab — Emulation Feasibility Study
 
-> **Status (2026-11-12):** steps 1 and 2 of §5 are done (TEKDOS boots; ASM and LINK run on the Z80). TEKDOS 3.1 and 3.3 boot from the real bootstrap PROM and run LDIR (see CHANGELOG.md). Port and interrupt facts found since are in `notes/`.
+> **Status (2026-11-12):** steps 1–3 of §5 are done (TEKDOS boots; ASM and LINK run on the Z80; printer, modem and paper tape ports; the full Debug module). TEKDOS 3.1 and 3.3 boot from the real bootstrap PROM and run LDIR (see CHANGELOG.md). Port and interrupt facts found since are in `notes/`.
 
 *2026-11-12. Sources: bitsavers (`pdf/tektronix/800x/`, `bits/Tektronix/8002/`), TekWiki, ztpe.nl/2650, the EEVblog restoration thread "Vintage CPU emulator Tektronix 8002 µProcessor Lab" (143 posts, 2026-10-19 to 2026-11-11). The three key manuals, with `pdftotext -layout` text, are in `sources/bitsavers/manuals/800x/`.*
 

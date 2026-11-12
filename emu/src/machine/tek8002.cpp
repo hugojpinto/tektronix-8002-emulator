@@ -82,6 +82,7 @@ u8 tek8002::io_read(offs_t port)
 	case 0xeb: v = fdu.data_in(); break;
 	default:
 		if (debug.decodes(u8(port))) { v = debug.read(u8(port)); break; }
+		if (syscomm.decodes(u8(port))) { v = syscomm.read(u8(port)); break; }
 		if (trace_io) fprintf(stderr, "[%.4f IN  %03x -> unmapped (pc %04x)]\n", m_cycles / CPU_HZ, unsigned(port), cpu.ppc());
 		return v;
 	}
@@ -101,6 +102,7 @@ void tek8002::io_write(offs_t port, u8 d)
 	case 0xee: m_bank = d & 3; break;
 	default:
 		if (debug.decodes(u8(port))) { debug.write(u8(port), d); break; }
+		if (syscomm.decodes(u8(port))) { syscomm.write(u8(port), d); break; }
 		for (auto *s : m_slaves) if (s->decodes(u8(port))) s->command(u8(port), d);
 		break;
 	}
@@ -132,6 +134,14 @@ void tek8002::devices_tick(int c)
 {
 	term.tick(c);
 	fdu.tick(c);
+	syscomm.tick(c);
+	// the ACIAs' IRQ outputs are levels: the interrupt is pending exactly while one is
+	// asserted (a request the ACIA withdrew before INTACK is not taken: TEKDOS's printer
+	// driver, which writes ahead into the transmit buffer, otherwise overwrote characters)
+	for (int n = 0; n < tek8002_syscomm::PORTS; n++) {
+		const u32 bit = 1u << (tek8002_syscomm::FIRST_INT + n);
+		if (syscomm.irq(n)) m_pending |= bit; else m_pending &= ~bit;
+	}
 	// TTY interrupt flip-flops are clocked by DA and TBMT going high, when enabled (E9 bit 2)
 	const bool tty_en = m_serial_ctl & 0x04;
 	if (term.da() && !m_da_was && tty_en) raise(INT_CONSOLE_IN);
@@ -149,8 +159,8 @@ void tek8002::devices_tick(int c)
 	// a HALT hands the bus to the active slave; with none to take it, the Debug module
 	// reports SLAVE HALTED
 	if (cpu.halted()) {
-		if (tek8002_slave *s = active_slave()) debug.run_slave(*s, c, CPU_HZ, *this);
-		else { const int n = debug.master_halted(c); if (n >= 0) raise(n); }
+		if (tek8002_slave *s = active_slave()) debug.run_slave(*s, c, CPU_HZ);
+		else debug.master_halted(c);
 	} else debug.master_running();
 	update_irq();
 }
@@ -177,12 +187,14 @@ tek8002_slave *tek8002::active_slave() const
 
 u8 tek8002::slave_read(u16 a, bool)
 {
+	debug.slave_access(a, false);
 	const int board = a >> 14;
 	return board < program_boards ? m_progmem[a] : 0xff;
 }
 
 void tek8002::slave_write(u16 a, u8 d)
 {
+	debug.slave_access(a, true);
 	if ((a >> 14) < program_boards) m_progmem[a] = d;
 }
 

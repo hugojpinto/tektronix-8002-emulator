@@ -27,13 +27,14 @@ endif
 BUILD ?= build
 
 DASM_OBJ := $(BUILD)/cpu/s2650/2650dasm.o $(BUILD)/cpu/z80/z80dasm.o
-M8002    := $(BUILD)/machine/tek8002.o $(BUILD)/machine/tek8002_fdu.o $(BUILD)/machine/tek8002_debug.o $(BUILD)/machine/tek8002_asmproc.o $(BUILD)/cpu/z80/superzazu/z80.o $(BUILD)/cpu/s2650/s2650.o
+HOST     := $(BUILD)/host/serial_link.o $(BUILD)/host/net.o
+M8002    := $(BUILD)/machine/tek8002.o $(BUILD)/machine/tek8002_fdu.o $(BUILD)/machine/tek8002_debug.o $(BUILD)/machine/tek8002_asmproc.o $(BUILD)/machine/tek8002_syscomm.o $(BUILD)/cpu/z80/superzazu/z80.o $(BUILD)/cpu/s2650/s2650.o
 
 all: $(BUILD)/dasm$(EXE) $(BUILD)/tek8002$(EXE)
 
 $(BUILD)/dasm$(EXE): $(BUILD)/tools/dasm.o $(DASM_OBJ)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-$(BUILD)/tek8002$(EXE): $(BUILD)/main8002.o $(M8002) $(DASM_OBJ)
+$(BUILD)/tek8002$(EXE): $(BUILD)/main8002.o $(M8002) $(HOST) $(DASM_OBJ)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BUILD)/%.o: src/%.cpp
@@ -46,8 +47,19 @@ $(BUILD)/tools/%.o: tools/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
+$(BUILD)/debug_test$(EXE): $(BUILD)/tests/debug_test.o $(BUILD)/machine/tek8002_debug.o
+	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+$(BUILD)/tests/%.o: tests/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+# unit tests, then the TEKDOS sessions (tests/*.sh need ../tekmato for step 2)
+test: all $(BUILD)/debug_test$(EXE)
+	$(BUILD)/debug_test$(EXE)
+	cd .. && tests/boot_ldir.sh && tests/asm_link.sh
+
 clean:
 	rm -rf $(BUILD)
 
-.PHONY: all clean
+.PHONY: all clean test
 -include $(shell find $(BUILD) -name '*.d' 2>/dev/null)
