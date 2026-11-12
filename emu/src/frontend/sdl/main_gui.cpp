@@ -8,7 +8,7 @@
 // machine time, or at the end of the run if it ends sooner (SDL_VIDEODRIVER=dummy runs it
 // with no display).
 // Hotkeys (Cmd on macOS, Ctrl+Alt elsewhere): V paste, C copy the screen, T turbo, F full
-// screen, S sharp/CRT, P show the panels, L fit the windows to the screen again, R SYSTEM
+// screen, S sharp/CRT, U the CT8100's TTY LOCK, P show the panels, L fit the windows to the screen again, R SYSTEM
 // RESTART, Q quit. With no -scale the windows fit the screen, centred.
 // Front panels: artwork/8002a.lay and fdu.lay (tools/gen_panels.py). Click the switches;
 // drop a disc image on a drive door to insert it, click the door to take it out.
@@ -230,6 +230,7 @@ int main(int argc, char **argv)
 	std::string title_now;
 	auto update_title = [&]() {
 		std::string t = "Tektronix CT8100 \xe2\x80\x94 8002A";
+		if (!ct.tty_lock) t += "  [TTY LOCK off]";
 		if (turbo && !batch) t += "  [turbo]";
 		if (t != title_now) { title_now = t; SDL_SetWindowTitle(win, t.c_str()); }
 	};
@@ -299,6 +300,7 @@ int main(int argc, char **argv)
 					else if (k == SDLK_F) { fullscreen = !fullscreen; SDL_SetWindowFullscreen(win, fullscreen); }
 					else if (k == SDLK_S) { view.crt = !view.crt; SDL_SetTextureScaleMode(tex, view.crt ? SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST); redraw = true; }
 					else if (k == SDLK_R) sys.press("8002:restart");
+					else if (k == SDLK_U) { ct.tty_lock = !ct.tty_lock; update_title(); }
 					else if (k == SDLK_P) { for (panel &p : panels) { p.shown = true; SDL_ShowWindow(p.win); } if (scale <= 0) fit_layout(); }
 					else if (k == SDLK_L) { if (fullscreen) { fullscreen = false; SDL_SetWindowFullscreen(win, false); } fit_layout(); }
 					break;

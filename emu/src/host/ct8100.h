@@ -26,7 +26,11 @@ public:
 	ct8100() { clear(); }
 	void clear();
 	void receive(uint8_t c);                     // a character from the 8002
-	void type(uint8_t c) { if (on_key) on_key(c); }   // a key: to the 8002
+	// a key: to the 8002. TTY LOCK (a latching key, 070-2359 p. 1-14): "All lower case
+	// characters are then displayed and/or transmitted as upper case characters, regardless
+	// of condition of SHIFT key". TEKDOS takes commands in upper case only.
+	void type(uint8_t c) { if (tty_lock && c >= 'a' && c <= 'z') c -= 0x20; if (on_key) on_key(c); }
+	bool tty_lock = true;
 	std::function<void(uint8_t)> on_key;
 
 	uint8_t cell(int row, int col) const { return m_cell[row][col]; }

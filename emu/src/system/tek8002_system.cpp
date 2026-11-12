@@ -67,6 +67,7 @@ bool tek8002_system::start(std::string &err)
 	}
 	// the terminal port: the CT8100 sees every character; so does the front end
 	ct.on_key = [this](uint8_t c) { key_in(c); };
+	ct.tty_lock = opt.tty_lock;
 	m->term.on_tx = [this](u8 c) {
 		c &= 0x7f;
 		if (!c) return;

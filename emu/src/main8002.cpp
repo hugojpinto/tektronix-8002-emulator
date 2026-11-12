@@ -37,13 +37,14 @@ static bool monitor(tek8002_system &sys)
 		case 'i': m.trace_io = !m.trace_io; printf("io trace %s\n", m.trace_io ? "on" : "off"); break;
 		case 'R': sys.press("8002:restart"); printf("SYSTEM RESTART\n"); break;
 		case 'D': sys.press("8002:diag"); printf("DIAG INTRPT\n"); break;
+		case 'T': { ct8100 &t = sys.terminal(); t.tty_lock = !t.tty_lock; printf("TTY LOCK %s\n", t.tty_lock ? "on" : "off"); break; }
 		case 'p': { char name[64]; if (sscanf(line + 1, "%63s", name) == 1) printf("%s\n", sys.press(name) ? "pressed" : "no such switch"); break; }
 		case 'm': { int d; char path[512]; std::string err;
 			if (sscanf(line + 1, "%d %511s", &d, path) == 2) printf("%s\n", sys.mount(d, path, err) ? "mounted" : err.c_str());
 			break; }
 		case 'e': { int d; std::string err; if (sscanf(line + 1, "%d", &d) == 1) printf("%s\n", sys.eject(d, err) ? "ejected" : err.c_str()); break; }
 		case 'h': printf("c continue | q quit | r regs | d [addr [n]] | u [addr [n]] | s [n] step | i io-trace\n"
-		                 "R SYSTEM RESTART | D DIAG INTRPT | p SWITCH (press: 8002:power, fdu:power ...) | m N FILE mount | e N eject\n"); break;
+		                 "R SYSTEM RESTART | D DIAG INTRPT | T TTY LOCK | p SWITCH (press: 8002:power, fdu:power ...) | m N FILE mount | e N eject\n"); break;
 		default: printf("?\n");
 		}
 	}
@@ -69,7 +70,7 @@ int main(int argc, char **argv)
 		int k;
 		while ((k = host::poll_key()) >= 0) {
 			if (k == 035) { if (!monitor(sys)) goto done; t0 = clk::now(); continue; }
-			sys.key_in(u8(k == '\n' ? '\r' : k));
+			sys.terminal().type(u8(k == '\n' ? '\r' : k));   // through the CT8100's keyboard (TTY LOCK)
 		}
 		// stdin ended and nothing more will be typed: the run is over
 		if (k == -2 && !interactive && opt.max_cycles < 0 && !sys.timed_typing_left()) break;

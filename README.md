@@ -49,6 +49,7 @@ tek8002 [-prom FILE] [-0..-3 IMG|new:FILE] [-rw] [-fdc hle|lle] [-cycles N] [-ty
 - `-cycles N`: stop after N 2650 clocks (1,250,000 a second). With `-cycles`, or stdin not a terminal, the run is flat out and deterministic.
 - `-type SEC TEXT` types at an emulated second. `-type prompt TEXT` types at the next TEKDOS `> ` prompt; after the last one, a batch run ends at the following prompt.
 - `-snap SEC FILE` saves the CT8100 screen as text.
+- `-ttylock on|off`: the CT8100's TTY LOCK key, on by default. Lower-case keys go to the 8002 as upper case, because TEKDOS takes commands in upper case only. Scripted `-type` text is sent as written.
 - `-input SEC NAME=VALUE` sets a switch; `-press SEC NAME` presses and releases one: `8002:power`, `fdu:power` (rockers), `8002:restart` (SYSTEM RESTART), `8002:diag` (DIAG INTRPT).
 - `-mount SEC N=FILE` and `-eject SEC N` change discs while the system runs.
 - `-target`: the prototype for emulation modes 1 and 2. `-rem`, `-lpt`, `-ppt`: the modem, printer and paper tape ports (a socket, a file, or `loop`).
@@ -66,7 +67,7 @@ It takes the same options, plus `-style crt|sharp`, `-scale F` (by default the w
 - **The front panels** are drawn after photos of a surviving pair of units (`sources/photos/`) and 070-2701 Fig. 2-6 (`tools/gen_panels.py` writes `emu/artwork/*.lay`):
   - **Mainframe:** POWER, SYSTEM RESTART and DIAG INTRPT work, and SYS, RUN and PWR light. The PROM sockets are decoration.
   - **Disc unit:** POWER works, and each drive has a busy light. Drop a disc image on a drive door to insert it; click the door to take the disc out.
-- **Hotkeys** (Cmd, or Ctrl+Alt): V paste, C copy the screen, T turbo, F full screen, S sharp/CRT, P show the panels, L fit the windows to the screen again, R SYSTEM RESTART, Q quit.
+- **Hotkeys** (Cmd, or Ctrl+Alt): V paste, C copy the screen, U TTY LOCK, T turbo, F full screen, S sharp/CRT, P show the panels, L fit the windows to the screen again, R SYSTEM RESTART, Q quit.
 
 What lights SYS and RUN is not described in the manuals. Here, SYS lights while the System Processor holds the bus, and RUN while any processor runs (inferred).
 

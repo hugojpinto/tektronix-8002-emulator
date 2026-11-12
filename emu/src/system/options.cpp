@@ -19,7 +19,7 @@ std::string tek8002_options::unescape(const std::string &t)
 
 const char *tek8002_options::usage()
 {
-	return "[-prom FILE] [-0..-3 IMG|new:FILE] [-rw] [-fdc hle|lle] [-cycles N] [-type SEC|prompt TEXT]\n"
+	return "[-prom FILE] [-0..-3 IMG|new:FILE] [-rw] [-fdc hle|lle] [-ttylock on|off] [-cycles N] [-type SEC|prompt TEXT]\n"
 	       "        [-snap SEC FILE] [-input SEC NAME=VALUE] [-press SEC NAME] [-mount SEC N=FILE] [-eject SEC N]\n"
 	       "        [-target unix:PATH|tcp:HOST:PORT] [-rem SPEC] [-lpt SPEC] [-ppt SPEC] [-trace FILE] [-io] [-fdutrace] [-log FILE]";
 }
@@ -44,6 +44,7 @@ bool tek8002_options::parse(int argc, char **argv, std::string &unknown)
 		else if (a == "-log") logfile = next();
 		else if (a == "-io") io = true;
 		else if (a == "-fdutrace") fdutrace = true;
+		else if (a == "-ttylock" && i + 1 < argc && (std::string(argv[i + 1]) == "on" || std::string(argv[i + 1]) == "off")) tty_lock = next() == "on";
 		else if (a == "-target") targetspec = next();
 		else if (a == "-rem") remspec = next();
 		else if (a == "-lpt") lptspec = next();
