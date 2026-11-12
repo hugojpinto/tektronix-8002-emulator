@@ -18,20 +18,20 @@ Start with `FEASIBILITY.md` (what survives, the plan), then `notes/` (hardware f
 | `disks/` | working copies of disc images |
 | `sources/` | original material: bitsavers manuals (`manuals/800x/`, with `pdftotext -layout` text), disc images (`disks/`), firmware (`firmware/`), ztpe.nl's OS internals (`ztpe/`). **Read-only; never modify** |
 | `tools/` | `fdc_dasm.py`: the disc controller's microcode disassembler (`--check LISTING` compares with the manual's own listing) |
-| `tests/` | `boot_ldir.sh`: boot TEKDOS and list two reference discs; `asm_link.sh`: ASM and LINK on the Z80 (uses `../tekmato`); `syscomm.sh`: LPT1, REMO, PPTP; `disc_tools.sh`: FORMAT, COPYSYS, DUP; `emu/tests/debug_test.cpp`: the Debug module. `make -C emu test` runs them. Disc writes are checked by `../tekmato/scripts/regression.sh` section 6 |
+| `tests/` | `boot_ldir.sh`: boot TEKDOS and list two reference discs; `asm_link.sh`: ASM and LINK on the Z80 (uses `../tekmato`); `syscomm.sh`: LPT1, REMO, PPTP; `disc_tools.sh`: FORMAT, COPYSYS, DUP; `emu/tests/debug_test.cpp`: the Debug module; `emu/tests/fdc_test.cpp`: the disc controller and drives. `make -C emu test` runs them. Disc writes are checked by `../tekmato/scripts/regression.sh` section 6 |
 | `reference/` | MAME commit the cores trace back to |
 
 ## Resuming work (state on 2026-11-12)
 0. **Step 1 done:** the bootstrap PROM boots TEKDOS 3.1 and 3.3 (6800) from the emulated disc unit to the `>` prompt, and LDIR lists the directory. `Tek8002_1a`'s listing matches the printout photographed with the original disc. Models: System Processor (ports E8–EE, interrupts), memory and PROM overlay, Debug module hand-over (interrupt 27 when no slave takes the bus), disc unit at high level (`notes/fdu.md` lists what is inferred).
-Disc writes work too (FORMAT, DELETE, COPY; `notes/fdu.md` point 4), and `../tekmato` reads and writes TEKDOS discs (`tkdos-sssd`), checked against this emulator by its regression.
+Disc writes work too (FORMAT, DELETE, COPY), and `../tekmato` reads and writes TEKDOS discs (`tkdos-sssd`), checked against this emulator by its regression.
 **Step 2 done:** the Z80 Assembler Processor runs TEKDOS's ASM and LINK (`tests/asm_link.sh`); slave boards share one interface (`tek8002_slave`) and one run loop in the Debug module.
 **Step 3 done:** System Communications (`tek8002_syscomm`: modem, printer, paper tape ACIAs at CA–CF, memory map at C9; `-rem`/`-lpt`/`-ppt`) and the rest of the Debug module (breakpoints, single cycle, interrupt mask, DIAG INTRPT; `emu/tests/debug_test.cpp`).
 **Step 4 done:** TEKDOS's FORMAT, DELETE, COPY, COPYSYS and DUP work (`tests/disc_tools.sh`).
-**Step 5, the disc controller at low level (070-2587):** stage A (microcode, `roms/fdc`, `tools/fdc_dasm.py`) and stage B (the processor, `tek8002_fdc.*`, `emu/tests/fdc_test.cpp` in `make test`) and stage C (bit-cell tracks `tek8002_fdd.*`, reads through the microcode with `-fdc lle`; TEKDOS boots and LDIRs) are done; `notes/fdc.md` records the facts. The disc interrupt is clocked by FLAG going low. Next: stage D (writes and FORMAT through the microcode; then `-fdc lle` as the default, `-fdc hle` kept). Then an emulator board.
+**Step 5, the disc controller at low level (070-2587):** stage A (microcode, `roms/fdc`, `tools/fdc_dasm.py`) and stage B (the processor, `tek8002_fdc.*`, `emu/tests/fdc_test.cpp` in `make test`) stage C (flux-level tracks `tek8002_fdd.*`, reads) and stage D (writes, FORMAT) are done: the real controller is the default, `-fdc hle` keeps the high-level model, and the session tests run in both (`FDC=hle tests/...`). `notes/fdc.md` records the facts. The disc interrupt is clocked by FLAG going low. `-type prompt TEXT` types at TEKDOS's prompt (use it: disc timings are real now); `-N new:FILE` is a never-formatted disc. Next: an emulator board.
 
 **How hardware is reverse-engineered here:** read the service manual's theory of operation and schematics, then let TEKDOS show what it does: `-io` logs every port access, `-trace` every instruction, `TEK_INTTRACE` every interrupt. Disassemble TEKDOS from the image (`build/dasm s2650 <(dd if=IMG bs=1 skip=$((0x1000)) count=$((0x4000))) 0 START COUNT`: image offset 0x1000 is memory 0000). Check against the ztpe.nl OS reference (`sources/ztpe/osinternals.txt`, Annex B ports, chapter 8 debugging), which covers the same hardware under Signetics' DOS versions.
 
-**Debug switches** (stderr): `-io` or `TEK_IOTRACE` (ports, and a slave's unmapped I/O), `TEK_EPTRACE` (slave forced jumps and debug interrupts), `-fdutrace` or `TEK_FDCTRACE` (sector reads and writes), `TEK_INTTRACE` (interrupts taken), `-trace FILE` (2650 instructions).
+**Debug switches** (stderr): `-io` or `TEK_IOTRACE` (ports, and a slave's unmapped I/O), `TEK_EPTRACE` (slave forced jumps and debug interrupts), `-fdutrace` or `TEK_FDCTRACE` (every disc strobe and byte; under `-fdc hle`, sector reads and writes), `TEK_INTTRACE` (interrupts taken), `-trace FILE` (2650 instructions).
 
 ## Build and smoke test
 ```
@@ -45,7 +45,7 @@ build/tek8002 -0 ../disks/TekDOS_3.3_6800_cpy1.img -cycles $((25*1250000)) -type
 `-cycles` counts 2650 clocks at 1.25 MHz, so 1,250,000 is one emulated second. `-type T TEXT` types at emulated second T. `-0`…`-3` mount images in drives 0–3; `-rw` makes them writable and saves them on exit. Discs are raw images of 315,392 bytes in logical sector order.
 
 ## Regression checks (run after touching CPU cores or machine code)
-1. `make -C emu test` must pass: the Debug module's unit test, `tests/boot_ldir.sh` (boot and LDIR of two discs) and `tests/asm_link.sh`; `tests/syscomm.sh` after System Communications changes, and `tests/disc_tools.sh` after disc-unit changes.
+1. `make -C emu test` must pass: the Debug module's and disc controller's unit tests, `tests/boot_ldir.sh` (boot and LDIR of two discs, both disc models) and `tests/asm_link.sh` (both); `tests/syscomm.sh` after System Communications changes, and `tests/disc_tools.sh` (with and without `FDC=hle`) after disc-unit changes. After controller or drive changes, also LDIR every disc in `sources/bitsavers/disks` with `-fdc hle` and the default and compare.
 2. After disc-unit changes, `../tekmato/scripts/regression.sh` must pass: its section 6 runs TEKDOS's FORMAT, COPY and DELETE in this emulator.
 3. More checks are added here as each step lands, each with a known-good reference: a printout, a manual's sample session, or a real machine.
 

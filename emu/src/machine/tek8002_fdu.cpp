@@ -11,6 +11,13 @@ enum { CMD_DIAG = 0x00, CMD_WRITE_UNF = 0x0d, CMD_WRITE_FMT = 0x0e, CMD_READ = 0
 bool tek8002_fdu::mount(int d, const std::string &path, bool writable, std::string &err)
 {
 	if (d < 0 || d >= DRIVES) { err = "drive must be 0-3"; return false; }
+	if (path.compare(0, 4, "new:") == 0) {
+		// a disc that was never formatted: no flux on it (under -fdc lle); saved to the file
+		drive_t &dr = m_drive[d];
+		dr.image.assign(IMAGE_BYTES, 0); dr.path = path.substr(4); dr.writable = writable; dr.dirty = writable; dr.blank = true;
+		if (m_low_level) m_fdd.load_blank(d, writable);
+		return true;
+	}
 	FILE *f = fopen(path.c_str(), "rb");
 	if (!f) { err = path + ": cannot open"; return false; }
 	std::vector<u8> img(IMAGE_BYTES, 0xe5);
@@ -22,8 +29,8 @@ bool tek8002_fdu::mount(int d, const std::string &path, bool writable, std::stri
 		return false;
 	}
 	drive_t &dr = m_drive[d];
-	dr.image = std::move(img); dr.path = path; dr.writable = writable; dr.dirty = false;
-	if (m_low_level) m_fdd.load(d, dr.image, false, m_fdc.interleave_step());   // write protected until stage D
+	dr.image = std::move(img); dr.path = path; dr.writable = writable; dr.dirty = false; dr.blank = false;
+	if (m_low_level) m_fdd.load(d, dr.image, writable, m_fdc.interleave_step());
 	return true;
 }
 
@@ -34,7 +41,8 @@ bool tek8002_fdu::use_controller(const std::string &rom_dir, std::string &err)
 	if (!m_fdc.load_rom(rom_dir, err)) return false;
 	m_fdc.drive = &m_fdd;
 	m_low_level = true;
-	for (int d = 0; d < DRIVES; d++) if (mounted(d)) m_fdd.load(d, m_drive[d].image, false, m_fdc.interleave_step());
+	for (int d = 0; d < DRIVES; d++)
+		if (mounted(d)) { if (m_drive[d].blank) m_fdd.load_blank(d, m_drive[d].writable); else m_fdd.load(d, m_drive[d].image, m_drive[d].writable, m_fdc.interleave_step()); }
 	reset();
 	return true;
 }
@@ -47,10 +55,14 @@ void tek8002_fdu::reset()
 bool tek8002_fdu::save(int d, std::string &err)
 {
 	drive_t &dr = m_drive[d];
-	if (m_low_level && mounted(d)) {
+	if (m_low_level && mounted(d) && m_fdd.written(d)) {
 		// what the controller left on the tracks
 		std::vector<u8> img; std::string problems;
-		if (!m_fdd.unload(d, img, problems)) { err = dr.path + ": not saved; the tracks do not decode:\n" + problems; return !dr.writable; }
+		// a raw image cannot hold a sector that does not decode: it is saved as zeros, and said
+		if (!m_fdd.unload(d, img, problems) && dr.writable) {
+			int n = 0; for (char c : problems) n += c == '\n';
+			fprintf(stderr, "%s: %d sector%s did not decode and are saved as zeros:\n%.600s", dr.path.c_str(), n, n == 1 ? "" : "s", problems.c_str());
+		}
 		if (img != dr.image) { dr.image = std::move(img); dr.dirty = true; }
 	}
 	if (!dr.dirty || !dr.writable) return true;

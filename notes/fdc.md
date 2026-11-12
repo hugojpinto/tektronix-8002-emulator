@@ -86,10 +86,10 @@ Bits 15–14 select the WR bus source, bits 13–12 the destination:
 The microprogram now runs on a model of the processor. Facts settled while doing so:
 - **The WR bus is active low** (WR̅ in Fig. B-2), and Fig. 3-8 prints physical levels
   ("1 = high level = logic false"). Its 1s are logical 0s, so the unused input bits read 0.
-  Its 0s are logical 1s: INL bit 0 = 1, and INL = switches 5–1 on bits 5–1. Reading the figure
-  the other way gives an even INL, and the sector arithmetic then misses every other sector.
-- **Interleave switch S4104:** the factory setting is Off Off On On On (switches 5–1, §1), so
-  INL = 0x0F (see stage C for what it does).
+  Its 0s are logical 1s: INL bit 0 = 1. Reading the figure the other way gives an even INL, and
+  the sector arithmetic then misses every other sector. The schematic confirms this (stage D).
+- **Interleave switch S4104:** see stage D. The schematic gives INL = 03 at the factory setting.
+  Stage B took 0x0F from Fig. 3-8, which turned out to be wrong.
 - **The ALU** is a 74181 used in active-low convention, with S0/S1 inverted on the way (Table 3-2
   footnote). Arithmetic is the chip's P + G + carry on the physical levels, and the true carry
   (C7) is the physical carry inverted. Logic functions are the active-high table on the inverted
@@ -122,11 +122,9 @@ the same listing as the high-level model on all 33 discs in the collection. Esta
 - **Where the sectors are:** the executive zeroes its sector count R7 at INDEX (02B) and adds INL
   at every SECTOR pulse (03F–042). It reads or writes when R7 equals the sector asked for (04F),
   and the header's sector byte must match (16B). So physical sector k after the index holds
-  logical sector ((k + 1) × INL) mod 32. With INL = 15, consecutive logical sectors are 17 holes
-  (≈ 88 ms) apart, about half a turn. The manual's "sector 00, sector 16, sector 01, sector 17"
-  (§1 "Sector Interleaving") describes this half-turn pattern only loosely: no constant step
-  mod 32 gives that exact order. The other reading of the switch polarity (INL = 17) gives the
-  mirror pattern. Data and timings agree with either; only a real disc's flux could tell.
+  logical sector ((k + 1) × INL) mod 32. No constant step mod 32 gives the manual's "sector 00,
+  sector 16, sector 01, sector 17" (§1 "Sector Interleaving") exactly. The schematic settles the
+  step (stage D).
 - **Head load:** FILE INOP pulsed (SFI, RFI at 018; Fig. B-4 "Reset FILE INOP RST/LD HD") loads
   the selected drive's head. RAISE HEADS pulsed (031–032) unloads it.
 - **FLAG through an operation:** after the track byte of a read (count R13 = 128, 08E–098) the
@@ -161,9 +159,55 @@ the same listing as the high-level model on all 33 discs in the collection. Esta
   - Sectors across the disc read back equal to the image, with a zero CRC remainder.
   - A flipped cell gives CRC ERROR after the full recovery, and the sector as read.
 - **Not modelled:** sector and index pulse widths are not in the manual (0.5 ms here; any width
-  under a sector's trailer behaves the same). The drive's write path is stage D: under
-  `-fdc lle` the discs are write protected until then.
+  under a sector's trailer behaves the same).
+
+## Stage D: writes, FORMAT, and the real controller as the default
+TEKDOS's FORMAT, COPY, DELETE, ASM/LINK, COPYSYS and DUP run through the microcode
+(`tests/disc_tools.sh`, `tests/asm_link.sh`, `tests/syscomm.sh`, and tekmato's regression).
+FORMAT of a never-formatted disc (`-1 new:FILE`, no flux at all) leaves an image byte-identical
+to the real formatted disc Tek8002_1b. `-fdc lle` is now the default; `-fdc hle` keeps the
+high-level model, and every test runs in both modes. Established:
+- **Write timing (DOUT at 1C1):** a PULL of the data bit (R1's MSB), then 2 µs later a PULL of the
+  clock bit (R12 = FF gives eight 1s). Each takes exactly 10 cycles ("NEED 10 CYCLES IN THIS
+  SEQUENCE", "400 NS DELAY PER EXECUTED JUMP"). The sector data path (WRT5–5B, 1D9–1ED) keeps the
+  same spacing. A PULL with C7 = 1 is a flux pulse.
+- **The drive model holds flux pulses on a 2 µs grid** (`tek8002_fdd`). Writes are placed relative
+  to the start of WRITE GATE, which erases what it passes over. Reading separates clock from data
+  by the format's own rule: FM here never omits a clock, so an empty slot is a data slot. That sets
+  the separator's phase, so a write in any phase reads back. The sync byte is found by its bits.
+- **The Sector Buffer shifts at EPSH, not SPSH:** SPSH loads the Push flip-flop, and EPSH ("finish
+  push") clocks it into the buffer (§3 "Sector Buffer"). The write loop pushes at 1E1 (recirculate)
+  and must still send that same bit at 1E2 (`RLC IN,L,SBH,PULL`). Every SPSH in the listing has
+  its EPSH later. Shifting at SPSH wrote every sector one bit late.
+- **Write commands:**
+  - 0E (Write Formatted): after stepping, the seek reads a sector ID to verify the track (GTID2,
+    0F6–0F8).
+  - 0D (Write Unformatted, what FORMAT sends, 2,464 times): the seek recalibrates at track 00
+    (0D9–0DA) and reads no ID. So FORMAT works on a disc with no flux, while 0E there waits for
+    a clock that never comes.
+  - The host sends command, drive, sector, track, then 128 data bytes by OTD. FLAG stays up after
+    the 128th until the sector is written.
+- **S4104, from the schematic** (070-2587 p. 90, "Interleave Switch"):
+  - Each section grounds one input of a 7403 open-collector NAND whose other input is the
+    INTERLEAVE IN enable. An open switch's input floats high; there are no pull-ups.
+  - So a closed (On) switch leaves its WR line high, which is logic 0 on the active-low bus.
+  - WR0's NAND has both inputs on the enable, so bit 0 is always 1.
+  - Switch 4 (pins 4–7) drives WR1, 3 drives WR2, 2 drives WR3, and 1 (pins 1–10) drives WR4.
+    Switch 5 (pins 5–6) is not connected.
+  - At the factory setting (5–1 = Off Off On On On), **INL = 03**: consecutive logical sectors are
+    11 holes (≈ 57 ms) apart (3 × 11 ≡ 1 mod 32), about a third of a turn.
+  - Fig. 3-8 draws SW5–SW1 on bits 5–1, which disagrees with the schematic. The schematic is the
+    wiring. Read Fig. 3-8's way, the setting would give step 17.
+  - Neither step gives the §1 text's "00, 16, 01, 17" exactly. That text may describe another
+    setting, or only loosely the idea of interleaving. A real disc's flux capture would show the
+    order directly: every header carries its sector number. (Schematic read for this project from
+    the bitsavers scan; switch numbering = the DIP's pin pairs n and 11 − n.)
+- **Saving:** under `-rw`, what the tracks decode to is written back. A sector that does not decode
+  (never written, or damaged) is saved as zeros, with a warning, since a raw image cannot hold it.
+- **Speed:** with the controller and the drive's flux, batch runs go about 40× real time. The
+  high-level model is faster (`-fdc hle`).
 
 ## Still to establish
-- Stage D: writes and FORMAT (write flip-flop timing), then replacing `tek8002_fdu`'s high-level
-  path, keeping it as an option (`-fdc hle`, as in the 8550 emulator).
+- Whether the factory interleave really was 3 on shipped units (a flux capture of a real TEKDOS
+  disc, or a photo of a board's S4104).
+- Sector and index pulse widths (the drive's manual, 118-0195-00, is not on bitsavers).

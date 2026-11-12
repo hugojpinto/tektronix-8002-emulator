@@ -27,7 +27,7 @@ void tek8002_fdc::reset()
 	m_group1 = m_group2 = 0;
 	m_host_flag = true;                    // HOST FLG is active while its latch is reset (see command())
 	m_carry = false; m_t = 0; m_acc = 0;
-	m_buf_pos = 0;
+	m_buf_pos = 0; m_push = false;
 }
 
 u8 tek8002_fdc::host_data_in() const
@@ -66,7 +66,16 @@ u8 tek8002_fdc::input(int sel)
 	case 4: return m_buf[m_buf_pos] ? 0x01 : 0x00;               // SBL
 	case 5: return drive && drive->data_bit() ? 0x80 : 0x00;     // DBT
 	case 6: return m_host_byte;            // BYT
-	case 7: return u8(((interleave & 0x1f) << 1) | 1);          // INL: switches 5-1 on bits 5-1 (On = 1), bit 0 = 1
+	case 7: {                              // INL (schematic, 070-2587 p. 90 "Interleave Switch")
+		// each section of S4104 grounds one input of a 7403 open-collector NAND whose other
+		// input is the INTERLEAVE IN enable, so a closed (On) switch leaves its WR line high:
+		// logic 0. WR0's NAND has both inputs on the enable: always 1. Switch 4 (pins 4-7)
+		// drives WR1, 3 WR2, 2 WR3, 1 (pins 1-10) WR4; switch 5 (pins 5-6) is not connected.
+		// (Fig. 3-8 draws SW5-SW1 on bits 5-1; the schematic is the wiring.)
+		u8 v = 1;
+		for (int sw = 1; sw <= 4; sw++) if (!(interleave & (1 << (sw - 1)))) v |= u8(1 << (5 - sw));
+		return v;
+	}
 	default: return 0xff;
 	}
 }
@@ -158,18 +167,21 @@ void tek8002_fdc::command(u16 w)
 void tek8002_fdc::special(int sp)
 {
 	switch (sp) {
-	case 1:                                // SPSH: clear Data Ready; push C7 (SELECT CARRY) or the read data bit
+	case 1:                                // SPSH: clear Data Ready; the Push flip-flop takes C7 (SELECT CARRY) or the read data bit
 		if (m_group2 & 0x08) {
-			const bool bit = (m_group2 & 0x20) ? m_c7 : (drive && drive->data_bit());
-			m_buf[m_buf_pos] = bit;
-			m_buf_pos = (m_buf_pos + 1) & 1023;
+			m_push_bit = (m_group2 & 0x20) ? m_c7 : (drive && drive->data_bit());
+			m_push = true;
 		}
 		if (drive) drive->data_taken();
 		break;
 	case 2:                                // PULL: the write flip-flop from C7
 		if (drive) drive->write_data(m_c7);
 		break;
-	default:                               // EPSH: finish the push (nothing left to do in the model)
+	default:                               // EPSH: the pushed bit enters the Sector Buffer, which shifts
+		// (§3 "Sector Buffer": the Stack flip-flop clocks the Push flip-flop into the buffer, and
+		// FINISH PUSH ends it). The output bit stays put until then: the write loop pushes at 1E1
+		// and still sends that bit at 1E2 (RLC IN,L,SBH,PULL)
+		if (m_push) { m_buf[m_buf_pos] = m_push_bit; m_buf_pos = (m_buf_pos + 1) & 1023; m_push = false; }
 		break;
 	}
 }

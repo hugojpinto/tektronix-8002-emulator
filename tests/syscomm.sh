@@ -4,13 +4,15 @@
 # Step-3 regression: System Communications. TEKDOS 3.3 lists its directory to the line
 # printer (LPT1) and copies a source file to the modem (REMO) and the paper tape punch
 # (PPTP); each port is connected to a file. Run from the repository root.
+# FDC=hle runs them on the high-level disc model instead of the real controller (the
+# default, step 5); commands are typed at TEKDOS's prompt.
 cd "$(dirname "$0")/.." || exit 1
-EMU=emu/build/tek8002
+EMU=emu/build/tek8002 FDC=${FDC:-lle}
 [ -x "$EMU" ] || { echo "build first: make -C emu"; exit 1; }
 W=$(mktemp -d); trap 'rm -rf "$W"' EXIT
-"$EMU" -prom roms/tekdos_boot.bin -0 sources/bitsavers/disks/TekDOS_3.3_6800_cpy1.img -1 sources/bitsavers/disks/Tek8002_Belgium_Amusements/Tek8002_1a.img \
-	-lpt "file:$W/lpt" -rem "file:$W/rem" -ppt "file:$W/ppt" -cycles $((60 * 1250000)) \
-	-type 6 'LDIR 0 LPT1\r' -type 25 'COPY V;S/1 REMO\r' -type 40 'COPY V;S/1 PPTP\r' </dev/null 2>/dev/null | tr -d '\000\007' | tr '\r' '\n' > "$W/console"
+"$EMU" -fdc "$FDC" -prom roms/tekdos_boot.bin -0 sources/bitsavers/disks/TekDOS_3.3_6800_cpy1.img -1 sources/bitsavers/disks/Tek8002_Belgium_Amusements/Tek8002_1a.img \
+	-lpt "file:$W/lpt" -rem "file:$W/rem" -ppt "file:$W/ppt" -cycles $((600 * 1250000)) \
+	-type prompt 'LDIR 0 LPT1\r' -type prompt 'COPY V;S/1 REMO\r' -type prompt 'COPY V;S/1 PPTP\r' </dev/null 2>/dev/null | tr -d '\000\007' | tr '\r' '\n' > "$W/console"
 for f in lpt rem ppt; do tr -d '\000' < "$W/$f" 2>/dev/null | tr '\r' '\n' > "$W/$f.txt"; done
 fail=0
 check() { if grep -qF -- "$2" "$3"; then echo "PASS $1"; else echo "FAIL $1 (wanted '$2')"; fail=1; fi; }

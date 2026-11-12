@@ -80,10 +80,11 @@ static void read_image(const std::string &dir, const std::string &path)
 	tek8002_fdc fdc;
 	std::string err;
 	if (!fdc.load_rom(dir, err)) { printf("%s\n", err.c_str()); failures++; return; }
-	drv.load(0, img, false, fdc.interleave_step());
+	drv.load(0, img, true, fdc.interleave_step());
 	// the tracks decode back to the image
 	std::vector<u8> back; std::string problems;
 	CHECK(drv.unload(0, back, problems) && back == img);
+	CHECK(fdc.interleave_step() == 3);           // the factory setting, Off Off On On On (schematic p. 90)
 	fdc.drive = &drv;
 	fdc.reset();
 	fdc.host_control(7);
@@ -93,7 +94,7 @@ static void read_image(const std::string &dir, const std::string &path)
 	while (fdc.time_ns() < 900'000'000ull || (fdc.host_flag() && waited < 10'000'000'000ull)) { fdc.run(1'000'000); waited += 1'000'000; }
 	printf("autoload: FLAG low at %.2f s; status %02X, sense R0 %02X, head on track %d; R13 %02X R3 %02X pc %03X\n", fdc.time_ns() / 1e9, fdc.host_data_in(), fdc.reg(0), drv.head_track(0), fdc.reg(13), fdc.reg(3), fdc.pc());
 	CHECK(!fdc.host_flag());
-	CHECK(fdc.host_data_in() == 0x08);           // write protect only: no F.D. failure
+	CHECK(fdc.host_data_in() == 0x00);           // no F.D. failure
 	// Normal Read, drive 0, track 16 sector 5; then the 128 bytes by IND (TEKDOS's 25AF handler: SIO, IND x 128)
 	struct { int track, sector; } cases[] = {{16, 5}, {16, 6}, {0, 0}, {76, 31}, {1, 0}};
 	for (auto c : cases) {
@@ -119,7 +120,7 @@ static void read_image(const std::string &dir, const std::string &path)
 	// sector as read is in the buffer
 	int hole = 0;
 	while (((hole + 1) * fdc.interleave_step() & 31) != 9) hole++;
-	drv.track_cells(0, 16)[size_t(hole) * tek8002_fdd::SECTOR_CELLS + tek8002_fdd::LEADER_CELLS + 8 * 3 + 8 * 12 + 4] ^= 1;
+	drv.track_slots(0, 16)[2 * (size_t(hole) * tek8002_fdd::SECTOR_CELLS + tek8002_fdd::LEADER_CELLS + 8 * 3 + 8 * 12 + 4) + 1] ^= 1;
 	const u64 tb = fdc.time_ns();
 	bool wiped0 = false, wiped76 = false;
 	CHECK(h.command(0x88, 0, 9, 16));
@@ -136,8 +137,60 @@ static void read_image(const std::string &dir, const std::string &path)
 		std::vector<u8> want(&img[(16 * 32 + 9) * 128], &img[(16 * 32 + 10) * 128]); want[12] ^= 0x08;
 		CHECK(!memcmp(b, want.data(), 128));
 	}
-	std::string problems2; std::vector<u8> back2;
-	CHECK(!drv.unload(0, back2, problems2) && problems2.find("CRC") != std::string::npos);
+	// stage D: Write Formatted (0E): the command and address bytes, then the 128 data bytes by
+	// OTD; FLAG stays up after the 128th until the sector is written. Then read it back.
+	auto write_sector = [&](int track, int sector, const u8 *data, u8 cmd = 0x0e) {
+		const u64 t0 = fdc.time_ns();
+		if (!h.request(3) || !h.request(2, cmd) || !h.request(2, 0) || !h.request(2, sector) || !h.request(2, track)) return false;
+		for (int i = 0; i < 127; i++) if (!h.request(2, data[i])) return false;
+		fdc.host_data_out(data[127]); fdc.host_control(4);
+		if (!h.wait_flag(true)) return false;
+		fdc.host_control(7);
+		const bool done = h.wait_done(3.0);
+		printf("write %02X track %2d sector %2d: %.1f ms, status %02X, sense %02X\n", cmd, track, sector, (fdc.time_ns() - t0) / 1e6, fdc.host_data_in(), fdc.reg(0));
+		return done && !(fdc.host_data_in() & 0x02);
+	};
+	auto read_sector = [&](int track, int sector, u8 *out) {
+		if (!h.command(0x88, 0, u8(sector), u8(track)) || !h.wait_done(3.0) || (fdc.host_data_in() & 0x02) || !h.request(3)) return false;
+		for (int i = 0; i < 128; i++) if (!h.request(0, -1, &out[i])) return false;
+		return true;
+	};
+	u8 pat[128], got[128];
+	for (int i = 0; i < 128; i++) pat[i] = u8(i * 37 + 0x5a);
+	pat[0] = 0xff; pat[1] = 0x00; pat[2] = 0xfb;                 // all ones, all zeros, the sync pattern in the data
+	struct { int track, sector; } wcases[] = {{20, 3}, {20, 4}, {0, 31}, {76, 0}};
+	for (auto c : wcases) {
+		pat[3] = u8(c.track); pat[4] = u8(c.sector);
+		CHECK(write_sector(c.track, c.sector, pat));
+		CHECK(read_sector(c.track, c.sector, got) && !memcmp(got, pat, 128));
+		memcpy(&img[(size_t(c.track) * 32 + c.sector) * 128], pat, 128);
+	}
+	// a never-formatted track (no flux at all), written as FORMAT does, with Write Unformatted
+	// (0D): its seek recalibrates at track 00 and verifies no sector ID (0D9-0DA), where Write
+	// Formatted (0E) reads one after stepping (GTID2, 0F6-0F8) and would wait for a clock that
+	// never comes. The sector then reads back; the other holes of that track have no sync.
+	std::fill(drv.track_slots(0, 30).begin(), drv.track_slots(0, 30).end(), 0);
+	pat[3] = 30; pat[4] = 7;
+	CHECK(write_sector(30, 7, pat, 0x0d));
+	CHECK(read_sector(30, 7, got) && !memcmp(got, pat, 128));
+	memcpy(&img[(30 * 32 + 7) * 128], pat, 128);
+	// the neighbours were not disturbed, and the tracks decode to the image with the writes in it
+	CHECK(read_sector(20, 5, got) && !memcmp(got, &img[(20 * 32 + 5) * 128], 128));
+	{
+		// (track 16 sector 9 still has the bit flipped above: its CRC error is the only problem)
+		std::vector<u8> back3; std::string problems3;
+		drv.unload(0, back3, problems3);
+		img[(16 * 32 + 9) * 128 + 12] ^= 0x08;
+		std::string want = "track 16 hole " + std::to_string(hole) + ": CRC error\n";
+		for (int k = 0; k < 32; k++) {
+			const int sec = ((k + 1) * fdc.interleave_step()) & 31;
+			if (sec == 7) continue;
+			want += "track 30 hole " + std::to_string(k) + ": no sync\n";
+			std::fill(&img[(30 * 32 + sec) * 128], &img[(30 * 32 + sec + 1) * 128], 0);   // what unload makes of a missing sector
+		}
+		if (problems3 != want) printf("%s", problems3.c_str());
+		CHECK(problems3 == want && back3 == img);
+	}
 }
 
 int main(int argc, char **argv)

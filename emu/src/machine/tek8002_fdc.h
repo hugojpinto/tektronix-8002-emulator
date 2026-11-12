@@ -20,9 +20,9 @@
 //   service-request decode at 05A needs.
 // - The host reads the disc status byte while its C0 is inactive (SIO, RST), and the
 //   accumulator otherwise (IND) (§3 "Controller Functional Description").
-// - The Sector Buffer is a 1024-bit shift register: SPSH pushes (C7 with SELECT CARRY on,
-//   else the read data bit) at the input while enabled by EN STACK; SBH/SBL read the bit
-//   at its output; pushing back the bit read recirculates the buffer.
+// - The Sector Buffer is a 1024-bit shift register: SPSH loads the Push flip-flop (C7 with
+//   SELECT CARRY on, else the read data bit) while EN STACK is set, and EPSH shifts it in;
+//   SBH/SBL read the bit at its output; pushing back the bit read recirculates the buffer.
 #ifndef TEK_TEK8002_FDC_H
 #define TEK_TEK8002_FDC_H
 #include "emu.h"
@@ -70,7 +70,7 @@ public:
 	bool host_flag() const { return m_host_flag; }
 
 	fdc_drive_bus *drive = nullptr;
-	u8 interleave = 0x07;                      // S4104 switches 5-1 (bit 4 = switch 5), On = 1: Off Off On On On (070-2587 §1)
+	u8 interleave = 0x07;                      // S4104 switches 5-1 (bit n-1 = switch n), On = 1; factory Off Off On On On (070-2587 §1): INL = 03
 	bool trace = false;
 	int interleave_step() { return input(7) & 31; }   // what the sector count adds per SECTOR pulse (03F-041)
 
@@ -80,6 +80,7 @@ public:
 	u8 acc() const { return m_acc; }
 	u64 time_ns() const { return m_time; }
 	u8 status_latches() const { return m_group1; }
+	u8 buffer_byte(int n) const { u8 v = 0; for (int b = 0; b < 8; b++) v = u8(v << 1 | m_buf[(m_buf_pos + 8 * n + b) & 1023]); return v; }   // from the output end
 
 private:
 	u16 m_rom[512] = {};
@@ -92,6 +93,7 @@ private:
 	u8 m_device = 0;
 	bool m_buf[1024] = {};
 	int m_buf_pos = 0;
+	bool m_push = false, m_push_bit = false;   // SPSH loaded the Push flip-flop; EPSH shifts it in
 	u64 m_time = 0;
 	u64 m_owed = 0;
 

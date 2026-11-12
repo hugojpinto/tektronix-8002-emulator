@@ -60,7 +60,7 @@ test: all $(BUILD)/debug_test$(EXE) $(BUILD)/fdc_test$(EXE)
 	$(BUILD)/debug_test$(EXE)
 	$(BUILD)/fdc_test$(EXE) ../roms/fdc
 	$(BUILD)/fdc_test$(EXE) ../roms/fdc ../disks/TekDOS_3.3_6800_cpy1.img
-	cd .. && tests/boot_ldir.sh && tests/asm_link.sh
+	cd .. && tests/boot_ldir.sh && tests/asm_link.sh && FDC=hle tests/asm_link.sh
 
 clean:
 	rm -rf $(BUILD)

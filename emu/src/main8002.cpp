@@ -85,9 +85,11 @@ static std::string unescape(const std::string &t)
 int main(int argc, char **argv)
 {
 	std::string prom, tracefile, logfile, img[tek8002_fdu::DRIVES];
-	long long max_cycles = -1; bool io = false, rw = false, fdu_trace = false; std::string fdc_mode = "hle";
+	long long max_cycles = -1; bool io = false, rw = false, fdu_trace = false; std::string fdc_mode = "lle";   // the real disc controller; -fdc hle: the high-level model
 	std::string link_spec[tek8002_syscomm::PORTS];
 	struct typed { double t; std::string s; }; std::vector<typed> types;
+	std::vector<std::string> at_prompt;     // -type prompt TEXT: typed when TEKDOS prompts, in order
+	bool prompt_seen = false; char last2[2] = {}; double prompt_t = 0; bool prompts_used = false;
 	for (int i = 1; i < argc; i++) {
 		std::string a = argv[i];
 		auto next = [&]() { return i + 1 < argc ? std::string(argv[++i]) : std::string(); };
@@ -95,7 +97,11 @@ int main(int argc, char **argv)
 		else if (a.size() == 2 && a[0] == '-' && a[1] >= '0' && a[1] <= '3') img[a[1] - '0'] = next();
 		else if (a == "-rw") rw = true;
 		else if (a == "-cycles") max_cycles = atoll(next().c_str());
-		else if (a == "-type") { double t = atof(next().c_str()); types.push_back({ t, unescape(next()) }); }
+		else if (a == "-type") {
+			const std::string when = next();
+			if (when == "prompt") { at_prompt.push_back(unescape(next())); prompts_used = true; }
+			else { double t = atof(when.c_str()); types.push_back({ t, unescape(next()) }); }
+		}
 		else if (a == "-trace") tracefile = next();
 		else if (a == "-log") logfile = next();
 		else if (a == "-io") io = true;
@@ -104,7 +110,7 @@ int main(int argc, char **argv)
 		else if (a == "-ppt") link_spec[tek8002_syscomm::TAPE] = next();
 		else if (a == "-fdutrace") fdu_trace = true;
 		else if (a == "-fdc" && i + 1 < argc && (std::string(argv[i + 1]) == "hle" || std::string(argv[i + 1]) == "lle")) fdc_mode = next();
-		else { fprintf(stderr, "usage: %s [-prom FILE] [-0..-3 IMG] [-rw] [-fdc hle|lle] [-cycles N] [-type SEC TEXT] [-rem SPEC] [-lpt SPEC] [-ppt SPEC] [-trace FILE] [-io] [-fdutrace] [-log FILE]\n", argv[0]); return 1; }
+		else { fprintf(stderr, "usage: %s [-prom FILE] [-0..-3 IMG] [-rw] [-fdc hle|lle] [-cycles N] [-type SEC|prompt TEXT] [-rem SPEC] [-lpt SPEC] [-ppt SPEC] [-trace FILE] [-io] [-fdutrace] [-log FILE]\n", argv[0]); return 1; }
 	}
 	auto m = std::make_unique<tek8002>();
 	std::string err;
@@ -118,13 +124,18 @@ int main(int argc, char **argv)
 		const size_t slash = prom.find_last_of("/\\");
 		const std::string dir = (slash == std::string::npos ? std::string(".") : prom.substr(0, slash)) + "/fdc";
 		if (!m->fdu.use_controller(dir, err)) { fprintf(stderr, "%s\n", err.c_str()); return 1; }
-		if (rw) fprintf(stderr, "[-fdc lle: discs are write protected until the controller's write path is modelled]\n");
 	}
 	for (int d = 0; d < tek8002_fdu::DRIVES; d++)
 		if (!img[d].empty() && !m->fdu.mount(d, img[d], rw, err)) { fprintf(stderr, "%s\n", err.c_str()); return 1; }
 	m->trace_io = io || getenv("TEK_IOTRACE"); m->fdu.trace = fdu_trace || getenv("TEK_FDCTRACE"); m->debug.trace = getenv("TEK_EPTRACE");
 	FILE *logf = logfile.empty() ? nullptr : fopen(logfile.c_str(), "wb");
-	m->term.on_tx = [&](u8 c) { c &= 0x7f; if (c) { fputc(c, stdout); fflush(stdout); } if (logf) { fputc(c, logf); fflush(logf); } };
+	m->term.on_tx = [&](u8 c) {
+		c &= 0x7f;
+		if (c) { fputc(c, stdout); fflush(stdout); }
+		if (logf) { fputc(c, logf); fflush(logf); }
+		// TEKDOS's prompt: "> " at the start of a line
+		if (c && c != 0x7f) { last2[0] = last2[1]; last2[1] = char(c); prompt_seen = last2[0] == '>' && last2[1] == ' '; prompt_t = m->cycles() / tek8002::CPU_HZ; }
+	};
 	// the System Communications ports: modem (REMI/REMO), printer (LPT1), paper tape (PPTR/PPTP)
 	static const char *const port_name[] = { "modem port", "printer port", "paper tape port" };
 	serial_link link[tek8002_syscomm::PORTS];
@@ -147,6 +158,12 @@ int main(int argc, char **argv)
 		const double now = m->cycles() / tek8002::CPU_HZ;
 		for (auto it = types.begin(); it != types.end(); )
 			if (it->t <= now) { for (char c : it->s) m->term.host_rx(u8(c)); it = types.erase(it); } else ++it;
+		// at a prompt that has stood for 0.1 s: the next -type prompt text; after the last one,
+		// a batch run ends at the next prompt
+		if (prompt_seen && now - prompt_t > 0.1) {
+			if (!at_prompt.empty()) { for (char c : at_prompt.front()) m->term.host_rx(u8(c)); at_prompt.erase(at_prompt.begin()); prompt_seen = false; }
+			else if (prompts_used && !interactive && types.empty()) break;
+		}
 		int k;
 		while ((k = host::poll_key()) >= 0) {
 			if (k == 035) { if (!monitor(*m)) goto done; continue; }

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-12 — Step 5 stage D: writes and FORMAT through the microcode; the real controller is the default
+- The drives hold flux pulses on a 2 µs grid. Writes are placed as the microprogram's PULLs time them, and reads separate clock from data by the format's rule (an empty slot is a data slot).
+- TEKDOS's FORMAT, COPY, DELETE, ASM/LINK, COPYSYS and DUP run on the real controller. FORMAT of a never-formatted disc (`-1 new:FILE`) equals the real formatted disc Tek8002_1b byte for byte.
+- `-fdc lle` is the default; `-fdc hle` keeps the high-level model. The session tests type at TEKDOS's prompt (`-type prompt TEXT`) and run in both modes.
+- Fixed: the Sector Buffer shifts at EPSH, not at SPSH (written sectors were one bit late).
+- S4104 from the schematic: a closed switch reads 0, and switches 4–1 drive WR1–WR4, so the factory interleave is INL = 03. This corrects stage B's 0x0F, which came from Fig. 3-8.
+
 ## 2026-11-12 — Step 5 stage C: reads through the disc controller's microcode
 - `tek8002_fdd`: the drives, with hard-sectored tracks of FM bit cells built from the images and decoded back (sync FB, track, sector, data, CCITT CRC; sector k holds logical sector (k+1)·INL mod 32).
 - `-fdc lle` runs the real controller: TEKDOS boots, including the boot PROM's 16K read from one command, and LDIR gives the same listing as the high-level model on all 33 discs. Discs are write protected in this mode until stage D.
@@ -9,7 +16,7 @@
 ## 2026-11-12 — Step 5 stage B: the disc controller's processor
 - `tek8002_fdc` runs the real 512-word microprogram: the 74181 ALU in its active-low convention, the jump conditions, the command latches, UBANK (delayed one fetch), the Sector Buffer, and the host port.
 - `emu/tests/fdc_test.cpp` (in `make test`) checks the power-on delay, the autoload's error recovery on a blank disc, the SIO/OTD handshake into R6/R4/R9/R11, and the seek to track 16.
-- Established: the WR bus is active low (Fig. 3-8 prints physical levels), INL = 0x0F, HOST FLG is active while its latch is reset, and U1080/U1070 hold bits 15–8/7–0 (`notes/fdc.md`).
+- Established: the WR bus is active low (Fig. 3-8 prints physical levels), INL odd (its value corrected in stage D), HOST FLG is active while its latch is reset, and U1080/U1070 hold bits 15–8/7–0 (`notes/fdc.md`).
 
 ## 2026-11-12 — Step 4 completed: TEKDOS's disc tools
 - COPYSYS and DUP work, besides FORMAT, DELETE and COPY: a COPYSYS'd disc boots and its system files are identical to the original's; a DUP'd disc has every file identical (`tests/disc_tools.sh`).

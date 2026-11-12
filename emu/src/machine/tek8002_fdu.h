@@ -2,9 +2,8 @@
 // Copyright (C) 2026 Hugo José Pinto <hugo.pinto@gmail.com>
 // Tektronix 8002A Flexible Disc Unit, high level: the controller's host protocol
 // (service requests RST/SIO/OTD/IND, the FLAG handshake, command and address bytes,
-// disc status) over sector images. The real controller is a microprogrammed
-// machine (070-2587 section 3, microcode in Appendix C); this model stands in for
-// it until that is emulated.
+// disc status) over sector images, with -fdc hle. By default the real controller runs
+// instead (070-2587 section 3, microcode in Appendix C: tek8002_fdc, tek8002_fdd).
 //
 // Protocol (070-2587 Fig. 1-8, 1-9a, Table 1-2; 070-2711 Table 3-6):
 //   the host writes C1 C0 /S to its control port EA. /S low with
@@ -22,8 +21,7 @@
 //
 // Low level (use_controller): the host port goes to the real controller instead, running
 // its microprogram (tek8002_fdc) against bit-cell tracks (tek8002_fdd) built from the
-// images. Reads only so far: the discs are write protected in this mode until the write
-// path is modelled (notes/fdc.md, stage D).
+// images; -rw writes back what the tracks decode to (notes/fdc.md, stages C-D).
 #ifndef TEK_TEK8002_FDU_H
 #define TEK_TEK8002_FDU_H
 #include "emu.h"
@@ -42,7 +40,7 @@ public:
 	// disc status byte (070-2587 Table 1-3)
 	enum { ST_FD_FAILURE = 0x02, ST_DRIVE_FAULT = 0x04, ST_WRITE_PROTECT = 0x08, ST_ERROR_RECOVERY = 0x10, ST_ILLEGAL = 0x20 };
 
-	bool mount(int drive, const std::string &path, bool writable, std::string &err);
+	bool mount(int drive, const std::string &path, bool writable, std::string &err);   // "new:FILE": a never-formatted disc, saved to FILE
 	void eject(int drive);
 	bool save(int drive, std::string &err);           // write a modified image back
 	bool mounted(int drive) const { return drive >= 0 && drive < DRIVES && !m_drive[drive].image.empty(); }
@@ -70,7 +68,7 @@ private:
 	struct drive_t {
 		std::vector<u8> image;
 		std::string path;
-		bool writable = false, dirty = false;
+		bool writable = false, dirty = false, blank = false;   // blank: mounted as new: (never formatted)
 	};
 	drive_t m_drive[DRIVES];
 	bool m_low_level = false;
