@@ -3,50 +3,50 @@
 // The 8002 6800 Emulator Processor -- see tek8002_ep6800.h.
 #include "machine/tek8002_ep6800.h"
 
+// The SVC window answers while the Debug module takes SVCs (TEKDOS disables them in modes
+// 1 and 2, where FEF0-FEF7 are the prototype's like any address). The 6800 has no
+// instruction-fetch pin, so the prototype sees reads and writes only.
 u8 tek8002_ep6800::read(u16 a, bool opcode)
 {
-	if ((a & 0xfff8) == SVC_BASE) { if (m_svc < 0) m_svc = a & 7; return m_bus.slave_read(a, false); }
+	if ((a & 0xfff8) == SVC_BASE && m_bus.svcs_enabled()) { svc(a); return m_bus.slave_read(a, false); }
+	if (proto_mem(a)) return proto_read(a, false);
 	return m_bus.slave_read(a, opcode);
 }
 
 void tek8002_ep6800::write(u16 a, u8 d)
 {
-	if ((a & 0xfff8) == SVC_BASE) { if (m_svc < 0) m_svc = a & 7; return; }
+	if ((a & 0xfff8) == SVC_BASE && m_bus.svcs_enabled()) { svc(a); return; }
+	if (proto_mem(a)) { proto_write(a, d); return; }
 	m_bus.slave_write(a, d);
 }
 
-// The SYSTEM PROM's two routines (tek8002_ep6800.h), as one step each; then the board
-// waits in the PROM. Their instruction timings are not known: a save or restore is
-// counted as the 6800 instructions it would take (seven direct stores or loads, ~35 cycles).
-void tek8002_ep6800::prom(u16 entry)
+void tek8002_ep6800::target_lines(bool reset_edge, bool nmi_edge, bool irq)
 {
-	if (entry == PROM_DUMP) {
-		const u8 cc = cpu.cc();
-		m_bus.slave_write(REGS + 0, cpu.a());
-		m_bus.slave_write(REGS + 1, cpu.b());
-		m_bus.slave_write(REGS + 2, u8(cpu.x() >> 8));
-		m_bus.slave_write(REGS + 3, u8(cpu.x()));
-		m_bus.slave_write(REGS + 4, u8(cpu.sp() >> 8));
-		m_bus.slave_write(REGS + 5, u8(cpu.sp()));
-		m_bus.slave_write(REGS + 6, cc);
-	} else {
-		cpu.set_a(m_bus.slave_read(REGS + 0, false));
-		cpu.set_b(m_bus.slave_read(REGS + 1, false));
-		cpu.set_x(u16(m_bus.slave_read(REGS + 2, false) << 8 | m_bus.slave_read(REGS + 3, false)));
-		cpu.set_sp(u16(m_bus.slave_read(REGS + 4, false) << 8 | m_bus.slave_read(REGS + 5, false)));
-		cpu.set_cc(m_bus.slave_read(REGS + 6, false));
-	}
-	m_svc = 1;                              // port F1: the debug SVC 1
-	m_in_prom = true;
-	m_prom_pc = entry;
-	m_prom_cycles += 35;
+	if (reset_edge) cpu.reset();
+	if (nmi_edge) { cpu.set_input_line(INPUT_LINE_NMI, ASSERT_LINE); cpu.set_input_line(INPUT_LINE_NMI, CLEAR_LINE); }
+	cpu.set_input_line(M6800_IRQ_LINE, irq ? ASSERT_LINE : CLEAR_LINE);
 }
 
-void tek8002_ep6800::step()
+// The register block at 0000-0006: A, B, X (high, low), SP (high, low), CC (DSTAT 18E9-1937)
+bool tek8002_ep6800::firmware(u16 entry)
 {
-	m_svc = -1;
-	if (m_in_prom) m_prom_cycles += 4;     // its wait loop (BRA *)
-	else if (!cpu.waiting() && (cpu.pc() == PROM_DUMP || cpu.pc() == PROM_RESTORE)) prom(cpu.pc());
-	else cpu.step();
-	if (m_svc >= 0) m_bus.slave_out(u16(0xf0 + m_svc), 0);
+	if (entry == FW_DUMP) {
+		const u8 cc = cpu.cc();
+		put(0, cpu.a()); put(1, cpu.b());
+		put(2, u8(cpu.x() >> 8)); put(3, u8(cpu.x()));
+		put(4, u8(cpu.sp() >> 8)); put(5, u8(cpu.sp()));
+		put(6, cc);
+		dump_block("dump", entry, 7);
+	} else if (entry == FW_RESTORE) {
+		dump_block("restore", entry, 7);
+		cpu.set_a(mem(0)); cpu.set_b(mem(1));
+		cpu.set_x(u16(mem(2) << 8 | mem(3)));
+		cpu.set_sp(u16(mem(4) << 8 | mem(5)));
+		cpu.set_cc(mem(6));
+	} else if (entry == FW_PUT || entry == FW_GET) {
+		get_put(entry == FW_PUT);
+		return true;
+	} else return false;
+	svc(1);                                  // port F1: the debug SVC 1
+	return true;
 }

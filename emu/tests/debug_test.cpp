@@ -20,6 +20,9 @@ struct fake_bus : slave_bus {
 	void slave_write(u16 a, u8) override { dbg->slave_access(a, true); }
 	u8 slave_in(u16) override { return 0xff; }
 	void slave_out(u16 port, u8) override { dbg->slave_out(port); }
+	bool user_block(u16) const override { return false; }
+	bool svcs_enabled() const override { return dbg->svcs_enabled(); }
+	void slave_watch(u16 a, bool write) override { dbg->slave_access(a, write); }
 };
 
 struct fake_slave : tek8002_slave {

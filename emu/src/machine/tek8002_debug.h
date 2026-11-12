@@ -66,6 +66,7 @@ public:
 	// what the slave does on the bus, as the module sees it
 	void slave_access(u16 a, bool write);  // breakpoint comparators
 	bool slave_out(u16 port);              // true if the module takes it (an SVC port)
+	bool svcs_enabled() const { return m_command & 0x10; }
 	void diag_switch();                    // the front panel's DIAG INTRPT switch
 
 	int io_clock_cycles = 33;              // one 38.4 kHz I/O clock in 1.25 MHz 2650 clocks

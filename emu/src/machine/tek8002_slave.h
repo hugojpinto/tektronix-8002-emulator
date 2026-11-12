@@ -19,6 +19,10 @@ public:
 	virtual void slave_write(u16 a, u8 d) = 0;
 	virtual u8 slave_in(u16 port) = 0;
 	virtual void slave_out(u16 port, u8 d) = 0;
+	// what an emulator board needs besides (notes/emulators.md)
+	virtual bool user_block(u16 a) const = 0;      // the memory map: this 128-byte block is the prototype's (U)
+	virtual bool svcs_enabled() const = 0;         // the Debug module takes SVC ports (F9 bit 4)
+	virtual void slave_watch(u16 a, bool write) = 0;   // a cycle on the probe: the breakpoint comparators see it
 };
 
 class tek8002_slave

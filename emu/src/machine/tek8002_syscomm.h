@@ -19,7 +19,7 @@
 // time (D0) through an address counter that advances after every access. TEKDOS writes
 // 02 and then 512 data bytes; the model takes a write with D1 set as the counter reset
 // (*inferred* from that sequence; the manual's RESET condition is unclear in the OCR).
-// Nothing uses the map yet: there is no prototype.
+// The emulator boards read it in mode 1 (tek8002_emboard: U = the prototype's block).
 #ifndef TEK_TEK8002_SYSCOMM_H
 #define TEK_TEK8002_SYSCOMM_H
 #include "emu.h"

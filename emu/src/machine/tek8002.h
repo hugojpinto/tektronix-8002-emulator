@@ -11,7 +11,7 @@
 //   Debug & Front Panel I/O (670-5299): ports F8-FF, master/slave hand-over, debug
 //       interrupts (tek8002_debug)
 //   Assembler Processor (670-5220): the Z80 slave, control port E7 (tek8002_asmproc)
-//   6800 Emulator Processor: the 6800 slave, control port E2 (tek8002_ep6800)
+//   6800 and Z80 Emulator Processors: control ports E2 and E3 (tek8002_ep6800, tek8002_epz80)
 //   System Communications (670-5219): three ACIAs and the memory map, ports C9-CF
 //       (tek8002_syscomm)
 // Not yet: emulator boards, PROM programmers, RTPA, parity.
@@ -24,6 +24,7 @@
 #include "machine/tek8002_debug.h"
 #include "machine/tek8002_asmproc.h"
 #include "machine/tek8002_ep6800.h"
+#include "machine/tek8002_epz80.h"
 #include "machine/tek8002_syscomm.h"
 #include <string>
 #include <vector>
@@ -60,6 +61,7 @@ public:
 	tek8002_syscomm syscomm;        // System Communications: modem, printer, paper tape ACIAs; memory map
 	tek8002_asmproc asmproc{*this}; // Assembler Processor (Z80)
 	tek8002_ep6800 ep6800{*this};   // 6800 Emulator Processor
+	tek8002_epz80 epz80{*this};     // Z80 Emulator Processor
 	tek8002_slave *active_slave() const;   // the slave the Debug module runs, if any
 	int program_boards = 2;         // 8002A: two 16K program memory boards standard (up to 4)
 	bool timer_100ms = false;       // interval timer jumper: 10 ms (default) or 100 ms
@@ -83,12 +85,15 @@ public:
 	void slave_write(u16 a, u8 d) override;
 	u8 slave_in(u16 port) override;
 	void slave_out(u16 port, u8 d) override;
+	bool user_block(u16 a) const override { return syscomm.map_bit(a); }
+	bool svcs_enabled() const override { return debug.svcs_enabled(); }
+	void slave_watch(u16 a, bool write) override { debug.slave_access(a, write); }
 	// debug_host
 	void debug_interrupt(int n) override { raise(n); update_irq(); }
 	bool master_interrupt_pending() const override { return m_pending != 0; }
 
 private:
-	std::vector<tek8002_slave *> m_slaves{ &asmproc, &ep6800 };   // every slave board, each decoding its own command port
+	std::vector<tek8002_slave *> m_slaves{ &asmproc, &ep6800, &epz80 };   // every slave board, each decoding its own command port
 	std::vector<u8> m_prom;                 // bootstrap PROM, in CPU address order
 	std::vector<u8> m_sysram, m_progmem;
 	u8 m_bank = 0;                          // EE bits 1-0: program memory bank at 4000-7FFF

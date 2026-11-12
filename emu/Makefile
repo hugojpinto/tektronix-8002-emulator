@@ -27,8 +27,8 @@ endif
 BUILD ?= build
 
 DASM_OBJ := $(BUILD)/cpu/s2650/2650dasm.o $(BUILD)/cpu/z80/z80dasm.o $(BUILD)/cpu/m6800/6800dasm.o
-HOST     := $(BUILD)/host/serial_link.o $(BUILD)/host/net.o
-M8002    := $(BUILD)/machine/tek8002.o $(BUILD)/machine/tek8002_fdu.o $(BUILD)/machine/tek8002_fdc.o $(BUILD)/machine/tek8002_fdd.o $(BUILD)/machine/tek8002_debug.o $(BUILD)/machine/tek8002_asmproc.o $(BUILD)/machine/tek8002_ep6800.o $(BUILD)/cpu/m6800/m6800.o $(BUILD)/machine/tek8002_syscomm.o $(BUILD)/cpu/z80/superzazu/z80.o $(BUILD)/cpu/s2650/s2650.o
+HOST     := $(BUILD)/host/serial_link.o $(BUILD)/host/net.o $(BUILD)/host/ipc_target.o
+M8002    := $(BUILD)/machine/tek8002.o $(BUILD)/machine/tek8002_fdu.o $(BUILD)/machine/tek8002_fdc.o $(BUILD)/machine/tek8002_fdd.o $(BUILD)/machine/tek8002_debug.o $(BUILD)/machine/tek8002_asmproc.o $(BUILD)/machine/tek8002_emboard.o $(BUILD)/machine/tek8002_ep6800.o $(BUILD)/machine/tek8002_epz80.o $(BUILD)/cpu/m6800/m6800.o $(BUILD)/machine/tek8002_syscomm.o $(BUILD)/cpu/z80/superzazu/z80.o $(BUILD)/cpu/s2650/s2650.o
 
 all: $(BUILD)/dasm$(EXE) $(BUILD)/tek8002$(EXE)
 
@@ -60,7 +60,7 @@ test: all $(BUILD)/debug_test$(EXE) $(BUILD)/fdc_test$(EXE)
 	$(BUILD)/debug_test$(EXE)
 	$(BUILD)/fdc_test$(EXE) ../roms/fdc
 	$(BUILD)/fdc_test$(EXE) ../roms/fdc ../disks/TekDOS_3.3_6800_cpy1.img
-	cd .. && tests/boot_ldir.sh && tests/asm_link.sh && FDC=hle tests/asm_link.sh && tests/run6800.sh
+	cd .. && tests/boot_ldir.sh && tests/asm_link.sh && FDC=hle tests/asm_link.sh && tests/run6800.sh && tests/runz80.sh && tests/prototype.sh
 
 clean:
 	rm -rf $(BUILD)

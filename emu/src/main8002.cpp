@@ -8,6 +8,7 @@
 // Ctrl-] enters the monitor.
 #include "machine/tek8002.h"
 #include "host/serial_link.h"
+#include "host/ipc_target.h"
 #include "cpu/s2650/2650dasm.h"
 #include "host/tty.h"
 #include <cstdio>
@@ -85,7 +86,7 @@ static std::string unescape(const std::string &t)
 int main(int argc, char **argv)
 {
 	std::string prom, tracefile, logfile, img[tek8002_fdu::DRIVES];
-	long long max_cycles = -1; bool io = false, rw = false, fdu_trace = false; std::string fdc_mode = "lle";   // the real disc controller; -fdc hle: the high-level model
+	long long max_cycles = -1; bool io = false, rw = false, fdu_trace = false; std::string fdc_mode = "lle"; std::string target_spec;   // the real disc controller; -fdc hle: the high-level model
 	std::string link_spec[tek8002_syscomm::PORTS];
 	struct typed { double t; std::string s; }; std::vector<typed> types;
 	std::vector<std::string> at_prompt;     // -type prompt TEXT: typed when TEKDOS prompts, in order
@@ -105,12 +106,13 @@ int main(int argc, char **argv)
 		else if (a == "-trace") tracefile = next();
 		else if (a == "-log") logfile = next();
 		else if (a == "-io") io = true;
+		else if (a == "-target") target_spec = next();
 		else if (a == "-rem") link_spec[tek8002_syscomm::MODEM] = next();
 		else if (a == "-lpt") link_spec[tek8002_syscomm::PRINTER] = next();
 		else if (a == "-ppt") link_spec[tek8002_syscomm::TAPE] = next();
 		else if (a == "-fdutrace") fdu_trace = true;
 		else if (a == "-fdc" && i + 1 < argc && (std::string(argv[i + 1]) == "hle" || std::string(argv[i + 1]) == "lle")) fdc_mode = next();
-		else { fprintf(stderr, "usage: %s [-prom FILE] [-0..-3 IMG] [-rw] [-fdc hle|lle] [-cycles N] [-type SEC|prompt TEXT] [-rem SPEC] [-lpt SPEC] [-ppt SPEC] [-trace FILE] [-io] [-fdutrace] [-log FILE]\n", argv[0]); return 1; }
+		else { fprintf(stderr, "usage: %s [-prom FILE] [-0..-3 IMG] [-rw] [-fdc hle|lle] [-cycles N] [-type SEC|prompt TEXT] [-target unix:PATH|tcp:HOST:PORT] [-rem SPEC] [-lpt SPEC] [-ppt SPEC] [-trace FILE] [-io] [-fdutrace] [-log FILE]\n", argv[0]); return 1; }
 	}
 	auto m = std::make_unique<tek8002>();
 	std::string err;
@@ -127,7 +129,13 @@ int main(int argc, char **argv)
 	}
 	for (int d = 0; d < tek8002_fdu::DRIVES; d++)
 		if (!img[d].empty() && !m->fdu.mount(d, img[d], rw, err)) { fprintf(stderr, "%s\n", err.c_str()); return 1; }
-	m->trace_io = io || getenv("TEK_IOTRACE"); m->fdu.trace = fdu_trace || getenv("TEK_FDCTRACE"); m->debug.trace = getenv("TEK_EPTRACE");
+	// the prototype, for the emulator boards' modes 1 and 2 (notes/prototype-link.md)
+	ipc_target target;
+	if (!target_spec.empty()) {
+		if (!target.open(target_spec, err)) { fprintf(stderr, "%s\n", err.c_str()); return 1; }
+		m->ep6800.target = m->epz80.target = &target;
+	}
+	m->trace_io = io || getenv("TEK_IOTRACE"); m->fdu.trace = fdu_trace || getenv("TEK_FDCTRACE"); m->debug.trace = getenv("TEK_EPTRACE"); m->ep6800.trace = m->epz80.trace = getenv("TEK_EPTRACE");
 	FILE *logf = logfile.empty() ? nullptr : fopen(logfile.c_str(), "wb");
 	m->term.on_tx = [&](u8 c) {
 		c &= 0x7f;

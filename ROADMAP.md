@@ -11,7 +11,7 @@ Following FEASIBILITY.md §5.
    - ~~Stage B~~ (2026-11-12): the processor runs the real microprogram: power-on delay, autoload with error recovery, SIO/OTD handshake, seek (`emu/src/machine/tek8002_fdc.*`, `emu/tests/fdc_test.cpp`).
    - ~~Stage C~~ (2026-11-12): bit-cell tracks (`tek8002_fdd`) and reads through the microcode: TEKDOS boots and LDIRs under `-fdc lle`, identical to the high-level model on all 33 discs; CRC errors and the error recovery work.
    - ~~Stage D~~ (2026-11-12): writes and FORMAT through the microcode (FORMAT of a never-formatted disc equals Tek8002_1b); the real controller is the default, `-fdc hle` kept. Open: the factory interleave on real units (`notes/fdc.md` "Still to establish").
-6. ~~**6800 emulator board**~~ (2026-11-12): the 6800 runs user programs with SVCs, and TEKDOS's DEBUG works on it: TRACE ALL/JMP/STEP, breakpoints, DSTAT, SET (`notes/6800.md`, `tests/run6800.sh`). Its dump/restore PROM is modelled at high level. Open: modes 1 and 2 (a prototype), the status bits' meaning, the board's own service manual.
+6. ~~**6800 emulator board**~~ (2026-11-12): the 6800 runs user programs with SVCs, and TEKDOS's DEBUG works on it: TRACE ALL/JMP/STEP, breakpoints, DSTAT, SET (`notes/emulators.md`, `tests/run6800.sh`). Its dump/restore PROM is modelled at high level. The Z80 board followed the same day (`tests/runz80.sh`), with the status bits worked out (`notes/emulators.md`) and modes 1 and 2 on both boards against a prototype over the 8550 emulator's link (`tests/prototype.sh`). Open: the 6800's status bit 7, control bits 4 and 2, the prototype clock, the boards' service manuals, the 8080 board (E1).
 7. Options: PROM programmers (2704/2708, 1702A), Real Time Trace / RTPA, front panel in a GUI.
 
 Open questions:

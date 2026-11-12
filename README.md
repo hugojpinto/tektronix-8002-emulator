@@ -9,8 +9,9 @@ A sibling of the [Tektronix 8550 MDL emulator](https://github.com/hugojpinto/tek
 - `LDIR` lists the disc directory. On `Tek8002_1a` it matches the printout photographed with the original disc.
 - The Z80 Assembler Processor runs TEKDOS's ASM and LINK; System Communications drive the printer, modem and paper tape ports; FORMAT, COPYSYS and DUP work.
 - The disc controller runs its real microprogram (070-2587) against flux-level tracks.
-- The **6800 Emulator Processor** runs user programs, and TEKDOS's DEBUG works on it: TRACE, breakpoints, DSTAT, SET. Its lost dump/restore PROM is modelled at high level (`notes/6800.md`).
-- Not yet: PROM programmers, the Real-Time Prototype Analyzer, other emulator boards, prototype (mode 1/2) emulation. See [ROADMAP.md](ROADMAP.md).
+- The **6800 Emulator Processor** runs user programs, and TEKDOS's DEBUG works on it: TRACE, breakpoints, DSTAT, SET. Its lost dump/restore PROM is modelled at high level (`notes/emulators.md`).
+- The **Z80 Emulator Processor** does the same on the Z80 TEKDOS discs, and both boards run emulation modes 1 and 2 against a target system over a socket (`-target`, `notes/prototype-link.md`; `tools/proto_target.py` is a reference target).
+- Not yet: PROM programmers, the Real-Time Prototype Analyzer, the 8080 board. See [ROADMAP.md](ROADMAP.md).
 
 ## Build and run
 ```
