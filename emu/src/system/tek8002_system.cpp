@@ -151,10 +151,10 @@ void tek8002_system::scripted_events()
 		if (it->at <= t) { input(it->name, 0); it = m_releases.erase(it); } else ++it;
 }
 
-// SYS: the System Processor holds the bus (it has not handed it to a slave); RUN: a processor
-// runs (the 2650, or the slave it handed the bus to); PWR: power. Read from the front panel
-// figure (070-2701 Fig. 2-6: "The SYS, RUN, and PWR indicator lights ... should light" at
-// power-on); what drives SYS and RUN is not described (inferred).
+// The front panel lamps (070-2711 schematics 9 and 4A/4B; notes/8002.md "Front panel lamps"):
+// SYS = the MSTR/SLV flip-flop gives the bus to the System Processor; RUN = the bus line RUN
+// (a processor runs) while HOLD is not active (no bus hold is modelled); PWR = +5.2 V. Each
+// is the state over the slice. Dark SYS and RUN while SYSTEM RESTART is held: inferred.
 void tek8002_system::update_outputs(int slice)
 {
 	const u64 mr = m->run_master - m_last_master, bs = m->bus_slave - m_last_bus, sr = m->run_slave - m_last_slave;

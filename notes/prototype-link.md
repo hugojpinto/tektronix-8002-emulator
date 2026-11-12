@@ -106,9 +106,12 @@ from the socket's clock pin (070-3665 §1, §3). Version 4 carries its rate:
 - `K` replies are not bus cycles: their WAIT bits are ignored.
 - `tools/proto_target.py --clock MHZ` reports one, and prints the target time it saw at
   disconnect.
-- The sibling tektronix-8550-emulator and FUSE still speak v3. Nothing changes for them. v4 was
-  proposed to FUSE's maintainers (2026-11-12) and agreed in principle, with the two points above
-  (T stays in microseconds; K again after RESET).
+- Agreed with FUSE's maintainers (2026-11-12), with the two points above (T stays in
+  microseconds; K again after RESET), and implemented there (EMUL dfbfd98: H answers
+  min(offered, 4), K = the machine's processor speed, e.g. 3500 kHz for a 48K, 3547 for a
+  128K, WAIT in Spectrum T-states). Joint run: "[prototype link: protocol v4, clock 3.500 MHz]",
+  and EMULATE 2, GO 0 runs the Spectrum ROM. The sibling tektronix-8550-emulator speaks v4
+  too (its commit 165aac3).
 
 **Not modelled:** bus timing beyond WAIT,
 DMA from the target, and the copying of mode-1 writes to P blocks that the 8550's board does
