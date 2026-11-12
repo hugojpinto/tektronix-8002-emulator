@@ -3,7 +3,7 @@
 // tek8002-gui: the 8002A µProcessor Lab with a graphical CT8100 and front panels (SDL3).
 // The same system and options as the tty front end (system/tek8002_system.*); this file only
 // draws, takes the keyboard and the mouse, and paces the emulation to real time.
-//   tek8002-gui [tek8002 options] [-style crt|sharp] [-scale F (default: fit the screen)] [-panels on|off] [-artwork DIR] [-shot SECONDS FILE.bmp]
+//   tek8002-gui [tek8002 options] [-style crt|sharp] [-scale F (default: fit the screen)] [-panels on|off] [-cursor steady|blink] [-artwork DIR] [-shot SECONDS FILE.bmp]
 // With -cycles the run is flat out and deterministic (batch); -shot saves the windows at a
 // machine time, or at the end of the run if it ends sooner (SDL_VIDEODRIVER=dummy runs it
 // with no display).
@@ -48,9 +48,10 @@ struct terminal_view {
 		for (auto &l : lum) l.assign(size_t(TW) * TH, 0.f);
 		for (int y = 0; y < RH; y++)
 			for (int x = 0; x < RW; x++) {
-				if (!dots[size_t(y) * RW + x]) continue;
+				const uint8_t d = dots[size_t(y) * RW + x];
+				if (!d) continue;
 				for (int k = 0; k < 2; k++) {
-					const float f = (crt && k) ? 0.55f : 1.f;     // the second scan line dimmer
+					const float f = ((crt && k) ? 0.55f : 1.f) * (d == 1 ? 0.45f : 1.f);   // the second scan line dimmer; dim fields
 					const size_t i = size_t(y * 2 + k) * TW + x;
 					lum[0][i] = GREEN.r * f; lum[1][i] = GREEN.g * f; lum[2][i] = GREEN.b * f;
 				}
@@ -121,6 +122,7 @@ std::string base_name(const std::string &p)
 
 int main(int argc, char **argv)
 {
+	bool cursor_blink = false;                  // the CT8100's cursor is steady; its BLINK CURSOR strap makes it blink (p. 2-2)
 	std::string style = "crt", artwork = "artwork"; double scale = 0; bool panels_on = true;   // scale 0: fit the screen
 	struct shot_t { double at; std::string file; };
 	std::vector<shot_t> shots;
@@ -130,6 +132,7 @@ int main(int argc, char **argv)
 		if (a == "-style" && i + 1 < argc) style = argv[++i];
 		else if (a == "-scale" && i + 1 < argc) scale = atof(argv[++i]);
 		else if (a == "-panels" && i + 1 < argc) panels_on = std::string(argv[++i]) != "off";
+		else if (a == "-cursor" && i + 1 < argc) cursor_blink = std::string(argv[++i]) == "blink";
 		else if (a == "-artwork" && i + 1 < argc) artwork = argv[++i];
 		else if (a == "-shot" && i + 2 < argc) { double t = atof(argv[++i]); shots.push_back({ t, argv[++i] }); }
 		else rest.push_back(argv[i]);
@@ -137,7 +140,7 @@ int main(int argc, char **argv)
 	tek8002_options opt;
 	std::string bad;
 	if (!opt.parse(int(rest.size()), rest.data(), bad)) {
-		fprintf(stderr, "unknown option %s\nusage: %s %s\n        [-style crt|sharp] [-scale F (default: fit the screen)] [-panels on|off] [-artwork DIR] [-shot SECONDS FILE.bmp]\n", bad.c_str(), argv[0], tek8002_options::usage());
+		fprintf(stderr, "unknown option %s\nusage: %s %s\n        [-style crt|sharp] [-scale F (default: fit the screen)] [-panels on|off] [-cursor steady|blink] [-artwork DIR] [-shot SECONDS FILE.bmp]\n", bad.c_str(), argv[0], tek8002_options::usage());
 		return 1;
 	}
 	tek8002_system sys(opt);
@@ -224,7 +227,7 @@ int main(int argc, char **argv)
 	std::deque<uint8_t> paste;                   // pasted text, typed at the terminal port's rate
 	double next_paste = 0;
 	const double char_time = 10.0 / 2400;        // 2400 baud (the console UART's usual setting)
-	bool turbo = batch, fullscreen = false, quit = false, redraw = true, cursor_on = true;
+	bool turbo = batch, fullscreen = false, quit = false, redraw = true, cursor_on = true, blink_on = true;
 	Uint64 wall0 = SDL_GetTicksNS(); double emu0 = sys.now();
 	auto resync = [&]() { wall0 = SDL_GetTicksNS(); emu0 = sys.now(); };
 	std::string title_now;
@@ -364,11 +367,13 @@ int main(int argc, char **argv)
 			last_draw = SDL_GetTicksNS();
 		}
 
-		const bool b = batch ? int(sys.now() * 2) % 2 == 0 : (SDL_GetTicksNS() / 500'000'000) % 2 == 0;   // the cursor blinks, 1 Hz
-		if (b != cursor_on) { cursor_on = b; redraw = true; }
+		// blinking fields (and the cursor, with -cursor blink: the BLINK CURSOR strap) at 1 Hz (inferred)
+		const bool b = batch ? int(sys.now() * 2) % 2 == 0 : (SDL_GetTicksNS() / 500'000'000) % 2 == 0;
+		if (b != blink_on) { blink_on = b; redraw = true; }
+		cursor_on = !cursor_blink || blink_on;
 		if (sys.terminal_dirty) { sys.terminal_dirty = false; redraw = true; }
 		if (redraw) {
-			ct8100_raster::draw(ct, cursor_on, view.dots.data());
+			ct8100_raster::draw(ct, cursor_on, blink_on, view.dots.data());
 			view.compose();
 			SDL_UpdateTexture(tex, nullptr, view.px.data(), TW * 4);
 			redraw = false;

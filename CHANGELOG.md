@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-11-12 — Memory parity; link v4 agreed; the lamps from the schematics
+- The CT8100's host features from its manual: FS cursor addressing, ESC FF clear page, ESC ] read cursor, US FAC display fields (inverse, blinking, dim, blanked), ESC O clear input, and the SO/SI rulings set drawn from its formula. The cursor is steady, as on the standard terminal (`-cursor blink` for the strap). `emu/tests/ct8100_test.cpp`.
 - Memory parity (070-2711 §4, Table 3-28): bad parity raises interrupt 1 (System Memory) or 3 (Program Memory), and TEKDOS reports ERROR 65 or 66. Faults are injected with `-parity SEC [U:]ADDR` or the monitor's `P` (`tests/parity.sh`, in `make test`). `peek()` no longer goes through the bus.
 - Link v4 agreed with FUSE (EMUL dfbfd98) and adopted by the 8550 emulator: `K` is read again after each RESET pulse (a machine switch, checked jointly: 3.500 → 3.547 MHz), `T` stays in microseconds, and link time is converted per stretch at the clock it ran at (it used to rescale every past cycle when the board switched clocks).
 - The front-panel lamps from the schematics (`notes/8002.md`): SYS is the master/slave flip-flop, RUN is the bus RUN line gated by HOLD, PWR is +5.2 V.
