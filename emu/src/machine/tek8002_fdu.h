@@ -51,12 +51,19 @@ public:
 	tek8002_fdc &controller() { return m_fdc; }
 	tek8002_fdd &drives() { return m_fdd; }
 	void reset();                          // power on
+	// the unit's POWER switch: off, it answers nothing (FLAG low, reads 00); on, the controller
+	// starts from its power-on (070-2587 §3 "Executive Routine")
+	void set_power(bool on);
+	bool powered() const { return m_powered; }
+	// a drive is busy: its head is loaded (real controller), or a sector moved since the last
+	// call (high-level model)
+	bool activity(int drive);
 
 	// host side, as the System Processor's parallel interface sees it
 	void control(u8 c1c0s);                // EA write, bits 2-0
 	void data_out(u8 d) { if (m_low_level) m_fdc.host_data_out(d); m_out = d; }   // EB write (output latch)
-	u8   data_in() const { return m_low_level ? m_fdc.host_data_in() : m_in; }   // EB read
-	bool flag() const { return m_low_level ? m_fdc.host_flag() : m_flag; }        // EA read bit 7
+	u8   data_in() const { return !m_powered ? 0x00 : m_low_level ? m_fdc.host_data_in() : m_in; }   // EB read
+	bool flag() const { return m_powered && (m_low_level ? m_fdc.host_flag() : m_flag); }          // EA read bit 7
 	void tick(int cycles);                 // FLAG answers after a short controller delay
 	int  cycle_ns = 800;                   // the host's clock (2650 at 1.25 MHz), for the controller
 
@@ -71,7 +78,8 @@ private:
 		bool writable = false, dirty = false, blank = false;   // blank: mounted as new: (never formatted)
 	};
 	drive_t m_drive[DRIVES];
-	bool m_low_level = false;
+	bool m_low_level = false, m_powered = true;
+	bool m_touched[DRIVES] = {};
 	tek8002_fdc m_fdc;
 	tek8002_fdd m_fdd;
 

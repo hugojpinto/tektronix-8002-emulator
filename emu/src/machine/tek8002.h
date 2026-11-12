@@ -68,6 +68,9 @@ public:
 	bool trace_io = false;
 
 	u64 cycles() const { return m_cycles; }
+	// who has been running, in 2650 cycles (front-panel lamps): the System Processor; the
+	// bus handed to a slave; a slave running on it
+	u64 run_master = 0, bus_slave = 0, run_slave = 0;
 	u8 peek(offs_t a) { return read(a & 0x7fff); }
 	void poke(offs_t a, u8 d) { write(a & 0x7fff, d); }
 	u32 pending() const { return m_pending; }

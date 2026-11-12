@@ -168,9 +168,12 @@ void tek8002::devices_tick(int c)
 	// a HALT hands the bus to the active slave; with none to take it, the Debug module
 	// reports SLAVE HALTED
 	if (cpu.halted()) {
-		if (tek8002_slave *s = active_slave()) debug.run_slave(*s, c, CPU_HZ);
-		else debug.master_halted(c);
-	} else debug.master_running();
+		if (tek8002_slave *s = active_slave()) {
+			debug.run_slave(*s, c, CPU_HZ);
+			bus_slave += u64(c);
+			if (!s->halted()) run_slave += u64(c);
+		} else debug.master_halted(c);
+	} else { debug.master_running(); run_master += u64(c); }
 	update_irq();
 }
 

@@ -11,6 +11,7 @@ A sibling of the [Tektronix 8550 MDL emulator](https://github.com/hugojpinto/tek
 - The disc controller runs its real microprogram (070-2587) against flux-level tracks.
 - The **6800 Emulator Processor** runs user programs, and TEKDOS's DEBUG works on it: TRACE, breakpoints, DSTAT, SET. Its lost dump/restore PROM is modelled at high level (`notes/emulators.md`).
 - The **Z80 Emulator Processor** does the same on the Z80 TEKDOS discs, and both boards run emulation modes 1 and 2 against a target system over a socket (`-target`, `notes/prototype-link.md`; `tools/proto_target.py` is a reference target).
+- Two front ends on one system layer: the terminal (`tek8002`) and a window with a CT8100 screen and the mainframe's and disc unit's front panels (`tek8002-gui`, SDL3).
 - Not yet: PROM programmers, the Real-Time Prototype Analyzer, the 8080 board. See [ROADMAP.md](ROADMAP.md).
 
 ## Build and run
@@ -38,6 +39,38 @@ TOTAL BLOCKS USED 203
 BLOCKS AVAILABLE  101
 TOTAL BAD BLOCKS    8
 ```
+
+### Options
+```
+tek8002 [-prom FILE] [-0..-3 IMG|new:FILE] [-rw] [-fdc hle|lle] [-cycles N] [-type SEC|prompt TEXT]
+        [-snap SEC FILE] [-input SEC NAME=VALUE] [-press SEC NAME] [-mount SEC N=FILE] [-eject SEC N]
+        [-target unix:PATH|tcp:HOST:PORT] [-rem SPEC] [-lpt SPEC] [-ppt SPEC] [-trace FILE] [-io] [-fdutrace] [-log FILE]
+```
+- `-cycles N`: stop after N 2650 clocks (1,250,000 a second). With `-cycles`, or stdin not a terminal, the run is flat out and deterministic.
+- `-type SEC TEXT` types at an emulated second. `-type prompt TEXT` types at the next TEKDOS `> ` prompt; after the last one, a batch run ends at the following prompt.
+- `-snap SEC FILE` saves the CT8100 screen as text.
+- `-input SEC NAME=VALUE` sets a switch; `-press SEC NAME` presses and releases one: `8002:power`, `fdu:power` (rockers), `8002:restart` (SYSTEM RESTART), `8002:diag` (DIAG INTRPT).
+- `-mount SEC N=FILE` and `-eject SEC N` change discs while the system runs.
+- `-target`: the prototype for emulation modes 1 and 2. `-rem`, `-lpt`, `-ppt`: the modem, printer and paper tape ports (a socket, a file, or `loop`).
+
+The monitor (Ctrl-]) also presses switches (`p NAME`, `R`, `D`) and changes discs (`m N FILE`, `e N`).
+
+### Graphical front end
+```
+cd emu && make gui            # needs SDL3: brew install sdl3 / apt install libsdl3-dev
+build/tek8002-gui -0 ../disks/TekDOS_3.3_6800_cpy1.img
+```
+It takes the same options, plus `-style crt|sharp`, `-scale F`, `-panels on|off`, `-artwork DIR` and `-shot SEC FILE.bmp`. The shot saves every window (`FILE_8002a.bmp`, `FILE_fdu.bmp`); if the run ends sooner, it is taken at the end.
+
+- **The terminal** is a 24×80 CT8100 in green phosphor. The CT8100's phosphor and character set are not documented here, so the font is the one the 8550 emulator uses.
+- **The front panels** are drawn after 070-2701 Fig. 2-6 and the 1978 catalogue photo (`tools/gen_panels.py` writes `emu/artwork/*.lay`):
+  - **Mainframe:** POWER, SYSTEM RESTART and DIAG INTRPT work, and SYS, RUN and PWR light. The PROM sockets are decoration.
+  - **Disc unit:** POWER works, and each drive has a busy light. Drop a disc image on a drive door to insert it; click the door to take the disc out.
+- **Hotkeys** (Cmd, or Ctrl+Alt): V paste, C copy the screen, T turbo, F full screen, S sharp/CRT, P show the panels, R SYSTEM RESTART, Q quit.
+
+What lights SYS and RUN is not described in the manuals. Here, SYS lights while the System Processor holds the bus, and RUN while any processor runs (inferred).
+
+A headless check: `SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software build/tek8002-gui -0 IMG -cycles $((40*1250000)) -type prompt 'LDIR\r' -shot 35 x.bmp`.
 
 ## Wanted
 - Dumps of any 8001/8002 emulator board PROMs (e.g. the 6800 board's 82S115 "SYSTEM" and "FETCH"), and of the 8001's TEKOPS PROMs.

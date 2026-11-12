@@ -47,6 +47,24 @@ bool tek8002_fdu::use_controller(const std::string &rom_dir, std::string &err)
 	return true;
 }
 
+void tek8002_fdu::set_power(bool on)
+{
+	if (on == m_powered) return;
+	m_powered = on;
+	if (on) {
+		m_phase = phase::idle; m_flag = false; m_flag_timer = m_drop_timer = 0; m_op_done = false; m_expect_cmd = false;
+		reset();
+	}
+}
+
+bool tek8002_fdu::activity(int d)
+{
+	if (!m_powered || d < 0 || d >= DRIVES) return false;
+	if (m_low_level) return m_fdd.present(d) && m_fdd.selected() == d && m_fdd.head_loaded();
+	const bool t = m_touched[d]; m_touched[d] = false;
+	return t;
+}
+
 void tek8002_fdu::reset()
 {
 	if (m_low_level) { m_fdc.reset(); m_fdc.host_control(m_code); }
@@ -96,6 +114,7 @@ void tek8002_fdu::read_sector()
 	if (!locate(off)) { m_status |= ST_ILLEGAL; memset(m_buf, 0, sizeof m_buf); return; }
 	if (!mounted(m_dev)) { m_status |= ST_DRIVE_FAULT; memset(m_buf, 0, sizeof m_buf); return; }
 	memcpy(m_buf, &m_drive[m_dev].image[off], SECTOR_BYTES);
+	m_touched[m_dev & 3] = true;
 	if (trace) fprintf(stderr, "[FDU read  drive %d track %2d sector %2d]\n", m_dev, m_trk, m_sec);
 }
 
@@ -107,6 +126,7 @@ void tek8002_fdu::write_sector()
 	drive_t &dr = m_drive[m_dev];
 	if (!dr.writable) { m_status |= ST_WRITE_PROTECT; return; }
 	memcpy(&dr.image[off], m_buf, SECTOR_BYTES); dr.dirty = true;
+	m_touched[m_dev & 3] = true;
 	if (trace) fprintf(stderr, "[FDU write drive %d track %2d sector %2d]\n", m_dev, m_trk, m_sec);
 }
 
@@ -203,6 +223,7 @@ void tek8002_fdu::request(int code)
 void tek8002_fdu::control(u8 c)
 {
 	c &= 7;
+	if (!m_powered) { m_code = c; return; }
 	if (m_low_level) {
 		static const char *const name[4] = { "IND", "?", "OTD", "SIO" };
 		if (trace && c != m_code && !(c & 1)) fprintf(stderr, "[FDC %s %02x, FLAG %d]\n", name[c >> 1], m_out, int(m_fdc.host_flag()));
@@ -228,6 +249,7 @@ void tek8002_fdu::control(u8 c)
 
 void tek8002_fdu::tick(int cycles)
 {
+	if (!m_powered) return;
 	if (m_low_level) { m_fdc.run(u64(cycles) * u64(cycle_ns)); return; }
 	if (m_flag_timer > 0 && (m_flag_timer -= cycles) <= 0) { m_flag_timer = 0; m_flag = true; }
 	if (m_drop_timer > 0 && (m_drop_timer -= cycles) <= 0) { m_drop_timer = 0; m_flag = false; m_in = m_status; }
