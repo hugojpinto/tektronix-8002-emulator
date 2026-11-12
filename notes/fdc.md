@@ -50,9 +50,42 @@ Bits 15–14 select the WR bus source, bits 13–12 the destination:
   whose label the symbol table gives match its decimal column; the exception is E9B, where
   that column is garbled and the hex column agrees with the decode.
 
-## Still to establish (stage B)
-- The semantics behind the decode: T-register and jump-condition timing, the carry rules per
-  function, the Sector Buffer (a 1024-bit shift register, SPSH/EPSH/PULL), the read logic
-  (separated clock/data, Data Ready), write logic, and the 400 ns machine cycle (§3
-  "Instruction Execution Time").
+## The machine, from §3 (for stage B, the emulation)
+- **Cycle:** 20 MHz ÷ 4 gives a 200 ns machine cycle (T0 latches the instruction, T1 clocks the
+  command latches, RAR CLK advances). The listing counts 400 ns per executed jump (`JMP *+1`
+  as a delay), so a taken jump costs two cycles (JMP FRZ holds it for a cycle).
+- **Registers:** R0–R15 (8-bit), the accumulator, the T-register (the last ALU result, kept
+  through a jump: four jump conditions are its bits, TB0/2/4/6, plus zero), and the Carry
+  flip-flop (C7 in arithmetic mode).
+- **Register roles (Fig. 3-7b):** R0 sense byte, R3 program-state flags (seek state, error
+  recovery, end of file, GTCRC, GTID1/2), R4 drive, R5 head delay, R6 command, R7 current
+  sector, R8 the input CSW, R9 target sector, R10/R11 current/target track, R13 host byte
+  count, R14/R15 CRC.
+- **Inputs (Fig. 3-8)**, where "1 = high level = logic false":
+  - CSW (TRK00, INDEX, C0, SECTOR, C1, S, READY);
+  - SBH/SBL, the Sector Buffer's output bit on WR7/WR0;
+  - DBT, the separated read data bit on WR7;
+  - BYT, the host's output byte;
+  - INL, the interleave switch S4104;
+  - TST, the test panel.
+- **Host port (§3 "Controller Functional Description"):** with C0 inactive (SIO, RST) the host
+  reads the disc status byte (the Group 1 latches and the drive status); with C0 active (IND) it
+  reads the accumulator. FLAG is the HOST FLG latch (SFG/RFG).
+- **Sector Buffer:** a 1024-bit shift register. SPSH starts a push of C7 (or of the separated
+  data while reading, SELECT CARRY off) and EPSH finishes it. SBH/SBL read its output bit.
+  Pushing the bit read recirculates it (`RLC IN,L,SBH,SPSH`).
+- **Read logic:** the separated clock pulse sets Data Ready (JDA/JNR); SPSH clears it and
+  clocks the separated data bit into the buffer.
+- **Write logic:** PULL loads the write flip-flop from C7. The microprogram times the FM clock
+  and data pulses itself by counting cycles (`NEED 10 CYCLES IN THIS SEQUENCE`, `400 NS DELAY
+  PER EXECUTED JUMP`), so a model must take the bit cells from when each PULL happens.
+
+## Still to establish
+- Stage B: the processor (ALU and carry per function as Table 3-2 states them, the jump
+  conditions' polarity, the T-register through jumps), checked by running the microprogram's
+  executive loop against the high-level model's host protocol.
+- Stage C: a bit-level, hard-sectored FM track (sector and index pulses, separated clock/data,
+  32 sectors at 360 rpm = 5.2 ms each) and reads through the real microcode.
+- Stage D: writes and FORMAT (write flip-flop timing), then replacing `tek8002_fdu`'s high-level
+  path, keeping it as an option (`-fdc hle`, as in the 8550 emulator).
 - Which PROM is which half (schematic).
