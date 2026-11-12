@@ -1,46 +1,81 @@
 # Tektronix 8002A µProcessor Lab emulator
 
-![The graphical front end: the CT8100 tracing Tektronix's Z80 DEMO, and the 8002A and disc unit front panels](docs/screenshots/hero.png)
+![The graphical front end: TEKDOS Z80 stopped at a breakpoint in Tektronix's Z80 DEMO, with DSTAT showing the Z80's registers, beside the 8002A and disc unit front panels](docs/screenshots/hero.png)
 
-An emulator of the **Tektronix 8002A µProcessor Lab** (1978–79), a microprocessor development system built around a Signetics 2650. The 8002 is the Millennium Universal One / Signetics TWIN, sold under the Tektronix name. It runs the original bootstrap PROM and boots TEKDOS from emulated 8" disc images.
+An emulator of the **Tektronix 8002A µProcessor Lab** (1978–79), the development system on which Z80 programs were written, assembled, linked, run and debugged at the bench. The emulator runs the original bootstrap PROM and boots TEKDOS from emulated 8" disc images.
+
+The 8002A is built around a Signetics 2650 (the Millennium Universal One / Signetics TWIN, sold under the Tektronix name). On the Z80 TEKDOS discs, Z80 work happens on two boards:
+- the **Z80 Assembler Processor**, which runs TEKDOS's Z80 assembler and linker;
+- the **Z80 Emulator Processor**, which runs your program in program memory (mode 0) or in a target system through its probe (modes 1 and 2), under TEKDOS's DEBUG.
 
 A sibling of the [Tektronix 8550 MDL emulator](https://github.com/hugojpinto/tektronix-8550-emulator), sharing its CPU cores and design.
 
 ## Status
-- The real bootstrap PROM (070-2393 Fig. 6-2) boots **TEKDOS 3.1 and 3.3** (6800) to the `>` prompt.
-- `LDIR` lists the disc directory. On `Tek8002_1a` it matches the printout photographed with the original disc.
-- The Z80 Assembler Processor runs TEKDOS's ASM and LINK; System Communications drive the printer, modem and paper tape ports; FORMAT, COPYSYS and DUP work.
-- The disc controller runs its real microprogram (070-2587) against flux-level tracks.
-- The **6800 Emulator Processor** runs user programs, and TEKDOS's DEBUG works on it: TRACE, breakpoints, DSTAT, SET. Its lost dump/restore PROM is modelled at high level (`notes/emulators.md`).
-- The **Z80 Emulator Processor** does the same on the Z80 TEKDOS discs, and both boards run emulation modes 1 and 2 against a target system over a socket (`-target`, `notes/prototype-link.md`; `tools/proto_target.py` is a reference target).
-- Two front ends on one system layer: the terminal (`tek8002`) and a window with a CT8100 screen and the mainframe's and disc unit's front panels (`tek8002-gui`, SDL3).
-- Not yet: PROM programmers, the Real-Time Prototype Analyzer, the 8080 board. See [ROADMAP.md](ROADMAP.md).
+- **TEKDOS Z80 3.1** boots from the real bootstrap PROM (070-2393 Fig. 6-2) to the `>` prompt. TEKDOS 6800 3.1 and 3.3 boot too.
+- **The Z80 Assembler Processor** runs ASM and LINK: Tektronix's own `DEMO%S` assembles and links unchanged.
+- **The Z80 Emulator Processor** runs programs with their SVCs, and TEKDOS's DEBUG works on it: TRACE ALL/JMP/STEP, breakpoints, DSTAT with the whole Z80 register block (alternate set, IX, IY, I, R, IM, IFF1/2), SET, HALT.
+- **Emulation modes 1 and 2** reach a target system over a socket (`-target`, `notes/prototype-link.md`). The target can be the reference target `tools/proto_target.py`, or a ZX Spectrum in FUSE: in mode 2, `GO 0` runs the Spectrum's ROM on the 8002's Z80 board, up to its copyright screen. Link v4 carries the target's clock.
+- **Also:**
+  - The 6800 Emulator Processor, with the same DEBUG support (`notes/emulators.md`).
+  - The disc controller running its real microprogram (070-2587) against flux-level tracks; FORMAT, COPYSYS and DUP work.
+  - System Communications: the printer, modem and paper-tape ports.
+  - Memory parity.
+  - The CT8100 terminal from its manual.
+- **Two front ends on one system layer:** the terminal (`tek8002`), and a window with the CT8100 screen and the mainframe and disc unit front panels (`tek8002-gui`, SDL3).
+- **Not yet:** the 8080, 8085 and 6500/1 boards, the PROM programmers and the Real-Time Prototype Analyzer. See [ROADMAP.md](ROADMAP.md).
 
 ## Build and run
 ```
 cd emu && make
-build/tek8002 -0 ../disks/TekDOS_3.3_6800_cpy1.img
+cp ../disks/TekDOS_3.1_Z80.img /tmp/z80.img       # a copy: -rw saves changes to it
+build/tek8002 -rw -0 /tmp/z80.img
 ```
-The console is your terminal. Ctrl-] opens the monitor (`q` quits). `-1`…`-3` mount more drives, `-rw` makes them writable. The disc controller runs its real microprogram against flux-level tracks; `-fdc hle` uses the high-level model instead (faster discs, same files). `-1 new:FILE` mounts a never-formatted disc, for FORMAT, saved to FILE with `-rw`. `tests/boot_ldir.sh` is the regression test.
+The console is your terminal. Ctrl-] opens the monitor (`q` quits).
+- **Discs:** `-1`…`-3` mount more drives. Without `-rw` a disc is write-protected, as with its tab on, so ASM cannot write its output. `-1 new:FILE` mounts a never-formatted disc, for FORMAT.
+- **Disc model:** the disc controller runs its real microprogram; `-fdc hle` uses the high-level model instead (faster discs, same files).
+- **Case:** TEKDOS takes commands in upper case only. The CT8100's TTY LOCK key is on, so whatever you type goes up as upper case.
 
+A Z80 session, with Tektronix's own demonstration program: assemble it, link it, load it, give it five bytes to add, run it, then stop it at a breakpoint and look at the Z80:
 ```
- TEKDOS  6800    VERSION 3.3
-> LDIR
+ TEKDOS  Z80     VERSION 3.1
 
-FILE NAME  BLKS
+> ASM DEMO;O DEMO;A DEMO%S
+Tektronix        Z80 ASM V3.3
+**** Pass 2
+   15 Source Lines      15 Assembled Lines   12921 Bytes available
+            >>> No assembly errors detected <<<
+*ASM* EOJ
 
-TEKDOS      16
-.          176
-COPYSYS      1
-NEWDISC      1
-CHANGE       0
-CONCO        1
+> LINK DEMO;L DEMO;K DEMO;O
+    NO ERRORS     NO UNDEFINED SYMBOLS
+    1  MODULE     1  SECTION
+    TRANSFER ADDRESS IS 0100
+*LINK* EOJ
 
-TOTAL FILES         6
-TOTAL BLOCKS USED 203
-BLOCKS AVAILABLE  101
-TOTAL BAD BLOCKS    8
+> LOAD DEMO;L
+TRANSFER ADDRESS: 0100
+*LOAD* EOJ
+
+> PATCH 500 0102030405
+
+> GO 100
+*DOS* EOJ
+
+> DEBUG
+
+> BKPT 0108 R
+
+> GO 100
+LOC  INST     MNEM OPER        SP  RF RA RB RC RD RE RH RL  IX  IY
+0108 05       DEC  B          0000 02 01 04 00 00 00 05 01 0000 0000
+0108 BREAK
+
+> DSTAT
+PC=0109 BP=0108 R          M=0 SP=0000 RF=02 RA=01 04 00 00 00 05 01
+  IM=0  IFF1=0  IFF2=0    ALT SET:     AF=00 AA=00 00 00 00 00 00 00
+  IX=0000  IY=0000  I=00  R=06
 ```
+[docs/TUTORIALS.md](docs/TUTORIALS.md) goes on from there: TRACE ALL, SET, single steps, and the program running on a target system in modes 1 and 2. `tests/runz80.sh` is this session's regression test.
 
 ### Options
 ```
@@ -62,7 +97,7 @@ The monitor (Ctrl-]) also presses switches (`p NAME`, `R`, `D`), changes discs (
 ### Graphical front end
 ```
 cd emu && make gui            # needs SDL3: brew install sdl3 / apt install libsdl3-dev
-build/tek8002-gui -0 ../disks/TekDOS_3.3_6800_cpy1.img
+build/tek8002-gui -rw -0 /tmp/z80.img
 ```
 It takes the same options, plus `-cursor steady|blink` (the CT8100's cursor is steady; a strap made it blink), `-style crt|sharp`, `-scale F` (by default the windows fit the screen, centred), `-panels on|off`, `-artwork DIR` and `-shot SEC FILE.bmp`. The shot saves every window (`FILE_8002a.bmp`, `FILE_fdu.bmp`); if the run ends sooner, it is taken at the end.
 
