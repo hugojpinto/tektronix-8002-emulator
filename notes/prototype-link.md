@@ -74,9 +74,19 @@ emu/build/tek8002 -target tcp:127.0.0.1:18002 -0 sources/bitsavers/disks/Tek8002
 > PATCH 120 48490D00                                     ("HI", CR)
 > GO 100                                                 -> HI appears in terminal 1
 ```
-`tests/prototype.sh` runs modes 1 and 2 on both boards this way. FUSE's `--tek-probe` target
-(see the sibling project) speaks the same protocol, so a ZX Spectrum can be the prototype of
-the 8002's Z80 board as well.
+`tests/prototype.sh` runs modes 1 and 2 on both boards this way.
+
+**Verified with FUSE** (2026-11-12): FUSE's `--tek-probe` target (the TC3256 EMUL repository,
+branch feature/tek8550-probe, protocol v3) is a ZX Spectrum 48K as the prototype of the 8002's
+Z80 board, with no change on either side:
+```
+./fuse --machine 48 --tek-probe                                   # listens on tcp:127.0.0.1:18550
+emu/build/tek8002 -target tcp:127.0.0.1:18550 -0 Tek8002_10.img   # a copy: the Z80 TEKDOS disc
+> EMULATE 2
+> DUMP 0 1F          -> 0010=C3 F2 15 ...  (the Spectrum ROM's RST 10, read over the link)
+> GO 0               -> the Spectrum ROM runs on the 8002's board to the copyright screen in FUSE
+```
+FUSE answers v3, so the board runs at its own clock (no `K`).
 
 ## Version 4 (tek8002): the prototype's clock
 In modes 1 and 2 the emulator processor runs from the prototype's clock, which the probe takes

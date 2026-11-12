@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-11-12 — Front ends: a system layer, the tty and the GUI
+- Verified with FUSE: a ZX Spectrum 48K (`fuse --tek-probe`) as the Z80 board's prototype. In mode 2, `GO 0` runs the Spectrum ROM on the 8002's board to its copyright screen (`notes/prototype-link.md`).
 - `system/tek8002_system`: the lab as one class with no notion of wall-clock time. It holds the mainframe and disc unit, the CT8100 on the terminal port, the links, and scripted events. Switches and lamps are named outputs and inputs (MAME style). `system/options` is the command line both front ends share.
 - New scripted options: `-snap`, `-input`, `-press`, `-mount` and `-eject`. The monitor gains `p`, `R`, `D`, `m` and `e`.
 - The switches: POWER (the bootstrap runs again at power-up), SYSTEM RESTART (the 2650 starts when it is let go), DIAG INTRPT, and the disc unit's POWER (an unpowered unit answers nothing).
