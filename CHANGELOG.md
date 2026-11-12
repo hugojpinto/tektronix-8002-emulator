@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-12 — Step 5 stage B: the disc controller's processor
+- `tek8002_fdc` runs the real 512-word microprogram: the 74181 ALU in its active-low convention, the jump conditions, the command latches, UBANK (delayed one fetch), the Sector Buffer, and the host port.
+- `emu/tests/fdc_test.cpp` (in `make test`) checks the power-on delay, the autoload's error recovery on a blank disc, the SIO/OTD handshake into R6/R4/R9/R11, and the seek to track 16.
+- Established: the WR bus is active low (Fig. 3-8 prints physical levels), INL = 0x0F, HOST FLG is active while its latch is reset, and U1080/U1070 hold bits 15–8/7–0 (`notes/fdc.md`).
+
 ## 2026-11-12 — Step 4 completed: TEKDOS's disc tools
 - COPYSYS and DUP work, besides FORMAT, DELETE and COPY: a COPYSYS'd disc boots and its system files are identical to the original's; a DUP'd disc has every file identical (`tests/disc_tools.sh`).
 

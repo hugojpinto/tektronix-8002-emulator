@@ -3,13 +3,13 @@
 The 8002A disc unit's controller (070-2587 section 3) is a 16-bit microprogrammed
 machine built from TTL around an 8-bit ALU. It does the FM encoding, the sector framing
 and the CRC in microcode, bit by bit. Its program is 512 words in two 512 × 8 PROMs,
-U1070 (160-0025-00) and U1080 (160-0029-00). This note is stage A of roadmap step 5:
-the microcode as ROM images, and a disassembler that reproduces the manual's listing.
+U1070 (160-0025-00) and U1080 (160-0029-00). This note covers stages A and B of roadmap step 5:
+the microcode as ROM images, a disassembler that reproduces the manual's listing, and the processor that runs it.
 
 ## The ROM images (`roms/fdc/`)
 `fdc_bits15-8.bin` and `fdc_bits7-0.bin` hold the instruction words' upper and lower
-bytes. Which of U1070/U1080 holds which half is not in the OCR text; only the
-schematic shows it (open).
+bytes: U1080 (160-0029-00) holds bits 15–8 and U1070 (160-0025-00) bits 7–0, as the
+schematic shows (070-2587 p. 88; the OCR text does not say).
 
 They come from **three printings in the manual**, extracted and compared:
 1. **Appendix C listing, binary column:** 16 characters of 0/1 per instruction, which the OCR
@@ -43,8 +43,10 @@ Bits 15–14 select the WR bus source, bits 13–12 the destination:
 - **Jump conditions** (bits 11–8): JNZ, JZR, J6N, J6Z, J4N, J4Z, JNC, JZC, J2N, J2Z, JLB, JLZ,
   JDA (data ready), JNR (not ready), JMP; the other two are not used.
 - **Banks:** the ROM Address Register is an 8-bit counter, and the UBANK flip-flop selects the
-  lower or upper 256 words (§3 "Read-Only Memory"). SH8/SL8 set and reset it, and the next jump
-  lands in the new bank (`054 SH8; 055 JMP WRT` reaches 1AA).
+  lower or upper 256 words (§3 "Read-Only Memory"). SH8/SL8 set and reset it. The bank changes
+  one fetch late, because UBANK reaches the ROM through the ROM Instruction Register (U2090 Q1).
+  So the instruction after SH8/SL8 still comes from the old bank, and it is the jump that lands
+  in the new one (`054 SH8; 055 JMP WRT` reaches 1AA, while the word at 155 is unrelated read code).
 - **Established:** `tools/fdc_dasm.py --check` against the listing's OCR text. All 512 op codes
   match the listing's (OCR spellings like LOO for LOD mapped). 154 of the 155 jump targets
   whose label the symbol table gives match its decimal column; the exception is E9B, where
@@ -80,12 +82,33 @@ Bits 15–14 select the WR bus source, bits 13–12 the destination:
   and data pulses itself by counting cycles (`NEED 10 CYCLES IN THIS SEQUENCE`, `400 NS DELAY
   PER EXECUTED JUMP`), so a model must take the bit cells from when each PULL happens.
 
+## Stage B: the processor (`emu/src/machine/tek8002_fdc.*`, `emu/tests/fdc_test.cpp`)
+The microprogram now runs on a model of the processor. Facts settled while doing so:
+- **The WR bus is active low** (WR̅ in Fig. B-2), and Fig. 3-8 prints physical levels
+  ("1 = high level = logic false"). Its 1s are logical 0s, so the unused input bits read 0.
+  Its 0s are logical 1s: INL bit 0 = 1, and INL = switches 5–1 on bits 5–1. Reading the figure
+  the other way gives an even INL, and the sector arithmetic then misses every other sector.
+- **Interleave switch S4104:** the factory setting is Off Off On On On (switches 5–1, §1), so
+  INL = 0x0F. How that maps to the "0, 16, 1, 17" sector order is left for FORMAT in stage D.
+- **The ALU** is a 74181 used in active-low convention, with S0/S1 inverted on the way (Table 3-2
+  footnote). Arithmetic is the chip's P + G + carry on the physical levels, and the true carry
+  (C7) is the physical carry inverted. Logic functions are the active-high table on the inverted
+  operands.
+- **CSW** as the executive's service decode (05A–05C) needs it: bit 5 = C0 asserted, bit 3 = C1
+  asserted, bit 2 = strobe active.
+- **HOST FLG is active while its latch is reset.** SFG writes 0 and RFG writes 1, so RST, which
+  resets group 1, raises FLAG. That is how the executive acknowledges SIO (05D RST).
+- **OTD raises FLAG before it stores the byte:** 066 reads BYT, 067 SFG, and the byte reaches its
+  register a few instructions later (the track byte at 08E LRA R11).
+- **Checked by `fdc_test`** against a drive that only turns (no data):
+  - The power-on delay ends in the executive after 1.05 s.
+  - The autoload (drive 0, track 0, sector 0) finds no sync and runs error recovery, and FLAG
+    drops 3.3 s later with UNIT CHECK and sense 08 (SYNC ERROR).
+  - SIO and four OTD bytes (88, 00, 05, 10) land in R6/R4/R9/R11, and the drive is selected.
+  - The seek steps the head to track 16. The read there fails the same way, and FLAG drops once.
+
 ## Still to establish
-- Stage B: the processor (ALU and carry per function as Table 3-2 states them, the jump
-  conditions' polarity, the T-register through jumps), checked by running the microprogram's
-  executive loop against the high-level model's host protocol.
 - Stage C: a bit-level, hard-sectored FM track (sector and index pulses, separated clock/data,
   32 sectors at 360 rpm = 5.2 ms each) and reads through the real microcode.
 - Stage D: writes and FORMAT (write flip-flop timing), then replacing `tek8002_fdu`'s high-level
   path, keeping it as an option (`-fdc hle`, as in the 8550 emulator).
-- Which PROM is which half (schematic).

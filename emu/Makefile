@@ -49,13 +49,16 @@ $(BUILD)/tools/%.o: tools/%.cpp
 
 $(BUILD)/debug_test$(EXE): $(BUILD)/tests/debug_test.o $(BUILD)/machine/tek8002_debug.o
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+$(BUILD)/fdc_test$(EXE): $(BUILD)/tests/fdc_test.o $(BUILD)/machine/tek8002_fdc.o
+	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 $(BUILD)/tests/%.o: tests/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 # unit tests, then the TEKDOS sessions (tests/*.sh need ../tekmato for step 2)
-test: all $(BUILD)/debug_test$(EXE)
+test: all $(BUILD)/debug_test$(EXE) $(BUILD)/fdc_test$(EXE)
 	$(BUILD)/debug_test$(EXE)
+	$(BUILD)/fdc_test$(EXE) ../roms/fdc
 	cd .. && tests/boot_ldir.sh && tests/asm_link.sh
 
 clean:

@@ -8,7 +8,8 @@ Following FEASIBILITY.md §5.
 4. ~~A disc tool, and TEKDOS's own disc tools~~ (2026-11-12): `../tekmato` handles TEKDOS discs; FORMAT, DELETE, COPY, COPYSYS and DUP work on writable images (`tests/disc_tools.sh`).
 5. **The disc controller at low level** from its microprogram (070-2587 Appendix C, two 512×8 ROMs), with a hard-sectored FM track model; this also yields FM sector streams for writing real discs.
    - ~~Stage A~~ (2026-11-12): the microcode as ROM images, triple-checked, and a disassembler matching the manual's listing (`notes/fdc.md`, `tools/fdc_dasm.py`).
-   - Stages B–D: the processor, the track model and reads, writes and FORMAT (`notes/fdc.md` "Still to establish").
+   - ~~Stage B~~ (2026-11-12): the processor runs the real microprogram: power-on delay, autoload with error recovery, SIO/OTD handshake, seek (`emu/src/machine/tek8002_fdc.*`, `emu/tests/fdc_test.cpp`).
+   - Stages C–D: the track model and reads, then writes and FORMAT (`notes/fdc.md` "Still to establish").
 6. **6800 emulator board** (high level: its PROMs are lost), debug features (breakpoints, single cycle, TRACE).
 7. Options: PROM programmers (2704/2708, 1702A), Real Time Trace / RTPA, front panel in a GUI.
 
