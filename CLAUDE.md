@@ -13,10 +13,11 @@ Start with `FEASIBILITY.md` (what survives, the plan), then `notes/` (hardware f
 | `emu/src/machine/` | `tek8002.*` (mainframe: System Processor, System and Program Memory), `tek8002_debug.*` (Debug and Front Panel I/O module: master/slave hand-over, SVCs, the slave run loop), `tek8002_slave.h` (what a slave board supplies), `tek8002_asmproc.*` (Assembler Processor, Z80, port E7), `tek8002_syscomm.*` (System Communications), `mc6850.h` (ACIA, double-buffered), `tek8002_fdu.*` (Flexible Disc Unit, high level), `ay31015.h` (console UART) |
 | `emu/src/host/` | `tty.h` (raw tty, key polling), `serial_link.*` + `net.*` (what is plugged into a port: socket, file, wrap-back); all from MDL |
 | `emu/src/main8002.cpp` | tty front end: console on this terminal, monitor (Ctrl-]), pacing, scripted `-type` |
-| `notes/` | hardware findings: `8002.md` (System Processor, memory, interrupts, Debug module), `fdu.md` (disc protocol and format), `boot-prom.md`, `dasm/`. **Facts established by reverse engineering live here** |
-| `roms/` | `tekdos_boot.bin` (bootstrap PROM, listing order; `MANIFEST.md`) |
+| `notes/` | hardware findings: `8002.md` (System Processor, memory, interrupts, Debug module, slaves, System Communications), `fdu.md` (disc protocol and format), `fdc.md` (the controller's microprogram), `boot-prom.md`, `dasm/`. **Facts established by reverse engineering live here** |
+| `roms/` | `tekdos_boot.bin` (bootstrap PROM, listing order), `fdc/` (the disc controller's microprogram, two halves; `notes/fdc.md`); `MANIFEST.md` |
 | `disks/` | working copies of disc images |
 | `sources/` | original material: bitsavers manuals (`manuals/800x/`, with `pdftotext -layout` text), disc images (`disks/`), firmware (`firmware/`), ztpe.nl's OS internals (`ztpe/`). **Read-only; never modify** |
+| `tools/` | `fdc_dasm.py`: the disc controller's microcode disassembler (`--check LISTING` compares with the manual's own listing) |
 | `tests/` | `boot_ldir.sh`: boot TEKDOS and list two reference discs; `asm_link.sh`: ASM and LINK on the Z80 (uses `../tekmato`); `syscomm.sh`: LPT1, REMO, PPTP; `disc_tools.sh`: FORMAT, COPYSYS, DUP; `emu/tests/debug_test.cpp`: the Debug module. `make -C emu test` runs them. Disc writes are checked by `../tekmato/scripts/regression.sh` section 6 |
 | `reference/` | MAME commit the cores trace back to |
 
