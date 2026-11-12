@@ -111,7 +111,10 @@ from the socket's clock pin (070-3665 §1, §3). Version 4 carries its rate:
   min(offered, 4), K = the machine's processor speed, e.g. 3500 kHz for a 48K, 3547 for a
   128K, WAIT in Spectrum T-states). Joint run: "[prototype link: protocol v4, clock 3.500 MHz]",
   and EMULATE 2, GO 0 runs the Spectrum ROM. The sibling tektronix-8550-emulator speaks v4
-  too (its commit 165aac3).
+  too (its commit 165aac3). The machine-switch path was checked jointly: FUSE started as a 48K
+  with a harness switch to a 128K, and the 8002 printed "[prototype link: clock 3.547 MHz]"
+  after the RESET (EMUL af149ef). Over the link FUSE runs about 150 frames a minute, so a
+  harness switch must come at an early frame.
 
 **Not modelled:** bus timing beyond WAIT,
 DMA from the target, and the copying of mode-1 writes to P blocks that the 8550's board does

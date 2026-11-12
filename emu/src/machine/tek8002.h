@@ -71,7 +71,15 @@ public:
 	// who has been running, in 2650 cycles (front-panel lamps): the System Processor; the
 	// bus handed to a slave; a slave running on it
 	u64 run_master = 0, bus_slave = 0, run_slave = 0;
-	u8 peek(offs_t a) { return read(a & 0x7fff); }
+	u8 peek(offs_t a) const;                // what the 2650 would read, with no side effects (no parity check)
+	// Memory parity (070-2711 §4 "Data and Parity Control", Table 3-28): every byte of System and
+	// Program memory has a ninth, even-parity bit, written with the byte. A read of a byte whose
+	// parity is wrong raises interrupt 1 (System Memory) or 3 (Program Memory), whoever reads it.
+	// The RAM powers up with good parity here (inferred: a real one powers up random; TEKDOS
+	// rewrites every byte at start-up). A fault makes one byte hold bad parity until it is
+	// written again, as a failing RAM would: System Memory 0000-3FFF, or program memory by its
+	// user address (0000-FFFF: the slaves' address, DUMP's); false where no memory is fitted.
+	bool parity_fault(bool program, u32 a);
 	void poke(offs_t a, u8 d) { write(a & 0x7fff, d); }
 	u32 pending() const { return m_pending; }
 
@@ -99,6 +107,7 @@ private:
 	std::vector<tek8002_slave *> m_slaves{ &asmproc, &ep6800, &epz80 };   // every slave board, each decoding its own command port
 	std::vector<u8> m_prom;                 // bootstrap PROM, in CPU address order
 	std::vector<u8> m_sysram, m_progmem;
+	std::vector<bool> m_sysbad, m_progbad;  // bytes holding bad parity
 	u8 m_bank = 0;                          // EE bits 1-0: program memory bank at 4000-7FFF
 	u8 m_serial_ctl = 0;                    // E9 write: bit 2 TTY interrupts, bit 1 even parity, bit 0 reader on
 	u8 m_par_ctl = 0x07;                    // EA write: bit 5 printer int enable, bit 4 disc int enable, bits 2-0 C1 C0 /S

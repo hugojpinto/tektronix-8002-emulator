@@ -52,9 +52,10 @@ tek8002 [-prom FILE] [-0..-3 IMG|new:FILE] [-rw] [-fdc hle|lle] [-cycles N] [-ty
 - `-ttylock on|off`: the CT8100's TTY LOCK key, on by default. Lower-case keys go to the 8002 as upper case, because TEKDOS takes commands in upper case only. Scripted `-type` text is sent as written.
 - `-input SEC NAME=VALUE` sets a switch; `-press SEC NAME` presses and releases one: `8002:power`, `fdu:power` (rockers), `8002:restart` (SYSTEM RESTART), `8002:diag` (DIAG INTRPT).
 - `-mount SEC N=FILE` and `-eject SEC N` change discs while the system runs.
+- `-parity SEC ADDR` (System Memory) or `-parity SEC U:ADDR` (program memory, the user address) makes one byte hold bad parity until it is written, as a failing RAM would. TEKDOS reports ERROR 65 or 66.
 - `-target`: the prototype for emulation modes 1 and 2. `-rem`, `-lpt`, `-ppt`: the modem, printer and paper tape ports (a socket, a file, or `loop`).
 
-The monitor (Ctrl-]) also presses switches (`p NAME`, `R`, `D`) and changes discs (`m N FILE`, `e N`).
+The monitor (Ctrl-]) also presses switches (`p NAME`, `R`, `D`), changes discs (`m N FILE`, `e N`), toggles TTY LOCK (`T`) and injects parity faults (`P [U] ADDR`).
 
 ### Graphical front end
 ```

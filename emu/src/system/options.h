@@ -20,6 +20,7 @@ struct tek8002_options
 	std::vector<timed_t> snaps;        // -snap SECONDS FILE: the CT8100 screen as text
 	std::vector<timed_t> switches;     // -input SECONDS NAME=VALUE, -press SECONDS NAME
 	std::vector<timed_t> discs;        // -mount SECONDS N=FILE, -eject SECONDS N
+	std::vector<timed_t> parity;       // -parity SECONDS ADDR | U:ADDR (hex): a memory parity fault
 	std::string tracefile, logfile;    // -trace FILE (2650 instructions), -log FILE (console output)
 	bool io = false, fdutrace = false; // -io, -fdutrace
 	std::string targetspec;            // -target unix:PATH|tcp:HOST:PORT (the prototype)

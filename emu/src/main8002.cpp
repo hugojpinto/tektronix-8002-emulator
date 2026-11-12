@@ -28,7 +28,7 @@ static bool monitor(tek8002_system &sys)
 		case 'c': case '\n': host::tty_raw(true); return true;
 		case 'r': sys.show(stdout); break;
 		case 'd': { if (k < 1) a = m.cpu.pc(); if (k < 2) n = 64;
-			for (unsigned i = 0; i < n; i++) { if (i % 16 == 0) printf("%s%04x:", i ? "\n" : "", (a + i) & 0x7fff); printf(" %02x", m.read((a + i) & 0x7fff)); }
+			for (unsigned i = 0; i < n; i++) { if (i % 16 == 0) printf("%s%04x:", i ? "\n" : "", (a + i) & 0x7fff); printf(" %02x", m.peek(a + i)); }
 			printf("\n"); break; }
 		case 'u': { if (k < 1) a = m.cpu.pc(); if (k < 2) n = 16; u16 pc = u16(a);
 			for (unsigned i = 0; i < n; i++) { int len; std::string s = sys.dasm(pc, &len); printf("%04x: %s\n", pc, s.c_str()); pc += len ? len : 1; }
@@ -37,6 +37,12 @@ static bool monitor(tek8002_system &sys)
 		case 'i': m.trace_io = !m.trace_io; printf("io trace %s\n", m.trace_io ? "on" : "off"); break;
 		case 'R': sys.press("8002:restart"); printf("SYSTEM RESTART\n"); break;
 		case 'D': sys.press("8002:diag"); printf("DIAG INTRPT\n"); break;
+		case 'P': {                                       // P ADDR: System Memory; P U ADDR: program memory
+			const bool u = line[1] == ' ' && (line[2] == 'U' || line[2] == 'u');
+			unsigned pa;
+			if (sscanf(line + (u ? 3 : 1), "%x", &pa) != 1) { printf("P ADDR (System Memory) | P U ADDR (program memory)\n"); break; }
+			printf("%s\n", m.parity_fault(u, pa) ? "bad parity at that byte until it is written" : "no memory there");
+			break; }
 		case 'T': { ct8100 &t = sys.terminal(); t.tty_lock = !t.tty_lock; printf("TTY LOCK %s\n", t.tty_lock ? "on" : "off"); break; }
 		case 'p': { char name[64]; if (sscanf(line + 1, "%63s", name) == 1) printf("%s\n", sys.press(name) ? "pressed" : "no such switch"); break; }
 		case 'm': { int d; char path[512]; std::string err;
@@ -44,7 +50,7 @@ static bool monitor(tek8002_system &sys)
 			break; }
 		case 'e': { int d; std::string err; if (sscanf(line + 1, "%d", &d) == 1) printf("%s\n", sys.eject(d, err) ? "ejected" : err.c_str()); break; }
 		case 'h': printf("c continue | q quit | r regs | d [addr [n]] | u [addr [n]] | s [n] step | i io-trace\n"
-		                 "R SYSTEM RESTART | D DIAG INTRPT | T TTY LOCK | p SWITCH (press: 8002:power, fdu:power ...) | m N FILE mount | e N eject\n"); break;
+		                 "R SYSTEM RESTART | D DIAG INTRPT | T TTY LOCK | P [U] ADDR parity fault | p SWITCH (press: 8002:power, fdu:power ...) | m N FILE mount | e N eject\n"); break;
 		default: printf("?\n");
 		}
 	}

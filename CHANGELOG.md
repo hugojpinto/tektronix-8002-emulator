@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-12 — Memory parity; link v4 agreed; the lamps from the schematics
+- Memory parity (070-2711 §4, Table 3-28): bad parity raises interrupt 1 (System Memory) or 3 (Program Memory), and TEKDOS reports ERROR 65 or 66. Faults are injected with `-parity SEC [U:]ADDR` or the monitor's `P` (`tests/parity.sh`, in `make test`). `peek()` no longer goes through the bus.
+- Link v4 agreed with FUSE (EMUL dfbfd98) and adopted by the 8550 emulator: `K` is read again after each RESET pulse (a machine switch, checked jointly: 3.500 → 3.547 MHz), `T` stays in microseconds, and link time is converted per stretch at the clock it ran at (it used to rescale every past cycle when the board switched clocks).
+- The front-panel lamps from the schematics (`notes/8002.md`): SYS is the master/slave flip-flop, RUN is the bus RUN line gated by HOLD, PWR is +5.2 V.
+
 ## 2026-11-12 — Front ends: a system layer, the tty and the GUI
 - The CT8100 from its own manual (070-2359-00, fetched from bitsavers; the CT8100 is a version of the 4023): BS is not destructive (as modelled), HT in DIRECT mode is a one-position space (it was a tab stop every 8), DEL neither writes nor spaces (`notes/ct8100.md`).
 - The CT8100's TTY LOCK key (070-2359 p. 1-14): lower case typed as upper case, on by default, since TEKDOS takes commands in upper case only (`-ttylock off`, GUI Cmd+U, monitor `T`).

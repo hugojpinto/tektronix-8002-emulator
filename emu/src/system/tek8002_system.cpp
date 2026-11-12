@@ -20,7 +20,7 @@ tek8002_system::~tek8002_system()
 std::string tek8002_system::dasm(u16 pc, int *len)
 {
 	s2650_disassembler d(&g_cfg); data_buffer b;
-	b.rd = [&](offs_t a) -> u8 { return m->read(a & 0x7fff); };
+	b.rd = [&](offs_t a) -> u8 { return m->peek(a); };
 	std::ostringstream s; u32 r = d.disassemble(s, pc, b, b);
 	if (len) *len = int(r & util::disasm_interface::LENGTHMASK);
 	return s.str();
@@ -138,6 +138,13 @@ void tek8002_system::scripted_events()
 			if (eq == std::string::npos) press(it->text);
 			else input(it->text.substr(0, eq), atoi(it->text.c_str() + eq + 1));
 			it = opt.switches.erase(it);
+		} else ++it;
+	for (auto it = opt.parity.begin(); it != opt.parity.end(); )
+		if (it->at <= t) {
+			const bool u = it->text.compare(0, 2, "U:") == 0 || it->text.compare(0, 2, "u:") == 0;
+			const u32 a = u32(strtoul(it->text.c_str() + (u ? 2 : 0), nullptr, 16));
+			if (!m->parity_fault(u, a)) fprintf(stderr, "[-parity %s: no memory there]\n", it->text.c_str());
+			it = opt.parity.erase(it);
 		} else ++it;
 	for (auto it = opt.discs.begin(); it != opt.discs.end(); )
 		if (it->at <= t) {

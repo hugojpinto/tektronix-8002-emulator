@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-tek8002::tek8002() : cpu(*this), m_sysram(0x4000, 0), m_progmem(4 * 0x4000, 0) {}
+tek8002::tek8002() : cpu(*this), m_sysram(0x4000, 0), m_progmem(4 * 0x4000, 0), m_sysbad(0x4000, false), m_progbad(4 * 0x4000, false) {}
 
 // The bootstrap PROM (U6010, a 1702A) sits behind inverting address buffers
 // (U6030/U6040): CPU address a reads PROM location 0xFF - a. Its published
@@ -47,7 +47,7 @@ void tek8002::restart()
 // memory: A14 low selects System Memory; A14 high selects the program memory bank
 // latched by port EE (070-2711 §3 "Program Memory Bank Select Logic")
 
-u8 tek8002::read(offs_t a)
+u8 tek8002::peek(offs_t a) const
 {
 	a &= 0x7fff;
 	if (a < 0x4000) {
@@ -58,12 +58,30 @@ u8 tek8002::read(offs_t a)
 	return m_progmem[m_bank * 0x4000 + (a & 0x3fff)];
 }
 
+u8 tek8002::read(offs_t a)
+{
+	a &= 0x7fff;
+	if (a < 0x4000) {
+		if (!(a < 0x100 && !m_prom.empty()) && m_sysbad[a]) { raise(INT_SYSMEM_PARITY); update_irq(); }
+	} else if (m_bank < program_boards && m_progbad[m_bank * 0x4000 + (a & 0x3fff)]) { raise(INT_PROGMEM_PARITY); update_irq(); }
+	return peek(a);
+}
+
 void tek8002::write(offs_t a, u8 d)
 {
 	a &= 0x7fff;
-	if (a < 0x4000) { m_sysram[a] = d; return; }             // writes under the PROM reach the RAM
+	if (a < 0x4000) { m_sysram[a] = d; m_sysbad[a] = false; return; }   // writes under the PROM reach the RAM
 	if (m_bank >= program_boards) return;
-	m_progmem[m_bank * 0x4000 + (a & 0x3fff)] = d;
+	const u32 i = m_bank * 0x4000 + (a & 0x3fff);
+	m_progmem[i] = d; m_progbad[i] = false;
+}
+
+bool tek8002::parity_fault(bool program, u32 a)
+{
+	if (!program) { if (a >= 0x4000) return false; m_sysbad[a] = true; return true; }
+	if (a >= 0x10000 || int(a >> 14) >= program_boards) return false;
+	m_progbad[a] = true;
+	return true;
 }
 
 // --------------------------------------------------------------------------
@@ -201,13 +219,15 @@ u8 tek8002::slave_read(u16 a, bool)
 {
 	debug.slave_access(a, false);
 	const int board = a >> 14;
-	return board < program_boards ? m_progmem[a] : OPEN_BUS;
+	if (board >= program_boards) return OPEN_BUS;
+	if (m_progbad[a]) { raise(INT_PROGMEM_PARITY); update_irq(); }   // a Program Memory parity error, whoever reads
+	return m_progmem[a];
 }
 
 void tek8002::slave_write(u16 a, u8 d)
 {
 	debug.slave_access(a, true);
-	if ((a >> 14) < program_boards) m_progmem[a] = d;
+	if ((a >> 14) < program_boards) { m_progmem[a] = d; m_progbad[a] = false; }
 }
 
 u8 tek8002::slave_in(u16 port)
