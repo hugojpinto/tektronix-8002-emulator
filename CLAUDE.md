@@ -1,7 +1,7 @@
 # Tektronix 8002A µProcessor Lab emulator
 
 This project emulates the **Tektronix 8002A µProcessor Lab** (1978–79): the mainframe with a Signetics 2650 System Processor, the Flexible Disc Unit and any RS-232 terminal, running TEKDOS. The 8002 is the Millennium Universal One / Signetics TWIN, rebadged; the 8002A is an 8002 with a second program memory board.
-It is the sibling of `../MDL` (the Tektronix 8550 emulator, public as tektronix-8550-emulator) and follows the same design, conventions and working method. The emulator is standalone C++17. Its 2650 and Z80 cores come from MDL (originally MAME, BSD-3, and superzazu/z80, MIT), and the code is structured so it can be upstreamed into MAME later.
+It is the sibling of `../tektronix-8550-emulator` (the Tektronix 8550 emulator, called MDL in these notes) and follows the same design, conventions and working method. The emulator is standalone C++17. Its 2650 and Z80 cores come from MDL (originally MAME, BSD-3, and superzazu/z80, MIT), and the code is structured so it can be upstreamed into MAME later.
 
 Start with `FEASIBILITY.md` (what survives, the plan), then `notes/` (hardware facts).
 
@@ -55,7 +55,7 @@ build/tek8002 -0 ../disks/TekDOS_3.3_6800_cpy1.img -cycles $((25*1250000)) -type
 4. **Screenshots:** `tools/make_screenshots.sh` (and `make_hero.sh`, `make_tutorial_shots.sh` after GUI or panel changes) regenerates `docs/screenshots/`; `git status docs/` must stay clean unless a visual change was intended.
 5. More checks are added here as each step lands, each with a known-good reference: a printout, a manual's sample session, or a real machine.
 
-## Conventions (shared with ../MDL)
+## Conventions (shared with ../tektronix-8550-emulator)
 - **Minimal edits to ported cores:** keep every change small and mark it (`[tek8550]` marks MDL's; this project's use `[tek8002]`). Record core modifications in `emu/src/cpu/SOURCE.txt`. A fix to a shared core goes to MDL as well.
 - **Machine code mirrors MAME devices:** one class per board, each decoding its own ports (`tek8002_debug::decodes`). No board is special-cased in the mainframe: slaves (Assembler Processor, emulator boards) will be self-contained boards behind one interface, as MDL's `emulator_board`.
 - **Facts go into `notes/*.md`**, each with how it was established (manual section, ROM or TEKDOS address, the run that showed it). Label inferred behaviour as inferred. Add a `CHANGELOG.md` entry at milestones and keep `ROADMAP.md` current.

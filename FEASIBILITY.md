@@ -52,7 +52,7 @@ A complete 8002A is two boxes plus any RS-232 terminal:
 
 ## 3. Building blocks
 
-From `../MDL` (the 8550 emulator), with no new porting:
+From `../tektronix-8550-emulator` (the 8550 emulator), with no new porting:
 
 | Part | Reuse |
 |---|---|
@@ -102,7 +102,7 @@ New code would be:
 
 ## 6. Project layout
 
-A sibling project, as this directory. It copies the CPU cores and shared helpers from `../MDL` (the 8550 emulator, commit 86caf61; `emu/src/cpu/SOURCE.txt`), so it builds on its own; fixes to a shared core go to both. Machine code follows the same rules as there: one class per board, mirroring MAME devices so both can be upstreamed later; hardware facts go into `notes/` with how each was established; original material goes into `sources/`, read-only.
+A sibling project, as this directory. It copies the CPU cores and shared helpers from `../tektronix-8550-emulator` (the 8550 emulator, commit 86caf61; `emu/src/cpu/SOURCE.txt`), so it builds on its own; fixes to a shared core go to both. Machine code follows the same rules as there: one class per board, mirroring MAME devices so both can be upstreamed later; hardware facts go into `notes/` with how each was established; original material goes into `sources/`, read-only.
 
 ## 7. Who this helps
 
