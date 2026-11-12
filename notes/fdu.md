@@ -60,7 +60,8 @@ Verified with the write path working (2026-11-12), in TEKDOS 3.3 sessions agains
 - FORMAT 1 writes all 2,464 sectors and leaves a disc byte-identical to the real formatted
   disc Tek8002_1b;
 - DELETE zeroes the name and the file record, frees the blocks and decrements the count;
-- COPY to a new file and LDIR of every disc in the collection work.
+- COPY to a new file and LDIR of every disc in the collection work;
+- COPYSYS 0 1 onto a formatted blank copies TEKDOS, `.`, COPYSYS and NEWDISC byte for byte, and the result boots; DUP 0 1 NAME copies every file (`tests/disc_tools.sh`). COPYSYS issues about 5,600 disc commands, because TEKDOS rewrites the directory and map sectors around every data sector.
 
 None of these timings is real: seek, rotation and interleave are not modelled. The
 low-level path (the controller's microprogram, 070-2587 Appendix C) will replace this

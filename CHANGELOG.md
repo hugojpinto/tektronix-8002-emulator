@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-11-12 — Step 4 completed: TEKDOS's disc tools
+- COPYSYS and DUP work, besides FORMAT, DELETE and COPY: a COPYSYS'd disc boots and its system files are identical to the original's; a DUP'd disc has every file identical (`tests/disc_tools.sh`).
+
 ## 2026-11-12 — Step 3: System Communications; the rest of the Debug module
 - `tek8002_syscomm`: three MC6850s (modem, printer, paper tape) at CA–CF on interrupts 6–8, and the memory map at C9. The front end connects them with `-rem`, `-lpt` and `-ppt` (`host/serial_link`, copied from the 8550 emulator: socket, printer file or wrap-back).
 - Debug module: breakpoints, single cycle, the interrupt mask and DIAG INTRPT (monitor `D`), with a unit test (`emu/tests/debug_test.cpp`, `make test`).

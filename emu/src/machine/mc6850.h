@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2026 Hugo José Pinto <hugo.pinto@gmail.com>
 // Motorola MC6850 ACIA (programmer's model), host side as byte queues.
-// [tek8002] The transmitter is double-buffered, as on the chip: a byte written while the
-// shift register is idle moves into it at once and TDRE stays set, so a second byte can
-// wait in the data register. TEKDOS's printer driver writes two bytes per interrupt and
-// lost every other one with a single buffer. (Copied from the 8550 emulator, where
-// DOS/50 only ever wrote one byte per TDRE; the fix belongs there too.)
+// The transmitter is double-buffered, as on the chip: a byte written while the shift
+// register is idle moves into it at once and TDRE stays set, so a second byte can wait in
+// the data register while the first is sent. (Found with the 8002's TEKDOS, whose printer
+// driver writes ahead and lost every other byte with a single buffer; DOS/50 waits for
+// TDRE before every byte, so on the 8550 it only made output slower than the chip's.)
+// The same file serves the 8550 and 8002 emulators.
 #ifndef TEK_MC6850_H
 #define TEK_MC6850_H
 #include "emu.h"
