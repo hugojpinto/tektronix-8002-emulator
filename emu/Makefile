@@ -87,6 +87,8 @@ $(GUI_OBJ): CPPFLAGS += $(SDL_CFLAGS)
 
 $(BUILD)/debug_test$(EXE): $(BUILD)/tests/debug_test.o $(BUILD)/machine/tek8002_debug.o
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+$(BUILD)/ct8100_test$(EXE): $(BUILD)/tests/ct8100_test.o $(BUILD)/host/ct8100.o $(BUILD)/host/ct8100_raster.o
+	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 $(BUILD)/fdc_test$(EXE): $(BUILD)/tests/fdc_test.o $(BUILD)/machine/tek8002_fdc.o $(BUILD)/machine/tek8002_fdd.o
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 $(BUILD)/tests/%.o: tests/%.cpp
@@ -94,8 +96,9 @@ $(BUILD)/tests/%.o: tests/%.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 # unit tests, then the TEKDOS sessions (tests/*.sh need ../tekmato for step 2)
-test: all $(BUILD)/debug_test$(EXE) $(BUILD)/fdc_test$(EXE)
+test: all $(BUILD)/debug_test$(EXE) $(BUILD)/fdc_test$(EXE) $(BUILD)/ct8100_test$(EXE)
 	$(BUILD)/debug_test$(EXE)
+	$(BUILD)/ct8100_test$(EXE)
 	$(BUILD)/fdc_test$(EXE) ../roms/fdc
 	$(BUILD)/fdc_test$(EXE) ../roms/fdc ../disks/TekDOS_3.3_6800_cpy1.img
 	cd .. && tests/boot_ldir.sh && tests/asm_link.sh && FDC=hle tests/asm_link.sh && tests/run6800.sh && tests/runz80.sh && tests/prototype.sh && tests/parity.sh

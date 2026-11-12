@@ -64,9 +64,9 @@ The monitor (Ctrl-]) also presses switches (`p NAME`, `R`, `D`), changes discs (
 cd emu && make gui            # needs SDL3: brew install sdl3 / apt install libsdl3-dev
 build/tek8002-gui -0 ../disks/TekDOS_3.3_6800_cpy1.img
 ```
-It takes the same options, plus `-style crt|sharp`, `-scale F` (by default the windows fit the screen, centred), `-panels on|off`, `-artwork DIR` and `-shot SEC FILE.bmp`. The shot saves every window (`FILE_8002a.bmp`, `FILE_fdu.bmp`); if the run ends sooner, it is taken at the end.
+It takes the same options, plus `-cursor steady|blink` (the CT8100's cursor is steady; a strap made it blink), `-style crt|sharp`, `-scale F` (by default the windows fit the screen, centred), `-panels on|off`, `-artwork DIR` and `-shot SEC FILE.bmp`. The shot saves every window (`FILE_8002a.bmp`, `FILE_fdu.bmp`); if the run ends sooner, it is taken at the end.
 
-- **The terminal** is a 24×80 CT8100 in green phosphor, with the control codes of its manual (070-2359, a version of the Tektronix 4023; `notes/ct8100.md`): BS and HT move the cursor without erasing. The phosphor colour and the character ROM are not documented, so the font is the one the 8550 emulator uses.
+- **The terminal** is a 24×80 CT8100 in green phosphor, with the control codes of its manual (070-2359, a version of the Tektronix 4023; `notes/ct8100.md`): BS and HT move the cursor without erasing. It also has the terminal's cursor addressing, clear page, read cursor, display fields (inverse, blinking, dim, blanked) and rulings set, for programs that use them. The phosphor colour and the character ROM are not documented, so the font is the one the 8550 emulator uses.
 - **The front panels** are drawn after photos of a surviving pair of units (`sources/photos/`) and 070-2701 Fig. 2-6 (`tools/gen_panels.py` writes `emu/artwork/*.lay`):
   - **Mainframe:** POWER, SYSTEM RESTART and DIAG INTRPT work, and SYS, RUN and PWR light. The PROM sockets are decoration.
   - **Disc unit:** POWER works, and each drive has a busy light. Drop a disc image on a drive door to insert it; click the door to take the disc out.
