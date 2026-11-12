@@ -4,14 +4,33 @@
 """Generates the front-panel artwork emu/artwork/8002a.lay and fdu.lay (a subset of MAME's
 .lay format, emu/src/frontend/sdl/layout.h).
 
-Drawn after the 8002A System Users Manual (070-2701 Fig. 2-6, the mainframe's front panel;
-Fig. 2-1, the disc unit's POWER switch) and the photo in the 1978 catalogue (8001/8002 pages):
-light-grey cabinets, each with a dark recessed front behind a light rim. The catalogue photo
-is black and white, so the colours are approximations.
+Drawn after two photos of real units (sources/photos/8002a_side_by_side.jpg, flat-on, and
+8002a_stacked_leboncoin.jpg, the disc unit stacked on the mainframe), plus the 8002A System
+Users Manual 070-2701 Fig. 2-6 (the mainframe's controls). Positions were measured on the
+flat-on photo and scaled to the views; colours were sampled from it and lifted a little (the
+photo is underexposed). Proportions follow the real fronts: the mainframe about 2.5:1, the disc
+unit about 2.1:1.
+
+What the photos show, and is drawn: warm light-grey cabinets; a mid-grey front panel with
+chamfered lower corners and a thin light line inset around it; copper screw heads in the
+corners; a vent grille under each panel (both units, in the stacked photo). Mainframe: POWER
+over a black rocker marked OFF; the raised black PROM bezel with its lighter plate, two green
+ZIF sockets (PROM 1, PROM 2) and the yellow caution text; the outlined PROM POWER box (dark
+window, legend, toggle); the nameplate (teal logo, 8002A uPROCESSOR LAB, TEKTRONIX); the
+outlined control box with the black display strip (backlit SYS RUN PWR) and the DIAG INTRPT
+and SYSTEM RESTART toggles. Disc unit: two light drive door assemblies with black latches,
+DRIVE 0 / DRIVE 1 at their lower left, POWER over a black rocker, and the nameplate.
+
+Emulator aids that are not on the real units: the disc unit's "fdu:pwr" lamp (a small green
+dot beside its rocker) and the drive-busy lamps "fdu:driveN" (tiny dots in the door caps).
+The PROM sockets and the PROM POWER toggle are drawn only; the programmer is not emulated.
 
 Bindings (tek8002_system): outputs "8002:sys", "8002:run", "8002:pwr", "fdu:pwr",
 "fdu:driveN"; switches "8002:power", "8002:restart", "8002:diag", "fdu:power"; drive bays
 drive="N" (drop a disc image to insert it, click to eject: input "driveN:eject").
+
+Text is the terminal's 5x8 dot font fitted to its box: small legends are boxed at least
+18 units high where the panel allows (the caution text is genuinely tiny on the unit).
 
   tools/gen_panels.py emu/artwork
 """
@@ -34,13 +53,31 @@ def bnd(x, y, w, h):
     return '<bounds x="%s" y="%s" width="%s" height="%s"/>' % (f(x), f(y), f(w), f(h))
 
 
-CABINET = (0.80, 0.80, 0.78)
-RIM = (0.90, 0.90, 0.88)
-FRONT = (0.21, 0.23, 0.27)
-FRONT_DARK = (0.12, 0.13, 0.15)
-INK = (0.86, 0.86, 0.84)          # legends on the dark front
-PLATE = (0.88, 0.88, 0.86)
-PLATE_INK = (0.12, 0.12, 0.14)
+# colours, sampled from the flat-on photo
+CABINET = (0.81, 0.80, 0.75)      # warm light-grey case
+CAB_SHADE = (0.70, 0.69, 0.64)    # the case's lower lip, behind the grille
+PANEL = (0.40, 0.40, 0.37)        # mid-grey front panel
+PANEL_SHADOW = (0.27, 0.27, 0.25) # under the case's top overhang
+INSET = (0.80, 0.80, 0.76)        # the thin light line inside the panel's edge
+INK = (0.92, 0.92, 0.88)          # legends on the panel
+BLACK = (0.07, 0.07, 0.07)
+SLOT = (0.16, 0.16, 0.15)
+BEZEL = (0.11, 0.11, 0.10)
+BEZEL_EDGE = (0.24, 0.24, 0.23)
+BEZEL_SHADOW = (0.24, 0.24, 0.22)
+PLATE = (0.55, 0.55, 0.51)        # the lighter plate inside the PROM bezel
+SOCKET = (0.15, 0.60, 0.48)       # green ZIF sockets
+SOCKET_DARK = (0.07, 0.36, 0.28)
+CAUTION = (0.98, 0.86, 0.16)
+NAMEPLATE = (0.76, 0.77, 0.75)    # brushed metal
+NAMEPLATE_EDGE = (0.58, 0.59, 0.57)
+TEAL = (0.22, 0.60, 0.60)
+NAME_INK = (0.10, 0.15, 0.20)
+DOOR = (0.77, 0.76, 0.71)
+DOOR_LIGHT = (0.86, 0.85, 0.80)
+DOOR_SHADE = (0.58, 0.57, 0.53)
+COPPER = (0.55, 0.37, 0.24)
+COPPER_DARK = (0.30, 0.20, 0.13)
 
 HEAD = '''<?xml version="1.0"?>
 <!-- SPDX-License-Identifier: GPL-2.0-or-later
@@ -50,114 +87,247 @@ HEAD = '''<?xml version="1.0"?>
 <mamelayout version="2">
 '''
 
-COMMON = [
-    '<element name="cabinet"><rect>%s</rect></element>' % col(CABINET),
-    '<element name="rim"><rect>%s</rect></element>' % col(RIM),
-    '<element name="front"><rect>%s</rect></element>' % col(FRONT),
-    '<element name="front_dark"><rect>%s</rect></element>' % col(FRONT_DARK),
-    '<element name="screw"><disk>%s</disk></element>' % col((0.45, 0.46, 0.48)),
-    '<element name="plate"><rect>%s</rect></element>' % col(PLATE),
-    # a rocker: the lit half shows which way it is pressed (state 1 = on, top in)
-    '<element name="rocker"><rect>%s%s</rect><rect>%s%s</rect><rect state="1">%s%s</rect><rect state="0">%s%s</rect></element>' % (
-        col((0.04, 0.04, 0.05)), bnd(0, 0, 10, 17), col((0.16, 0.16, 0.18)), bnd(1.2, 1.2, 7.6, 14.6),
-        col((0.30, 0.30, 0.32)), bnd(1.2, 1.2, 7.6, 6), col((0.30, 0.30, 0.32)), bnd(1.2, 9.8, 7.6, 6)),
-    # a momentary paddle switch: down while held (state 1)
-    '<element name="paddle"><rect>%s%s</rect><rect state="0">%s%s</rect><rect state="1">%s%s</rect></element>' % (
-        col((0.05, 0.05, 0.06)), bnd(0, 0, 10, 16), col((0.62, 0.62, 0.64)), bnd(2, 1.5, 6, 6.5), col((0.62, 0.62, 0.64)), bnd(2, 8, 6, 6.5)),
-    '<element name="led_red"><disk state="0">%s</disk><disk state="1">%s</disk></element>' % (col((0.30, 0.07, 0.05)), col((1, 0.22, 0.12))),
-    '<element name="led_green"><disk state="0">%s</disk><disk state="1">%s</disk></element>' % (col((0.07, 0.22, 0.12)), col((0.3, 1, 0.45))),
-]
+
+class Art:
+    """Elements and view items of one panel. Solid colours and texts get elements on demand."""
+
+    def __init__(self):
+        self.elements, self.items, self.names = [], [], {}
+
+    def element(self, name, body):
+        if name not in self.names:
+            self.names[name] = True
+            self.elements.append('<element name="%s">%s</element>' % (name, body))
+        return name
+
+    def solid(self, c):
+        return self.element('c_%02x%02x%02x' % tuple(int(x * 255) for x in c), '<rect>%s</rect>' % col(c))
+
+    def text(self, s, c=INK):
+        key = 't_%s_%02x%02x%02x' % (''.join(ch if ch.isalnum() else '_' for ch in s), *(int(x * 255) for x in c))
+        return self.element(key, '<text string="%s">%s</text>' % (s, col(c)))
+
+    def put(self, ref, x, y, w, h, extra=''):
+        self.items.append('<element ref="%s"%s>%s</element>' % (ref, extra, bnd(x, y, w, h)))
+
+    def rect(self, c, x, y, w, h):
+        self.put(self.solid(c), x, y, w, h)
+
+    def label(self, s, x, y, w, h, c=INK):
+        self.put(self.text(s, c), x, y, w, h)
+
+    def label_left(self, s, x, y, px, c=INK):
+        # a left-aligned legend with dots px units square: the box is exactly the text's size
+        self.put(self.text(s, c), x, y, len(s) * 6 * px - px, 8 * px)
+
+    def frame(self, c, x, y, w, h, t):
+        self.rect(c, x, y, w, t); self.rect(c, x, y + h - t, w, t)
+        self.rect(c, x, y, t, h); self.rect(c, x + w - t, y, t, h)
 
 
-def text(name, s, c=INK):
-    return '<element name="%s"><text string="%s">%s</text></element>' % (name, s, col(c))
+def chamfer(a, c, x, y, size, step, right):
+    # a 45-degree cut across a lower corner (x, y = the corner), as stairs of colour c
+    n = int(size / step)
+    for i in range(n):
+        w = size - i * step
+        a.rect(c, x - w if right else x, y - (i + 1) * step, w, step)
 
 
-def lamp_legend(name, s):
-    # a backlit legend in the display window: dark until lit (state = lamp level)
-    return '<element name="%s"><rect>%s</rect><text string="%s" state="0">%s</text><text string="%s" state="1">%s</text></element>' % (
-        name, col((0.03, 0.03, 0.03)), s, col((0.22, 0.10, 0.06)), s, col((1.0, 0.45, 0.25)))
+def chamfer_line(a, c, x, y, size, t, right):
+    # the inset line's diagonal across a chamfered corner: small squares along it
+    n = int(size / (t * 0.6))
+    for i in range(n + 1):
+        d = size * i / n
+        a.rect(c, (x - d if right else x + d) - t / 2, y - size + d - t / 2, t, t)
 
 
-def item(ref, x, y, w, h, extra=''):
-    return '<element ref="%s"%s>%s</element>' % (ref, extra, bnd(x, y, w, h))
+def cabinet(a, W, H, ph, vent):
+    """The case, the panel (with chamfered lower corners), its inset line, screws and grille."""
+    P0, C = 18, 36                                # panel inset from the case sides; chamfer
+    px0, py0, px1, py1 = P0, 20, W - P0, 20 + ph
+    a.rect(CABINET, 0, 0, W, H)
+    a.rect(CAB_SHADE, 8, py1 + 4, W - 16, H - py1 - 10)
+    a.rect(PANEL, px0, py0, px1 - px0, py1 - py0)
+    a.rect(PANEL_SHADOW, px0, py0, px1 - px0, 4)
+    chamfer(a, CABINET, px0, py1, C, 2, False)
+    chamfer(a, CABINET, px1, py1, C, 2, True)
+    # the inset line, 9 units inside the edge, following the chamfers
+    t, o = 2.5, 9
+    ix0, iy0, ix1, iy1 = px0 + o, py0 + o, px1 - o, py1 - o
+    cl = C - o * 0.6
+    a.rect(INSET, ix0, iy0, ix1 - ix0, t)                        # top
+    a.rect(INSET, ix0, iy0, t, iy1 - iy0 - cl)                   # left
+    a.rect(INSET, ix1 - t, iy0, t, iy1 - iy0 - cl)               # right
+    a.rect(INSET, ix0 + cl, iy1 - t, ix1 - ix0 - 2 * cl, t)      # bottom
+    chamfer_line(a, INSET, ix0 + t / 2, iy1 - t / 2, cl - t / 2, t, False)
+    chamfer_line(a, INSET, ix1 - t / 2, iy1 - t / 2, cl - t / 2, t, True)
+    # the grille under the panel: vertical slots in the case's lip
+    gx0, gx1, gy = vent
+    a.rect(CAB_SHADE, gx0 - 6, gy - 2, gx1 - gx0 + 12, 22)
+    x = gx0
+    while x < gx1:
+        a.rect(SLOT, x, gy, 3.5, 18)
+        x += 10
+    screw = a.element('screw', '<disk>%s%s</disk><disk>%s%s</disk>' % (col(COPPER_DARK), bnd(0, 0, 10, 10), col(COPPER), bnd(1.5, 1, 7, 7)))
+    for sx, sy in ((ix0 + 10, iy0 + 10), (ix1 - 20, iy0 + 10), (ix0 + 20, iy1 - 44), (ix1 - 31, iy1 - 44)):
+        a.put(screw, sx, sy, 11, 11)
 
 
-def write(name, comment, elements, view, w, h, items):
+def rocker(a):
+    # a black square rocker marked OFF. Off (state 0): the OFF edge stands out, legend white;
+    # on (state 1): that edge is pressed in (legend dim) and the lower edge catches the light
+    return a.element('rocker', ''.join((
+        '<rect>%s%s</rect>' % (col(BLACK), bnd(0, 0, 60, 54)),
+        '<rect>%s%s</rect>' % (col((0.13, 0.13, 0.13)), bnd(3, 3, 54, 48)),
+        '<rect state="0">%s%s</rect>' % (col((0.62, 0.62, 0.60)), bnd(6, 22, 48, 3)),
+        '<text string="OFF" state="0">%s%s</text>' % (col(INK), bnd(14, 7, 32, 13)),
+        '<rect state="1">%s%s</rect>' % (col((0.05, 0.05, 0.05)), bnd(6, 6, 48, 18)),
+        '<text string="OFF" state="1">%s%s</text>' % (col((0.36, 0.36, 0.35)), bnd(14, 9, 32, 13)),
+        '<rect state="1">%s%s</rect>' % (col((0.62, 0.62, 0.60)), bnd(6, 44, 48, 3)),
+    )))
+
+
+def toggle(a, name='toggle', momentary=True):
+    # a small black toggle with a grey bat: up at rest, down while held (state 1)
+    body = '<rect>%s%s</rect><rect>%s%s</rect>' % (col(BLACK), bnd(0, 0, 30, 46), col((0.16, 0.16, 0.16)), bnd(10, 18, 10, 10))
+    if momentary:
+        body += '<rect state="0">%s%s</rect><rect state="0">%s%s</rect>' % (col((0.66, 0.66, 0.64)), bnd(9, 4, 12, 15), col((0.40, 0.40, 0.38)), bnd(12, 17, 6, 5))
+        body += '<rect state="1">%s%s</rect><rect state="1">%s%s</rect>' % (col((0.66, 0.66, 0.64)), bnd(9, 27, 12, 15), col((0.40, 0.40, 0.38)), bnd(12, 24, 6, 5))
+    else:
+        body += '<rect>%s%s</rect><rect>%s%s</rect>' % (col((0.40, 0.40, 0.38)), bnd(12, 24, 6, 5), col((0.66, 0.66, 0.64)), bnd(9, 27, 12, 15))
+    return a.element(name, body)
+
+
+def lamp_legend(a, name, s):
+    # a backlit legend in the display strip: faintly visible until lit (state = lamp level)
+    return a.element(name, '<rect>%s%s</rect><text string="%s" state="0">%s%s</text><text string="%s" state="1">%s%s</text>' % (
+        col(BLACK), bnd(0, 0, 60, 22), s, col((0.24, 0.15, 0.11)), bnd(4, 2, 52, 18), s, col((1.0, 0.50, 0.28)), bnd(4, 2, 52, 18)))
+
+
+def mu(a, x, y, px, c):
+    # the font has no µ: drawn dot by dot, a 'u' with a descender on its left stem
+    rows = ['00000', '00000', '10001', '10001', '10001', '10011', '11101', '10000']
+    body = '<rect>%s%s</rect>' % (col(c, 0), bnd(0, 0, 5, 8))
+    for r, bits in enumerate(rows):
+        for k, b in enumerate(bits):
+            if b == '1':
+                body += '<rect>%s%s</rect>' % (col(c), bnd(k, r, 1, 1))
+    a.put(a.element('mu', body), x, y, 5 * px, 8 * px)
+
+
+def nameplate(a, x, y, w, h, lines):
+    """A metal nameplate: the teal logo square at the left, small product lines beside it,
+    TEKTRONIX large below. lines = [(text, px)], left-aligned, drawn top down."""
+    a.rect(NAMEPLATE_EDGE, x, y, w, h)
+    a.rect(NAMEPLATE, x + 1.5, y + 1.5, w - 3, h - 4)
+    a.rect(TEAL, x + 6, y + 6, 34, h * 0.52)
+    ly = y + 6
+    for s, px in lines:
+        lx = x + 46
+        if s.startswith('µ'):
+            mu(a, lx, ly, px, NAME_INK)
+            lx += 6 * px
+            s = s[1:]
+        a.label_left(s, lx, ly, px, NAME_INK)
+        ly += 8 * px + 2
+    a.label_left('TEKTRONIX', x + 6, y + h - 30, 3, NAME_INK)
+
+
+def write(name, comment, a, view, w, h):
     with open(os.path.join(OUT, name), 'w') as fo:
         fo.write(HEAD % comment)
-        for e in COMMON + elements:
+        for e in a.elements:
             fo.write(e + '\n')
         fo.write('<view name="%s">%s\n' % (view, bnd(0, 0, w, h)))
-        for i in items:
+        for i in a.items:
             fo.write(i + '\n')
         fo.write('</view>\n</mamelayout>\n')
 
 
-def cabinet(w, h):
-    return [item('cabinet', 0, 0, w, h), item('rim', 12, 12, w - 24, h - 24), item('front', 24, 24, w - 48, h - 48)] + \
-           [item('screw', x, y, 10, 10) for x, y in ((36, 36), (w - 46, 36), (36, h - 46), (w - 46, h - 46))]
-
-
 def mainframe():
-    W, H = 1000, 520
-    els = [
-        text('t_power', 'POWER'), text('t_prom1', 'PROM 1'), text('t_prom2', 'PROM 2'), text('t_prom_power', 'PROM'), text('t_prom_power2', 'POWER'),
-        text('t_off', 'OFF'), text('t_diag', 'DIAG INTRPT'), text('t_restart', 'SYSTEM RESTART'),
-        text('t_caution', 'CAUTION: PULSES UP TO 50V'), text('t_caution2', 'ON SOCKET DURING PROGRAMMING'),
-        text('t_name', 'TEKTRONIX 8002A', PLATE_INK), text('t_sub', 'MICROPROCESSOR LAB', PLATE_INK),
-        lamp_legend('l_sys', 'SYS'), lamp_legend('l_run', 'RUN'), lamp_legend('l_pwr', 'PWR'),
-        '<element name="socket"><rect>%s</rect><rect>%s%s</rect><rect>%s%s</rect></element>' % (
-            col((0.85, 0.85, 0.83)), col((0.15, 0.15, 0.16)), bnd(3, 6, 4, 88), col((0.15, 0.15, 0.16)), bnd(13, 6, 4, 88)),
-        '<element name="lever"><rect>%s</rect></element>' % col((0.7, 0.7, 0.72)),
-        '<element name="frame_line"><rect>%s</rect></element>' % col((0.70, 0.70, 0.68)),
-    ]
-    it = cabinet(W, H)
+    W, H = 1000, 400
+    a = Art()
+    cabinet(a, W, H, 340, (150, 850, 368))
     # POWER rocker, top left
-    it += [item('t_power', 50, 60, 76, 20), item('rocker', 70, 88, 36, 61, ' name="8002:power" inputtag="8002:power"')]
-    # the PROM programmer's sockets (not emulated: shown as on the unit)
-    it += [item('front_dark', 70, 190, 330, 210), item('t_prom1', 80, 196, 110, 20), item('t_prom2', 240, 196, 110, 20)]
-    for x in (100, 140, 260, 300):
-        it.append(item('socket', x, 224, 20, 110))
-    for x in (100, 260):
-        it.append(item('lever', x - 8, 220, 6, 26))
-    it += [item('t_caution', 78, 352, 314, 16), item('t_caution2', 78, 372, 314, 16)]
-    it += [item('front_dark', 420, 190, 56, 210), item('t_prom_power', 422, 196, 52, 18), item('t_prom_power2', 422, 214, 52, 18),
-           item('rocker', 436, 236, 24, 41), item('t_off', 424, 290, 48, 18)]
-    # the control area: the backlit display (SYS RUN PWR), DIAG INTRPT and SYSTEM RESTART
-    fx, fy, fw, fh = 560, 150, 380, 260
-    it += [item('frame_line', fx, fy, fw, fh), item('front', fx + 3, fy + 3, fw - 6, fh - 6)]
-    it += [item('front_dark', fx + 30, fy + 28, fw - 60, 48),
-           item('l_sys', fx + 40, fy + 34, 90, 36, ' name="8002:sys"'),
-           item('l_run', fx + 145, fy + 34, 90, 36, ' name="8002:run"'),
-           item('l_pwr', fx + 250, fy + 34, 90, 36, ' name="8002:pwr"')]
-    it += [item('t_diag', fx + 16, fy + 112, 140, 20), item('paddle', fx + 66, fy + 142, 34, 54, ' name="8002:diag" inputtag="8002:diag"'),
-           item('t_restart', fx + 200, fy + 112, 170, 20), item('paddle', fx + 274, fy + 142, 34, 54, ' name="8002:restart" inputtag="8002:restart"')]
-    # nameplate, top right
-    it += [item('plate', 700, 50, 240, 70), item('t_name', 712, 58, 216, 26), item('t_sub', 712, 90, 216, 20)]
-    write('8002a.lay', 'Tektronix 8002A µProcessor Lab, front panel (070-2701 Fig. 2-6; 1978 catalogue photo).',
-          els, 'Tektronix 8002A Microprocessor Lab', W, H, it)
+    a.label('POWER', 66, 36, 80, 18)
+    a.put(rocker(a), 76, 58, 60, 54, ' name="8002:power" inputtag="8002:power"')
+    # the PROM programmer (drawn only: not emulated): a raised black bezel holding a lighter
+    # plate with two ZIF sockets and the caution text
+    a.rect(BEZEL_SHADOW, 110, 122, 282, 198)
+    a.rect(BEZEL, 102, 116, 282, 198)
+    a.rect(BEZEL_EDGE, 102, 116, 282, 3); a.rect(BEZEL_EDGE, 102, 116, 3, 198)
+    a.rect(PLATE, 116, 130, 254, 170)
+    a.frame(INSET, 122, 136, 242, 158, 1.5)
+    socket = a.element('socket', ''.join(
+        ['<rect>%s%s</rect>' % (col(SOCKET), bnd(12, 6, 52, 84)),
+         '<rect>%s%s</rect>' % (col(SOCKET_DARK), bnd(34, 10, 8, 76)),
+         '<rect>%s%s</rect>' % (col(SOCKET_DARK), bnd(6, 0, 6, 64)),       # the lever
+         '<rect>%s%s</rect>' % (col(SOCKET_DARK), bnd(0, 0, 12, 7))] +     # its handle
+        ['<rect>%s%s</rect><rect>%s%s</rect>' % (col(SOCKET_DARK), bnd(18, 12 + 6.5 * i, 7, 3.5), col(SOCKET_DARK), bnd(51, 12 + 6.5 * i, 7, 3.5))
+         for i in range(12)]))
+    for n, sx in ((1, 146), (2, 258)):
+        a.label('PROM %d' % n, sx + 2, 142, 80, 18)
+        a.put(socket, sx, 162, 66, 88)
+    for i, s in enumerate(('CAUTION: PULSES UP TO 50V', 'APPEAR ON SOCKET DURING', 'PROGRAMMING')):
+        a.label(s, 128, 254 + 13 * i, 230, 12, CAUTION)
+    # PROM POWER: a narrow outlined box with a dark window, the legend and a toggle
+    a.frame(INSET, 398, 116, 80, 184, 2.5)
+    a.rect(BLACK, 424, 134, 28, 18)
+    a.label('PROM', 404, 176, 68, 18)
+    a.label('POWER', 404, 194, 68, 18)
+    a.put(toggle(a, 'toggle_fixed', False), 423, 222, 30, 46)
+    # nameplate, upper middle-right
+    nameplate(a, 690, 52, 244, 80, [('8002A', 2.5), ('µPROCESSOR LAB', 2.25)])
+    # the control box: the display strip with its backlit legends, DIAG INTRPT, SYSTEM RESTART
+    a.frame(INSET, 622, 146, 280, 190, 2.5)
+    a.rect(BLACK, 640, 172, 244, 32)
+    for s, lx in (('sys', 652), ('run', 732), ('pwr', 812)):
+        a.put(lamp_legend(a, 'l_' + s, s.upper()), lx, 177, 60, 22, ' name="8002:%s"' % s)
+    t = toggle(a)
+    a.label('DIAG', 634, 222, 84, 18)
+    a.label('INTRPT', 634, 240, 84, 18)
+    a.put(t, 661, 262, 30, 46, ' name="8002:diag" inputtag="8002:diag"')
+    a.label('SYSTEM', 792, 236, 98, 18)
+    a.label('RESTART', 792, 254, 98, 18)
+    a.put(t, 826, 276, 30, 46, ' name="8002:restart" inputtag="8002:restart"')
+    write('8002a.lay', 'Tektronix 8002A µProcessor Lab, front panel (photos in sources/photos; 070-2701 Fig. 2-6).',
+          a, 'Tektronix 8002A Microprocessor Lab', W, H)
 
 
 def disc_unit():
-    W, H = 1000, 520
-    els = [
-        text('t_power', 'POWER'), text('t_drive0', 'DRIVE 0'), text('t_drive1', 'DRIVE 1'),
-        text('t_name', 'TEKTRONIX 8002A', PLATE_INK), text('t_sub', 'FLEXIBLE DISC UNIT', PLATE_INK),
-        # a drive door: light, with the dark latch across its middle and the disc slot behind
-        '<element name="door"><rect>%s</rect><rect>%s%s</rect><rect>%s%s</rect><rect>%s%s</rect></element>' % (
-            col((0.10, 0.10, 0.11)), col((0.86, 0.86, 0.84)), bnd(22, 0, 56, 400), col((0.05, 0.05, 0.06)), bnd(16, 175, 68, 50),
-            col((0.25, 0.25, 0.27)), bnd(30, 12, 40, 4)),
-    ]
-    it = cabinet(W, H)
-    for d, x in ((0, 230), (1, 470)):
-        it += [item('door', x, 60, 100, 400, ' drive="%d" inputtag="drive%d:eject"' % (d, d)),
-               item('t_drive%d' % d, x - 110, 420, 100, 22), item('led_red', x - 36, 392, 18, 18, ' name="fdu:drive%d"' % d)]
-    it += [item('t_power', 750, 60, 76, 20), item('rocker', 768, 88, 36, 61, ' name="fdu:power" inputtag="fdu:power"'),
-           item('led_green', 840, 104, 18, 18, ' name="fdu:pwr"'),
-           item('plate', 700, 190, 240, 70), item('t_name', 712, 198, 216, 26), item('t_sub', 712, 230, 216, 20)]
-    write('fdu.lay', 'Tektronix 8002A Flexible Disc Unit, front panel (070-2701 Fig. 2-1: one POWER rocker and its green indicator; 1978 catalogue photo: two drive doors).',
-          els, 'Tektronix 8002A Flexible Disc Unit', W, H, it)
+    W, H = 1000, 480
+    a = Art()
+    cabinet(a, W, H, 420, (150, 850, 448))
+    # a drive door assembly: the light outer channel, the raised inner bar, the black latch
+    door = a.element('door', ''.join('<rect>%s%s</rect>' % (col(c), bnd(*b)) for c, b in (
+        (DOOR_SHADE, (0, 0, 100, 370)),
+        (DOOR, (2, 0, 96, 368)),
+        (DOOR_LIGHT, (2, 0, 96, 14)),            # top cap
+        (DOOR_SHADE, (2, 14, 96, 2)),
+        (DOOR_LIGHT, (8, 16, 8, 346)),           # the outer channel's lit lip
+        (DOOR_SHADE, (60, 16, 8, 352)),          # the groove beside the inner bar
+        (DOOR_LIGHT, (70, 16, 22, 352)),         # the inner bar
+        (DOOR_SHADE, (92, 16, 3, 352)),
+        (BLACK, (0, 150, 40, 92)),               # latch
+        ((0.22, 0.22, 0.22), (2, 152, 36, 3)),
+    )))
+    # drive-busy lamps: an emulator aid, not on the real unit; kept tiny, in the door's cap
+    busy = a.element('busy', '<disk state="0">%s</disk><disk state="1">%s</disk>' % (col((0.62, 0.58, 0.54)), col((1, 0.28, 0.12))))
+    for d, x in ((0, 166), (1, 438)):
+        a.rect(SLOT, x + 98, 64, 56, 3)              # the disc slot's edges, right of the door
+        a.rect(SLOT, x + 98, 410, 36, 3)
+        a.put(door, x, 54, 100, 370, ' drive="%d" inputtag="drive%d:eject"' % (d, d))
+        a.put(busy, x + 80, 58, 8, 8, ' name="fdu:drive%d"' % d)
+        a.label_left('DRIVE', x - 94, 398, 2.25)
+        a.label_left(str(d), x - 22, 390, 3.5)
+    a.label('POWER', 780, 92, 80, 18)
+    a.put(rocker(a), 790, 114, 60, 54, ' name="fdu:power" inputtag="fdu:power"')
+    # power lamp: an emulator aid, not on the real unit (070-2701 shows only the rocker)
+    a.put(a.element('led_green', '<disk state="0">%s</disk><disk state="1">%s</disk>' % (col((0.30, 0.34, 0.30)), col((0.35, 1, 0.45)))),
+          858, 116, 8, 8, ' name="fdu:pwr"')
+    nameplate(a, 748, 228, 210, 82, [('FLEXIBLE DISC', 2), ('UNIT', 2)])
+    write('fdu.lay', 'Tektronix 8002A Flexible Disc Unit, front panel (photos in sources/photos; 070-2701 Fig. 2-1).',
+          a, 'Tektronix 8002A Flexible Disc Unit', W, H)
 
 
 os.makedirs(OUT, exist_ok=True)

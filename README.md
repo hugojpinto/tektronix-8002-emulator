@@ -60,13 +60,13 @@ The monitor (Ctrl-]) also presses switches (`p NAME`, `R`, `D`) and changes disc
 cd emu && make gui            # needs SDL3: brew install sdl3 / apt install libsdl3-dev
 build/tek8002-gui -0 ../disks/TekDOS_3.3_6800_cpy1.img
 ```
-It takes the same options, plus `-style crt|sharp`, `-scale F`, `-panels on|off`, `-artwork DIR` and `-shot SEC FILE.bmp`. The shot saves every window (`FILE_8002a.bmp`, `FILE_fdu.bmp`); if the run ends sooner, it is taken at the end.
+It takes the same options, plus `-style crt|sharp`, `-scale F` (by default the windows fit the screen, centred), `-panels on|off`, `-artwork DIR` and `-shot SEC FILE.bmp`. The shot saves every window (`FILE_8002a.bmp`, `FILE_fdu.bmp`); if the run ends sooner, it is taken at the end.
 
 - **The terminal** is a 24×80 CT8100 in green phosphor. The CT8100's phosphor and character set are not documented here, so the font is the one the 8550 emulator uses.
-- **The front panels** are drawn after 070-2701 Fig. 2-6 and the 1978 catalogue photo (`tools/gen_panels.py` writes `emu/artwork/*.lay`):
+- **The front panels** are drawn after photos of a surviving pair of units (`sources/photos/`) and 070-2701 Fig. 2-6 (`tools/gen_panels.py` writes `emu/artwork/*.lay`):
   - **Mainframe:** POWER, SYSTEM RESTART and DIAG INTRPT work, and SYS, RUN and PWR light. The PROM sockets are decoration.
   - **Disc unit:** POWER works, and each drive has a busy light. Drop a disc image on a drive door to insert it; click the door to take the disc out.
-- **Hotkeys** (Cmd, or Ctrl+Alt): V paste, C copy the screen, T turbo, F full screen, S sharp/CRT, P show the panels, R SYSTEM RESTART, Q quit.
+- **Hotkeys** (Cmd, or Ctrl+Alt): V paste, C copy the screen, T turbo, F full screen, S sharp/CRT, P show the panels, L fit the windows to the screen again, R SYSTEM RESTART, Q quit.
 
 What lights SYS and RUN is not described in the manuals. Here, SYS lights while the System Processor holds the bus, and RUN while any processor runs (inferred).
 

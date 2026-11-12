@@ -3,12 +3,13 @@
 // tek8002-gui: the 8002A µProcessor Lab with a graphical CT8100 and front panels (SDL3).
 // The same system and options as the tty front end (system/tek8002_system.*); this file only
 // draws, takes the keyboard and the mouse, and paces the emulation to real time.
-//   tek8002-gui [tek8002 options] [-style crt|sharp] [-scale F] [-panels on|off] [-artwork DIR] [-shot SECONDS FILE.bmp]
+//   tek8002-gui [tek8002 options] [-style crt|sharp] [-scale F (default: fit the screen)] [-panels on|off] [-artwork DIR] [-shot SECONDS FILE.bmp]
 // With -cycles the run is flat out and deterministic (batch); -shot saves the windows at a
 // machine time, or at the end of the run if it ends sooner (SDL_VIDEODRIVER=dummy runs it
 // with no display).
 // Hotkeys (Cmd on macOS, Ctrl+Alt elsewhere): V paste, C copy the screen, T turbo, F full
-// screen, S sharp/CRT, P show the panels, R SYSTEM RESTART, Q quit.
+// screen, S sharp/CRT, P show the panels, L fit the windows to the screen again, R SYSTEM
+// RESTART, Q quit. With no -scale the windows fit the screen, centred.
 // Front panels: artwork/8002a.lay and fdu.lay (tools/gen_panels.py). Click the switches;
 // drop a disc image on a drive door to insert it, click the door to take it out.
 #include "system/tek8002_system.h"
@@ -120,7 +121,7 @@ std::string base_name(const std::string &p)
 
 int main(int argc, char **argv)
 {
-	std::string style = "crt", artwork = "artwork"; double scale = 1.25; bool panels_on = true;
+	std::string style = "crt", artwork = "artwork"; double scale = 0; bool panels_on = true;   // scale 0: fit the screen
 	struct shot_t { double at; std::string file; };
 	std::vector<shot_t> shots;
 	std::vector<char *> rest = { argv[0] };
@@ -136,7 +137,7 @@ int main(int argc, char **argv)
 	tek8002_options opt;
 	std::string bad;
 	if (!opt.parse(int(rest.size()), rest.data(), bad)) {
-		fprintf(stderr, "unknown option %s\nusage: %s %s\n        [-style crt|sharp] [-scale F] [-panels on|off] [-artwork DIR] [-shot SECONDS FILE.bmp]\n", bad.c_str(), argv[0], tek8002_options::usage());
+		fprintf(stderr, "unknown option %s\nusage: %s %s\n        [-style crt|sharp] [-scale F (default: fit the screen)] [-panels on|off] [-artwork DIR] [-shot SECONDS FILE.bmp]\n", bad.c_str(), argv[0], tek8002_options::usage());
 		return 1;
 	}
 	tek8002_system sys(opt);
@@ -148,7 +149,7 @@ int main(int argc, char **argv)
 
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) { fprintf(stderr, "SDL: %s\n", SDL_GetError()); return 1; }
 	SDL_Window *win = nullptr; SDL_Renderer *ren = nullptr;
-	if (!SDL_CreateWindowAndRenderer("Tektronix CT8100 \xe2\x80\x94 8002A", int(LW * scale), int(LH * scale), SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY, &win, &ren)) {
+	if (!SDL_CreateWindowAndRenderer("Tektronix CT8100 \xe2\x80\x94 8002A", int(LW * (scale > 0 ? scale : 1.25)), int(LH * (scale > 0 ? scale : 1.25)), SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY, &win, &ren)) {
 		fprintf(stderr, "SDL: %s\n", SDL_GetError()); return 1;
 	}
 	SDL_SetRenderLogicalPresentation(ren, LW, LH, SDL_LOGICAL_PRESENTATION_LETTERBOX);
@@ -173,7 +174,7 @@ int main(int argc, char **argv)
 		int py = ty;
 		for (panel &p : panels) {
 			p.v = &p.l.views[0];
-			const float ps = float(scale) * 0.6f;
+			const float ps = scale > 0 ? float(scale) * 0.6f : 0.75f;
 			if (!SDL_CreateWindowAndRenderer(p.v->name.c_str(), int(p.v->b.w * ps), int(p.v->b.h * ps), SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY, &p.win, &p.ren)) continue;
 			SDL_SetRenderLogicalPresentation(p.ren, int(p.v->b.w), int(p.v->b.h), SDL_LOGICAL_PRESENTATION_LETTERBOX);
 			SDL_SetWindowPosition(p.win, tx + tw + 12, py);
@@ -181,6 +182,35 @@ int main(int argc, char **argv)
 		}
 		SDL_RaiseWindow(win);
 	}
+	// fit layout: one scale for the terminal and the stacked panels (panels at 0.62 of the
+	// terminal's scale) so that side by side they fill the usable area of the screen, centred
+	// (as in the sibling 8550 emulator)
+	auto fit_layout = [&]() {
+		SDL_Rect u;
+		if (!SDL_GetDisplayUsableBounds(SDL_GetDisplayForWindow(win), &u)) return;
+		const float gap = 8, bar = 30, r = 0.62f;                 // bar: title bar allowance
+		float pw = 0, ph = 0; int n = 0;
+		for (panel &p : panels) if (p.win && p.shown) { pw = std::max(pw, p.v->b.w); ph += p.v->b.h; n++; }
+		float t = (float(u.w) - (n ? 3 : 2) * gap) / (LW + r * pw);
+		t = std::min(t, (float(u.h) - bar - 2 * gap) / LH);
+		if (n) t = std::min(t, (float(u.h) - n * bar - (n + 1) * gap) / (r * ph));
+		const float tw = LW * t, th = LH * t;
+		const float total = tw + (n ? gap + r * pw * t : 0);        // the whole set, centred
+		const float x0 = float(u.x) + (float(u.w) - total) / 2;
+		const float colh = n ? std::max(th, r * ph * t + (n - 1) * (bar + gap)) : th;
+		const float y0 = float(u.y) + bar + std::max(gap, (float(u.h) - bar - colh) / 2);
+		SDL_SetWindowSize(win, int(tw), int(th));
+		SDL_SetWindowPosition(win, int(x0), int(y0));
+		float py = y0;
+		for (panel &p : panels) {
+			if (!p.win || !p.shown) continue;
+			SDL_SetWindowSize(p.win, int(p.v->b.w * r * t), int(p.v->b.h * r * t));
+			SDL_SetWindowPosition(p.win, int(x0 + tw + gap), int(py));
+			py += p.v->b.h * r * t + bar + gap;
+		}
+		SDL_RaiseWindow(win);
+	};
+	if (scale <= 0) fit_layout();
 
 	// lamps: the fraction of the frame each was lit, with a short afterglow
 	std::vector<std::string> lamp_names;
@@ -269,7 +299,8 @@ int main(int argc, char **argv)
 					else if (k == SDLK_F) { fullscreen = !fullscreen; SDL_SetWindowFullscreen(win, fullscreen); }
 					else if (k == SDLK_S) { view.crt = !view.crt; SDL_SetTextureScaleMode(tex, view.crt ? SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST); redraw = true; }
 					else if (k == SDLK_R) sys.press("8002:restart");
-					else if (k == SDLK_P) for (panel &p : panels) { p.shown = true; SDL_ShowWindow(p.win); }
+					else if (k == SDLK_P) { for (panel &p : panels) { p.shown = true; SDL_ShowWindow(p.win); } if (scale <= 0) fit_layout(); }
+					else if (k == SDLK_L) { if (fullscreen) { fullscreen = false; SDL_SetWindowFullscreen(win, false); } fit_layout(); }
 					break;
 				}
 				// the keys that send control characters (letters and symbols come as text)
