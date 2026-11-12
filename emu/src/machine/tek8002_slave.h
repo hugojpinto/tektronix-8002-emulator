@@ -32,6 +32,7 @@ public:
 	// its slave command port, as the System Processor writes it
 	virtual bool decodes(u8 port) const = 0;
 	virtual void command(u8 port, u8 d) = 0;
+	virtual u8 status(u8 port) const { return 0xff; }   // a read of its command port (FF: none)
 	virtual bool active() const = 0;             // selected: the one the Debug module runs
 
 	virtual void reset() = 0;                    // forced reset (and activation)

@@ -11,6 +11,7 @@ These files keep their own licences, which are compatible with GPL-2.0-or-later:
 | Files | Origin | Licence |
 |---|---|---|
 | `emu/src/cpu/s2650`, `emu/src/cpu/z80/z80dasm.*` | [MAME](https://www.mamedev.org/), via the sibling tektronix-8550-emulator; commit in `reference/MAME-SOURCE.txt` | BSD-3-Clause (per-file headers) |
+| `emu/src/cpu/m6800`, `reference/mame/cpu/m6800` | [MAME](https://www.mamedev.org/) `src/devices/cpu/m6800`; the core is generated from it by `tools/port_m6800.py`; commit in `reference/MAME-SOURCE.txt` | BSD-3-Clause (per-file headers) |
 | `emu/src/cpu/z80/superzazu/` | [superzazu/z80](https://github.com/superzazu/z80) | MIT (`LICENSE` in that directory) |
 
 Local changes to the ported cores are marked `[tek8550]` (made in the 8550 emulator) or `[tek8002]`.

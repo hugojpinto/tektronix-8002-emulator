@@ -21,10 +21,14 @@ void tek8002_debug::write(u8 port, u8 d)
 	switch (port) {
 	case 0xf8: m_control = d; break;
 	case 0xf9: {
-		// forced reset and forced jump act on a 1 -> 0 transition (ztpe.nl Annex B, F9);
-		// they are taken when the slave next runs (forced interrupt: no slave uses it)
-		if ((m_command & 0x01) && !(d & 0x01)) m_reset_pending = true;
-		if ((m_command & 0x04) && !(d & 0x04)) m_jump_pending = true;
+		// a command byte with forced reset or forced jump low arms it, and the next hand-over
+		// to the slave takes it: the write sets the Forced Jump Enable flip-flop, and the
+		// master's halt clocks the jump command out (070-2711 §6 "Forced Jump Logic"). Every
+		// write arms again: TEKDOS's 6800 probe rewrites F9 <- FA on each retry (1D9C-1DC1).
+		// (ztpe.nl Annex B reads it as a 1 -> 0 transition, which software that writes the
+		// bits back to 1 in between cannot tell apart.) Forced interrupt: no slave uses it.
+		if (!(d & 0x01)) m_reset_pending = true;
+		if (!(d & 0x04)) m_jump_pending = true;
 		const bool was_masked = masked();
 		m_command = d;
 		if (was_masked && !masked() && m_held) { const u32 h = m_held; m_held = 0; raise(h); }
@@ -39,10 +43,17 @@ void tek8002_debug::write(u8 port, u8 d)
 u8 tek8002_debug::read(u8 port) const
 {
 	switch (port) {
-	case 0xfc: return u8(~m_pc_last);
-	case 0xfd: return u8(~m_pc_last >> 8);
-	case 0xfe: return u8(~m_pc_next);
-	case 0xff: return u8(~m_pc_next >> 8);
+	// FC/FD read PC next and FE/FF PC last, both true (not inverted), as TEKDOS 3.3's
+	// debug control uses them (DEB CNTL 1589-15CF): FD/FC becomes the resume address and
+	// DSTAT's P= ("the emulator processor's next instruction address", 070-2349 §11), FF/FE
+	// the trace line's LOC ("the last executed instruction"); when the board reports an
+	// instruction that did not complete, TEKDOS resumes at FF/FE, re-executing it. It
+	// complements only the alternative it reads from a trace board at C4-C7. (ztpe.nl
+	// Annex B, for the Signetics TWIN, has FC/FD = PC last, FE/FF = PC next, inverted.)
+	case 0xfc: return u8(m_pc_next);
+	case 0xfd: return u8(m_pc_next >> 8);
+	case 0xfe: return u8(m_pc_last);
+	case 0xff: return u8(m_pc_last >> 8);
 	default:   return 0xff;                // F8-FB are write-only
 	}
 }
@@ -104,7 +115,11 @@ void tek8002_debug::run_slave(tek8002_slave &s, int cycles2650, double master_hz
 		if (s.halted()) m_events |= 1u << INT_SLAVE_HALTED;
 		if (debugging() && !(m_control & 0x10)) m_events |= 1u << INT_SINGLE_CYCLE;
 		if (m_events) {
-			m_pc_last = pc; m_pc_next = s.pc();
+			// PC last/next follow the slave's fetches only while debugging is enabled (F8 bit 5
+			// low; ztpe.nl Annex B "kept up to date"): TEKDOS disables it before it sends the
+			// slave into the emulator's dump routine, whose own instructions must not replace
+			// the user's PC (DEB CNTL; 070-2711 §1 walkthrough, step 39)
+			if (debugging()) { m_pc_last = pc; m_pc_next = s.pc(); }
 			// an SVC alone lets the slave continue where it stopped; anything else arms a
 			// forced jump to the address the master sets
 			const u32 svcs = 0xffu << INT_SVC1;

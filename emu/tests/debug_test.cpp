@@ -64,8 +64,8 @@ struct rig {
 	void run(int cycles = 200) { dbg.run_slave(s, cycles, 1.25e6); }
 	void bp(int n, u16 a) { dbg.write(u8(0xfc + 2 * n), u8(~a)); dbg.write(u8(0xfd + 2 * n), u8(~a >> 8)); }
 	void jump_to(u16 a) { dbg.write(0xfa, u8(~a)); dbg.write(0xfb, u8(~a >> 8)); dbg.write(0xf9, 0xfb); dbg.write(0xf9, 0xff); }
-	u16 pc_last() { return u16(~(dbg.read(0xfd) << 8 | dbg.read(0xfc))); }
-	u16 pc_next() { return u16(~(dbg.read(0xff) << 8 | dbg.read(0xfe))); }
+	u16 pc_next() { return u16(dbg.read(0xfd) << 8 | dbg.read(0xfc)); }   // read true (DEB CNTL 1589)
+	u16 pc_last() { return u16(dbg.read(0xff) << 8 | dbg.read(0xfe)); }
 };
 
 int main()
@@ -74,7 +74,7 @@ int main()
 		rig r; r.s.prog[2].out = 0xf7;
 		r.run();
 		CHECK(r.host.ints.size() == 1 && r.host.ints[0] == 16);
-		CHECK(r.pc_last() == 6 && r.pc_next() == 9);
+		CHECK(r.pc_last() == 0 && r.pc_next() == 0);    // PC registers follow only while debugging
 		r.host.ints.clear(); r.s.prog[2].out = -1;
 		r.run(12);
 		CHECK(r.s.pc() > 9);                             // ran on from 9, not from the jump register
@@ -125,15 +125,18 @@ int main()
 		r.dbg.write(0xf9, 0xff);
 		CHECK(r.host.ints.size() == 2 && r.host.ints[0] == 16 && r.host.ints[1] == 17);
 	}
-	{	// forced reset and forced jump act on F9's 1 -> 0 edges, when the slave next runs
+	{	// a command byte with forced reset or jump low arms it, once, for the next hand-over;
+		// every such write arms again (070-2711 §6; TEKDOS's 6800 probe retries this way)
 		rig r; r.s.m_pc = 30;
 		r.dbg.write(0xf9, 0xfe);                           // forced reset
 		CHECK(r.s.resets == 0);
 		r.run(4);
 		CHECK(r.s.resets == 1 && r.s.pc() == 3);
-		r.dbg.write(0xf9, 0xfe);                           // no edge: nothing new
-		r.run(4);
+		r.run(4);                                          // taken once
 		CHECK(r.s.resets == 1);
+		r.dbg.write(0xf9, 0xfe);                           // written again: armed again
+		r.run(4);
+		CHECK(r.s.resets == 2);
 		r.jump_to(0x40);
 		r.run(4);
 		CHECK(r.s.pc() == 0x43);

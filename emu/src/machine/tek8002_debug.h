@@ -30,8 +30,8 @@
 //   F9 write  command: 0 forced reset, 1 forced interrupt, 2 forced jump (each on a
 //             1 -> 0 transition), 3 interrupt mask, 4 SVCs disabled when low
 //   FA/FB write  forced jump address low/high
-//   FC/FD write  breakpoint 1 low/high; read: PC last low/high
-//   FE/FF write  breakpoint 2 low/high; read: PC next low/high
+//   FC/FD write  breakpoint 1 low/high; read: PC next low/high (true, not inverted)
+//   FE/FF write  breakpoint 2 low/high; read: PC last low/high (likewise; tek8002_debug::read)
 #ifndef TEK_TEK8002_DEBUG_H
 #define TEK_TEK8002_DEBUG_H
 #include "emu.h"

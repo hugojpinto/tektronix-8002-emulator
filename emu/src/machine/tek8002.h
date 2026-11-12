@@ -11,6 +11,7 @@
 //   Debug & Front Panel I/O (670-5299): ports F8-FF, master/slave hand-over, debug
 //       interrupts (tek8002_debug)
 //   Assembler Processor (670-5220): the Z80 slave, control port E7 (tek8002_asmproc)
+//   6800 Emulator Processor: the 6800 slave, control port E2 (tek8002_ep6800)
 //   System Communications (670-5219): three ACIAs and the memory map, ports C9-CF
 //       (tek8002_syscomm)
 // Not yet: emulator boards, PROM programmers, RTPA, parity.
@@ -22,6 +23,7 @@
 #include "machine/tek8002_fdu.h"
 #include "machine/tek8002_debug.h"
 #include "machine/tek8002_asmproc.h"
+#include "machine/tek8002_ep6800.h"
 #include "machine/tek8002_syscomm.h"
 #include <string>
 #include <vector>
@@ -29,6 +31,12 @@
 class tek8002 : public s2650_device::bus_interface, public slave_bus, public debug_host
 {
 public:
+	// What a read finds where no board answers. The boards drive the backplane's data bus
+	// through inverting buffers (070-2711 §9 "Address and Data Bus Buffers": "the data
+	// transferred through these buffers is also inverted"), so a line nobody drives floats
+	// high and reads as 0. TEKDOS relies on it: its debug control takes port C2 reading 0
+	// as no trace board, and then uses the Debug module's PC registers (DEB CNTL 157E).
+	static constexpr u8 OPEN_BUS = 0x00;
 	static constexpr double CPU_HZ = 1'250'000.0;   // 10 MHz / 8 (070-2711 §3)
 	// interrupt numbers (070-2711 Table 3-1): vector address = 2n, priority = n (0 highest)
 	enum { INT_RESET = 0, INT_SYSMEM_PARITY = 1, INT_TAPE = 2, INT_PROGMEM_PARITY = 3,
@@ -51,6 +59,7 @@ public:
 	tek8002_debug debug{*this};     // Debug and Front Panel I/O module
 	tek8002_syscomm syscomm;        // System Communications: modem, printer, paper tape ACIAs; memory map
 	tek8002_asmproc asmproc{*this}; // Assembler Processor (Z80)
+	tek8002_ep6800 ep6800{*this};   // 6800 Emulator Processor
 	tek8002_slave *active_slave() const;   // the slave the Debug module runs, if any
 	int program_boards = 2;         // 8002A: two 16K program memory boards standard (up to 4)
 	bool timer_100ms = false;       // interval timer jumper: 10 ms (default) or 100 ms
@@ -79,7 +88,7 @@ public:
 	bool master_interrupt_pending() const override { return m_pending != 0; }
 
 private:
-	std::vector<tek8002_slave *> m_slaves{ &asmproc };   // every slave board, each decoding its own command port
+	std::vector<tek8002_slave *> m_slaves{ &asmproc, &ep6800 };   // every slave board, each decoding its own command port
 	std::vector<u8> m_prom;                 // bootstrap PROM, in CPU address order
 	std::vector<u8> m_sysram, m_progmem;
 	u8 m_bank = 0;                          // EE bits 1-0: program memory bank at 4000-7FFF

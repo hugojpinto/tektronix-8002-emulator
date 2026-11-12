@@ -7,7 +7,10 @@ A sibling of the [Tektronix 8550 MDL emulator](https://github.com/hugojpinto/tek
 ## Status
 - The real bootstrap PROM (070-2393 Fig. 6-2) boots **TEKDOS 3.1 and 3.3** (6800) to the `>` prompt.
 - `LDIR` lists the disc directory. On `Tek8002_1a` it matches the printout photographed with the original disc.
-- Not yet: the Z80 Assembler Processor (ASM, LINK), System Communications, emulator boards, PROM programmers, the disc controller at low level. See [FEASIBILITY.md](FEASIBILITY.md) and [ROADMAP.md](ROADMAP.md).
+- The Z80 Assembler Processor runs TEKDOS's ASM and LINK; System Communications drive the printer, modem and paper tape ports; FORMAT, COPYSYS and DUP work.
+- The disc controller runs its real microprogram (070-2587) against flux-level tracks.
+- The **6800 Emulator Processor** runs user programs, and TEKDOS's DEBUG works on it: TRACE, breakpoints, DSTAT, SET. Its lost dump/restore PROM is modelled at high level (`notes/6800.md`).
+- Not yet: PROM programmers, the Real-Time Prototype Analyzer, other emulator boards, prototype (mode 1/2) emulation. See [ROADMAP.md](ROADMAP.md).
 
 ## Build and run
 ```

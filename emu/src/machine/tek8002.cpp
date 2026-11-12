@@ -54,7 +54,7 @@ u8 tek8002::read(offs_t a)
 		if (a < 0x100 && !m_prom.empty()) return m_prom[a];   // the PROM overrides the first 256 bytes of RAM
 		return m_sysram[a];
 	}
-	if (m_bank >= program_boards) return 0xff;               // no board answers
+	if (m_bank >= program_boards) return OPEN_BUS;           // no board answers
 	return m_progmem[m_bank * 0x4000 + (a & 0x3fff)];
 }
 
@@ -71,7 +71,7 @@ void tek8002::write(offs_t a, u8 d)
 
 u8 tek8002::io_read(offs_t port)
 {
-	u8 v = 0xff;
+	u8 v = OPEN_BUS;
 	switch (port) {
 	case 0xe8: v = term.read_data(); break;
 	case 0xe9:                                               // UART status
@@ -84,6 +84,11 @@ u8 tek8002::io_read(offs_t port)
 	default:
 		if (debug.decodes(u8(port))) { v = debug.read(u8(port)); break; }
 		if (syscomm.decodes(u8(port))) { v = syscomm.read(u8(port)); break; }
+		{
+			bool slave = false;
+			for (auto *s : m_slaves) if (s->decodes(u8(port))) { v = s->status(u8(port)); slave = true; break; }
+			if (slave) break;
+		}
 		if (trace_io) fprintf(stderr, "[%.4f IN  %03x -> unmapped (pc %04x)]\n", m_cycles / CPU_HZ, unsigned(port), cpu.ppc());
 		return v;
 	}
@@ -193,7 +198,7 @@ u8 tek8002::slave_read(u16 a, bool)
 {
 	debug.slave_access(a, false);
 	const int board = a >> 14;
-	return board < program_boards ? m_progmem[a] : 0xff;
+	return board < program_boards ? m_progmem[a] : OPEN_BUS;
 }
 
 void tek8002::slave_write(u16 a, u8 d)
@@ -205,7 +210,7 @@ void tek8002::slave_write(u16 a, u8 d)
 u8 tek8002::slave_in(u16 port)
 {
 	if (trace_io) fprintf(stderr, "[%.4f slave IN  %04x -> unmapped]\n", m_cycles / CPU_HZ, unsigned(port));
-	return 0xff;
+	return OPEN_BUS;
 }
 
 void tek8002::slave_out(u16 port, u8 d)
