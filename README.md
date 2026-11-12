@@ -72,7 +72,7 @@ It takes the same options, plus `-cursor steady|blink` (the CT8100's cursor is s
   - **Disc unit:** POWER works, and each drive has a busy light. Drop a disc image on a drive door to insert it; click the door to take the disc out.
 - **Hotkeys** (Cmd, or Ctrl+Alt): V paste, C copy the screen, U TTY LOCK, T turbo, F full screen, S sharp/CRT, P show the panels, L fit the windows to the screen again, R SYSTEM RESTART, Q quit.
 
-What lights SYS and RUN is not described in the manuals. Here, SYS lights while the System Processor holds the bus, and RUN while any processor runs (inferred).
+The lamps follow the service manual's schematics (`notes/8002.md`, "Front panel lamps"): SYS is the master/slave flip-flop giving the bus to the System Processor, RUN the bus line RUN (a processor runs) gated by HOLD, PWR the +5.2 V supply. That the SYS legend sits over the MASTER LED pair, and that SYS and RUN go dark while SYSTEM RESTART is held, are inferred.
 
 A headless check: `SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software build/tek8002-gui -0 IMG -cycles $((40*1250000)) -type prompt 'LDIR\r' -shot 35 x.bmp`.
 

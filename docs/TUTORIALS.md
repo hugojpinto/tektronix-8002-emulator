@@ -12,8 +12,6 @@ Short recipes, a few minutes each. Every one is a command sequence from the sess
 8. [A ZX Spectrum as the prototype](#8-a-zx-spectrum-as-the-prototype)
 9. [Scripted, headless runs](#9-scripted-headless-runs)
 
-A word on the pictures: TEKDOS echoes Return as a line feed without a carriage return, and the CT8100 is modelled without its "CR with LF" strap. So output that does not begin with its own CR (`*DOS* EOJ` after `GO`, for instance) starts in the column where the command line ended ([OPERATION.md §6.4](OPERATION.md#64-the-ct8100-screen)).
-
 ---
 
 ## 1. Boot and LDIR

@@ -95,6 +95,7 @@ Options only the GUI takes:
 | `-scale F` | window scale. By default the windows fit the screen, centred |
 | `-panels on\|off` | show the front panels |
 | `-artwork DIR` | where `8002a.lay` and `fdu.lay` are (default `artwork`, so run from `emu/`, or give `-artwork emu/artwork`) |
+| `-cursor steady\|blink` | the CT8100's cursor: steady (default), or blinking, as with its BLINK CURSOR strap |
 | `-shot SEC FILE.bmp` | save the windows at emulated second SEC: `FILE.bmp` (the CT8100), `FILE_8002a.bmp` and `FILE_fdu.bmp`. If the run ends sooner, the shot is taken at the end |
 
 With `-cycles` the GUI runs as a batch: flat out, 1/60 s of machine time per frame, deterministic. With `SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software` it needs no display, which is how the pictures in these documents are made:
@@ -265,9 +266,13 @@ In the first line the `P` was typed over the `Q`. In the second, the deleted `Q`
 
 ### 6.4 The CT8100 screen
 
-The CT8100 (070-2359) is Tektronix's version of its 4023 terminal: 24 lines of 80 characters. It is modelled in DIRECT mode with the codes TEKDOS uses (`notes/ct8100.md`): BS and HT move the cursor without erasing, LF moves down and rolls the screen past the 24th line, CR returns to the left margin, BEL beeps, and DEL neither writes nor spaces.
+The CT8100 (070-2359) is Tektronix's version of its 4023 terminal: 24 lines of 80 characters. It is modelled in DIRECT mode, from its manual (`notes/ct8100.md`).
 
-- TEKDOS echoes Return as a line feed with no carriage return. So output that does not start with its own CR, such as `*DOS* EOJ` after `GO`, starts in the column where the command line ended. You will see this in the pictures. The CT8100 manual names "a CR with LF" as a strap option, which the emulator does not set.
+- **What TEKDOS uses:** BS and HT move the cursor without erasing, LF moves down and rolls the screen past the 24th line, CR returns to the left margin, BEL beeps, and DEL neither writes nor spaces.
+- **The LF DOES CR strap is set:** a line feed also returns the carriage. TEKDOS echoes Return as LF (and DC3) with no CR, so the lab's terminal must have had this strap; without it, TEKDOS's next output would start where the command line ended (inferred from that echo).
+- **For your programs,** the terminal's host features are there too: cursor addressing (FS, column + 32, line + 32), clear page (ESC FF), read cursor (ESC ], answered with GS X Y CR), display fields (US and a field attribute code: inverse, blinking, dim, blanked, protected), clear input (ESC O), and the optional rulings set (SO/SI). They are drawn by the GUI. The terminal front end passes the 8002's output to your own terminal as it is, so a program that uses them needs `tek8002-gui`.
+- **The cursor is steady,** as on the standard terminal: "The standard 4023 does not blink the cursor" (p. 2-2). The BLINK CURSOR strap made it blink; `-cursor blink` in the GUI sets it. Blinking fields and the strapped cursor blink at 1 Hz (inferred).
+- Not modelled: BUFFER mode and its keyboard editing, the send-page commands, hard copy (`notes/ct8100.md`).
 - The CT8100's character generator and its phosphor colour are not documented. The font is the one the sibling 8550 emulator draws its CT8500 with, and the green is a choice.
 
 ### 6.5 FORMAT, DUP and COPYSYS

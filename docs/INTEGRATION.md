@@ -221,7 +221,11 @@ The firmware PROMs of the 6800 and Z80 boards were never dumped, so theirs are h
 
 ---
 
-## 5. Conventions
+## 5. Programs that drive the CT8100
+
+A program on the emulator board can use the CT8100's host features through TEKDOS's console output: cursor addressing (FS, X = column + 32, Y = line + 32), clear page (ESC FF), read cursor (ESC ]; the terminal answers GS, X, Y, CR on the console input), display fields (US and a field attribute code), clear input (ESC O) and the rulings set (SO, SI). The codes are in `notes/ct8100.md` and 070-2359 Table 2-1/2-2. `host/ct8100` interprets them; `-snap` saves the screen as text (rulings as their nearest ASCII, fields' looks dropped); the GUI draws everything. The terminal front end does not translate them for your own terminal.
+
+## 6. Conventions
 
 - **Fidelity:** model the 1979 hardware and nothing more. Where something had to be inferred, say so.
 - **Compatibility:** protocol changes are additive and versioned; older peers keep working.
