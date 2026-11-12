@@ -19,11 +19,12 @@ fail=0
 check() { if grep -qF -- "$2" "$3"; then echo "PASS $1"; else echo "FAIL $1 (wanted '$2')"; fail=1; fi; }
 # start a fresh prototype on a free port; its console output goes to $W/$1.out
 target() {
+	name=$1; shift
 	[ -n "$TPID" ] && kill $TPID 2>/dev/null && wait $TPID 2>/dev/null
 	PORT=$(python3 -I -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1])')
-	python3 -I tools/proto_target.py --tcp "$PORT" --log > "$W/$1.out" 2> "$W/$1.log" &
+	python3 -I tools/proto_target.py --tcp "$PORT" --log "$@" > "$W/$name.out" 2> "$W/$name.log" &
 	TPID=$!
-	for i in 1 2 3 4 5 6 7 8 9 10; do grep -q listening "$W/$1.log" 2>/dev/null && break; sleep 0.2; done
+	for i in 1 2 3 4 5 6 7 8 9 10; do grep -q listening "$W/$name.log" 2>/dev/null && break; sleep 0.2; done
 }
 run() { img=$1; shift; "$EMU" -fdc hle -prom roms/tekdos_boot.bin -target "tcp:127.0.0.1:$PORT" -rw -0 "$img" -cycles $((600 * 1250000)) "$@" </dev/null 2>/dev/null | tr -d '\000\007\023' | tr '\r' '\n'; }
 
@@ -59,4 +60,16 @@ check "6800 mode 2: traced"           "0402 B70480 STA  A  0480     =0480   A5 0
 check "6800 mode 2: WAI break"        "0406 BREAK"                          "$W/m1.txt"
 check "6800 mode 2: DUMP (GET)"       "0480=A5 FF"                          "$W/m1.txt"
 check "6800 mode 2: DSTAT"            "M=2  6800"                           "$W/m1.txt"
+# the prototype's clock (link v4): a fixed loop (20 x 256 DJNZ, then HALT) in mode 1 takes the
+# target 21647 us at the board's own 4 MHz and twice that at a reported 2 MHz; the count
+# includes the 8002A's two wait states per memory access in mode 1 (070-3665 §2)
+loop_us() {
+	target "$1" ${2:+--clock $2}
+	run "$W/z80.img" -type prompt 'EMULATE 1\r' -type prompt 'PATCH 100 1614060010FE1520F976\r' -type prompt 'GO 100\r' > "$W/$1.txt"
+	kill $TPID 2>/dev/null; wait $TPID 2>/dev/null; TPID=
+	sed -n 's/.*after \([0-9]*\) us of target time.*/\1/p' "$W/$1.log"
+}
+t4=$(loop_us c4); t2=$(loop_us c2 2)
+[ "$t4" = 21647 ] && echo "PASS clock: the board's 4 MHz (21647 us)" || { echo "FAIL clock: $t4 us at 4 MHz, wanted 21647"; fail=1; }
+[ "$t2" = 43295 ] && echo "PASS clock: the prototype's 2 MHz (43295 us)" || { echo "FAIL clock: $t2 us at 2 MHz, wanted 43295"; fail=1; }
 exit $fail

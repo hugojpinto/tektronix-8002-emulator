@@ -8,6 +8,10 @@
 // - SVCs: OUT to F7 ... F0 (TEKDOS's Z80 DEMO%S: "OUT (0F7H),A ... EXIT FROM USER
 //   PROGRAM"), as on the Assembler Processor.
 // - HALT is the halt the Debug module detects.
+// - Wait states (070-3665 §2, "8001/8002A Systems Jumper Configurations"): "Two wait states
+//   are inserted each time the program memory is accessed, or when running in emulation
+//   Mode 1. No wait states are inserted in Mode 2" (except in the debug and memswitch jump
+//   sequences, which run as firmware here).
 // - Modes 1 and 2: memory (with M1 fetches), I/O, INT (with its acknowledge cycle), NMI,
 //   RESET and WAIT through the probe, over the same link the 8550 emulator's Z80 board uses
 //   (notes/prototype-link.md).
@@ -39,7 +43,7 @@ public:
 
 	explicit tek8002_epz80(slave_bus &bus);
 	const char *name() const override { return "Z80 Emulator Processor"; }
-	double clock_hz() const override { return 4.0e6; }
+	double board_clock_hz() const override { return 4.0e6; }   // J1 at 4 MHz (070-3665 §2: 2 or 4 MHz; 4 MHz at most in an 8002A)
 	z80 cpu{};
 
 protected:
@@ -58,6 +62,7 @@ protected:
 	u8 board_status() const override { return u8((cpu.iff2 ? 0x80 : 0) | (cpu.iff1 ? 0x40 : 0) | (cpu.interrupt_mode & 3)); }
 
 private:
+	void wait_states(u16 a) { if (!proto_mem(a) || emulation_mode() == 1) cpu.cyc += 2; }
 	static u8 mem_rd(void *u, u16 a);
 	static void mem_wr(void *u, u16 a, u8 d);
 	static u8 port_in(z80 *z, u16 port);

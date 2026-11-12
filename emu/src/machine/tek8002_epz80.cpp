@@ -20,6 +20,7 @@ void tek8002_epz80::cpu_reset()
 u8 tek8002_epz80::mem_rd(void *u, u16 a)
 {
 	tek8002_epz80 &s = *static_cast<tek8002_epz80 *>(u);
+	s.wait_states(a);
 	if (s.proto_mem(a)) return s.proto_read(a, s.cpu.m1);
 	return s.m_bus.slave_read(a, s.cpu.m1);
 }
@@ -27,6 +28,7 @@ u8 tek8002_epz80::mem_rd(void *u, u16 a)
 void tek8002_epz80::mem_wr(void *u, u16 a, u8 d)
 {
 	tek8002_epz80 &s = *static_cast<tek8002_epz80 *>(u);
+	s.wait_states(a);
 	if (s.proto_mem(a)) s.proto_write(a, d);
 	else s.m_bus.slave_write(a, d);
 }

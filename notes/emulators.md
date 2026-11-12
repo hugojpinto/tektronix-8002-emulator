@@ -15,11 +15,16 @@ Sources:
 - TEKDOS's kernel and its overlays in `.`. These are MOD modules, each starting on a sector
   with its own header and load address: DEB CONTROL at 1500, the others at 1880.
 - The sibling tektronix-8550-emulator's `notes/8301.md`, for the same board family in the 8550.
+- 070-3665 (Z80 Emulator Processor and Prototype Control Probe installation, 1980/83, in the
+  sibling's sources): the same board for the 8001, 8002A, 8540 and 8550 (8002F18/F33). It covers
+  jumpers, clock and wait states, but not the registers.
 
 ## Shared by the boards
 | Item | Behaviour | Established by |
 |---|---|---|
-| Control byte | Bit 7 = active. Bit 1 = 0 maps the firmware (firmware calls 80, 90, C0, C4, D0; user runs 92, 96, B2, F2). Bits 6–5 = mode (00 = 0, 01 = 1, 11 = 2). Bit 4 is set for most runs; its function is not known | TEKDOS writes (`-io`); EMULATE (Z80 EMULATO 18C5–1926: 90 \| mode << 5, then \| 02); the 8550's rule (8301.md "E3 write bits") |
+| Control byte | Bit 7 = active. Bit 1 = 0 maps the firmware (firmware calls 80, 90, C0, C4, D0; user runs 92, 96, B2, F2). Bits 6–5 = mode (00 = 0, 01 = 1, 11 = 2). Bits 4 and 2 below | TEKDOS writes (`-io`); EMULATE (Z80 EMULATO 18C5–1926: 90 \| mode << 5, then \| 02); the 8550's rule (8301.md "E3 write bits") |
+| Control bit 2 | the board's fetch and access signals reach the Debug module's breakpoint and single-cycle logic. TEKDOS sets it in the run value whenever it gives breakpoints or single cycle to the Debug module, and clears it when a trace board does that job: DEB INIT checks port C2 for one (197A–1985). The ESC stop sets it together with F8 ← CF, single cycle on (2E46–2E52), and leaving DEBUG clears it (3818). Modelled: an emulator board's breakpoint and single-cycle events count only while it is set. Every test still passes with the gate, so TEKDOS always sets it where it needs them | TRACE 1A95–1ABE, BKPT 1AD7–1AF8, DEB INIT, kernel (*inferred meaning*) |
+| Control bit 4 | set for every user run (92, 96, B2, F2) and the start-up probe (90), clear for every debug firmware call (80, C0, C4). Modelled as letting the prototype's INT/NMI through, after the OS/40 Z80 specifics' "Interrupts are detected only when user code is being executed" (070-3939). No TEKDOS code tests anything else that fits | TEKDOS writes; sibling 8301.md (*inferred*) |
 | Status, bit 5 | board present | the 8550's Z80 diagnostic (configuration probe 4454) |
 | Status, bit 4 | the processor is halted (6800 WAI, Z80 HALT). TEKDOS then resumes at PC last, the halt instruction itself, and on the 6800 resets the board first | kernel 3C4C–3C55 and 2E3F; DEB CNTL on 6800, Z80 and 8080; 070-2349 §11 "continues at the beginning of the WAIT instruction" |
 | Undriven status bits | read 0 (the open bus, `notes/8002.md`) | — |
@@ -41,10 +46,17 @@ table at 24CB: F8 0B on the Z80 discs, F9 FF on the 6800's.
 | SVCs | a read or write of FEF7–FEF2 is SVC 1–6 (ports F7–F2), while the Debug module takes SVCs. The access does not reach memory, and an instruction makes one SVC. SRB pointers at 0040–004B | 070-2349 §10, Table 10-1 |
 | Firmware | F9FA restore, F9FD dump, F9F4 PUT, F9F7 GET | DEB INIT 195D–196E; the kernel's GET/PUT derivation |
 | Register block | 0000 A, 0001 B, 0002–0003 X, 0004–0005 SP, 0006 CC (7 bytes, swapped with TEKDOS's buffer at 1538) | DEB CNTL 1733–174B; DSTAT 18E9–1937 |
-| Status bit 7 | must read 1 in normal running: 0 makes TEKDOS reset the board and resume at PC last. What drives it is not known | DEB CNTL 1550–155C, 1602–1607 |
+| Status bit 7 | must read 1 in normal running. When it reads 0, TEKDOS treats the last instruction as incomplete: it resumes at PC last and resets the 6800 first (DEB CNTL 1550–155C, 15A9–15BB, 1602–1607), the same treatment it gives a halt (bit 4). The reading that fits: the 6800 stopped on an instruction boundary (its last cycle was a fetch, so PC last/next are valid). A stop in mid-instruction would need the reset and the re-run. In the model instructions are atomic, so it reads 1. The 8550 diagnostic (6800.TST) reads E2 once and does not test it, and no 6800 board manual is preserved | DEB CNTL (*inferred meaning*) |
 | Status bit 6 | a 6802 fitted: DSTAT prints "6802" when set, "6800" when clear (E2 is the "6800/6802 Emulator Processor"; a "6802 probe connects to 6800 emulator") | DSTAT 1951–1957; 070-2711 Appendix E, §1 |
 
 ## Z80 (`tek8002_epz80`, E3, 4.00 MHz)
+Mode 0 runs from the board's clock: jumper J1 gives 2 or 4 MHz on the Z80A board. The Z80B
+board's J3003 gives 4 or 6 MHz, but "only 4 MHz or below" in an 8002A (070-3665 §2). On
+8001/8002A systems "two wait states are inserted each time the program memory is accessed, or
+when running in emulation Mode 1. No wait states are inserted in Mode 2", except in the debug and
+memswitch jump sequences. The model adds 2 T-states to each memory cycle on that rule (the
+jump sequences are firmware here).
+
 | Item | Behaviour | Established by |
 |---|---|---|
 | SVCs | OUT to F7 … F0, while the Debug module takes SVCs | TEKDOS's DEMO%S ("OUT (0F7H),A … EXIT FROM USER PROGRAM") |
@@ -81,10 +93,14 @@ and clock throughout. As modelled:
   true registers. How the real dump captured the 6800's CC unchanged, or the Z80's IM, is
   unknown (the Z80's comes from the status). Where each PROM sits in the address space, beyond
   its entries, is unknown.
-- **The user clock** of modes 1/2 is not taken from the prototype: the boards keep their own
-  clock, and the link's time messages follow it.
-- **Unknown:** the 6800's status bit 7; control bit 4; control bit 2 (C4 during GET/PUT, and the
-  kernel's 2E4D path).
+- **The prototype's clock:** in modes 1 and 2 the processor runs from it. The probe takes it from
+  the socket's clock pin (070-3665 §1: mode 1 "allows the prototype circuit's memory, I/O, and
+  clock to be exercised"; §3, Fig. 3-9). The link carries its rate (v4, `K`), and the board then
+  runs at that rate: the Debug module schedules it so, and the time sent to the target follows.
+  With no rate reported (v1–v3 targets), the board's own clock is used. Checked by
+  `tests/prototype.sh`: a fixed loop takes the target 21 647 µs at 4 MHz and 43 295 µs at 2 MHz.
+- **Inferred, not established:** the 6800's status bit 7, control bits 4 and 2 (above). The
+  boards' service manuals (the Z80's optional service manual, the 6800's) would settle them.
 - **The 8080 board (E1)** is not modelled. Its TEKDOS discs boot, and its DEB CNTL tests status
   bit 4 like the others.
 

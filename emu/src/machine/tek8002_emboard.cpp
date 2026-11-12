@@ -16,7 +16,8 @@ void tek8002_emboard::step()
 		if (proto_io() && target->connected()) {
 			target->poll((unsigned long)(double(cpu_cycles()) * 4.0e6 / clock_hz()));
 			const bool rs = target->reset_line(), n = target->nmi();
-			target_lines(rs && !m_trst, n && !m_tnmi, target->irq());
+			const bool user = command_byte() & 0x10;          // control bit 4: the prototype's interrupts reach the processor
+			target_lines(rs && !m_trst, user && n && !m_tnmi, user && target->irq());
 			m_trst = rs; m_tnmi = n;
 		}
 		cpu_step();

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2026 Hugo José Pinto <hugo.pinto@gmail.com>
 // Prototype (target system) reached over IPC -- protocol in notes/prototype-link.md.
+// [tek8002] copied from tektronix-8550-emulator; protocol v4 (the clock, K) added.
 #ifndef TEK_HOST_IPC_TARGET_H
 #define TEK_HOST_IPC_TARGET_H
 #include "machine/prototype.h"
@@ -30,6 +31,7 @@ public:
 	void reset() override { req('Z', 0, 0); }
 	void poll(unsigned long z80_cycles) override;
 	int version() const { return m_version; }
+	double clock_hz() const override { return m_clock_hz; }
 	static constexpr double Z80_HZ = 4'000'000.0;   // emulator processor clock
 	unsigned long requests() const { return m_requests; }
 
@@ -41,6 +43,7 @@ private:
 	unsigned m_wait = 0;
 	unsigned long m_wait_total = 0;     // v3: WAIT T-states reported by the target, not yet charged
 	bool m_power = true;     // v3: target power/clock present (H reply)
+	double m_clock_hz = 0;   // v4: the prototype's clock (K)
 	bool m_cyc_valid = false;
 	unsigned long m_cyc_last = 0;
 	double m_us_frac = 0;

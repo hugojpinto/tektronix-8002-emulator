@@ -10,7 +10,13 @@
 //   firmware PROM: every firmware call is made with bit 1 clear (TEKDOS 80/C0/90) and every
 //   user run with it set (92/96), as on the same boards in the 8550 (notes in the sibling
 //   tektronix-8550-emulator, 8301.md "E3 write bits"). Bits 6-5 = emulation mode (00 = 0,
-//   01 = 1, 11 = 2). Bit 4 is set for user runs; its function is not known.
+//   01 = 1, 11 = 2). Bit 2: the board's fetch and access signals reach the Debug module's
+//   breakpoint and single-cycle logic. TEKDOS sets it whenever it hands breakpoints or single
+//   cycle to the Debug module, and clears it when a trace board at C0-C7 does that job (TRACE
+//   1A95-1ABE, BKPT 1AD7-1AF8, DEB INIT 197A-1985, the ESC stop 2E46-2E52, ABORT 3818;
+//   inferred meaning). Bit 4: set for every user run and clear for every firmware call;
+//   modelled as letting the prototype's interrupts through, after the OS/40 Z80 specifics'
+//   "Interrupts are detected only when user code is being executed" (inferred).
 // - Status (a read of the control port): bit 5 = board present (the 8550's Z80 diagnostic
 //   tests it), bit 4 = the processor is halted (TEKDOS's kernel 3C4C-3C55 and 2E3F, its
 //   6800, Z80 and 8080 debug control; DOS/50 on the 8550). TEKDOS then resumes at PC last,
@@ -34,6 +40,9 @@
 //   (the same block and entries as the 8550's Z80 firmware: sibling 8301.md).
 //   The prototype is reached through prototype_bus (machine/prototype.h, notes/
 //   prototype-link.md); with none connected, nothing answers.
+// - Clock (Z80 Emulator Processor manual 070-3665 §1-2): mode 0 runs from the board's own
+//   clock (a jumper); modes 1 and 2 from the prototype's, which the probe takes from the
+//   socket's clock pin. The link reports its rate (v4); without it the board's is used.
 #ifndef TEK_TEK8002_EMBOARD_H
 #define TEK_TEK8002_EMBOARD_H
 #include "machine/tek8002_slave.h"
@@ -48,6 +57,9 @@ public:
 	void command(u8, u8 d) override { m_cmd = d; }
 	u8 status(u8) const override { return u8(0x20 | (cpu_halted() ? 0x10 : 0) | board_status()); }
 	bool active() const override { return m_cmd & 0x80; }
+	bool debug_signals() const override { return m_cmd & 0x04; }
+	// its clock: the prototype's in a mode 1/2 run when the link reports it (v4), else its own
+	double clock_hz() const override { return user_run() && emulation_mode() != 0 && target->clock_hz() > 0 ? target->clock_hz() : board_clock_hz(); }
 	void reset() override { m_in_prom = false; m_svc = -1; cpu_reset(); }
 	void jump(u16 target) override { m_in_prom = false; cpu_jump(target); }
 	void step() override;
@@ -71,6 +83,7 @@ protected:
 	virtual u64 cpu_cycles() const = 0;
 	// the firmware: the routine at this entry, or false if there is none; sets the SVC port
 	virtual bool firmware(u16 entry) = 0;
+	virtual double board_clock_hz() const = 0;   // mode 0 (and modes 1/2 with no clock reported)
 	// the board's own status bits (7, 6, 3-0; bit 5 present and bit 4 halted are common)
 	virtual u8 board_status() const = 0;
 

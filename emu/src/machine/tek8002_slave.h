@@ -37,6 +37,9 @@ public:
 	virtual bool decodes(u8 port) const = 0;
 	virtual void command(u8 port, u8 d) = 0;
 	virtual u8 status(u8 port) const { return 0xff; }   // a read of its command port (FF: none)
+	// whether its fetch and access signals reach the Debug module's breakpoint and single-cycle
+	// logic (an emulator board's control bit 2)
+	virtual bool debug_signals() const { return true; }
 	virtual bool active() const = 0;             // selected: the one the Debug module runs
 
 	virtual void reset() = 0;                    // forced reset (and activation)

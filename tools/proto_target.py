@@ -13,6 +13,7 @@ v3: bit2 = RESET asserted, bits 7-4 = WAIT T-states for this cycle.
   I/O io read/write (port = addr_lo; addr_hi = A8-A15, ignored here)
   V interrupt acknowledge -> data bus value (vector / RST opcode)
   T time advance, addr = microseconds      Z reset
+  K (v4) the clock the probe takes from the prototype: addr 0 -> kHz low byte, addr 1 -> high
 
 This target: 64 KB RAM, optional ROM images, a console UART
   port 10h  data (write: output to this terminal; read: next input char)
@@ -34,6 +35,7 @@ def main():
     ap.add_argument('--log', action='store_true', help='log every access to stderr')
     ap.add_argument('--io-wait', type=int, default=0, help='v3: WAIT states in every I/O cycle (0-15)')
     ap.add_argument('--reset-at', type=float, default=0, help='v3: pulse RESET once at MS milliseconds')
+    ap.add_argument('--clock', type=float, default=0, help='v4: the prototype clock the probe feeds the emulator processor, in MHz (0 = not reported)')
     args = ap.parse_args()
 
     ram = bytearray(b'\xff' * 0x10000)
@@ -81,7 +83,10 @@ def main():
             op, lo, hi, d = buf[0], buf[1], buf[2], buf[3]; buf = buf[4:]
             a = lo | (hi << 8); res = 0xff
             wait = 0
-            if op == ord('H'): res = ver = max(1, min(a, 3))
+            if op == ord('H'): res = ver = max(1, min(a, 4))
+            elif op == ord('K'):                              # v4: the clock, in kHz, low byte (addr 0) then high (addr 1)
+                khz = int(round(args.clock * 1000))
+                res = (khz >> 8 if a & 1 else khz) & 0xff
             elif op in (ord('R'), ord('F')): res = ram[a]
             elif op == ord('W'): ram[a] = d
             elif op == ord('I'):
@@ -111,7 +116,7 @@ def main():
                 else: lines |= (4 if rst else 0) | (min(wait, 15) << 4)
             out += bytes([res, lines])
         conn.sendall(out)
-    print('[emulator disconnected]', file=sys.stderr)
+    print('[emulator disconnected after %.0f us of target time]' % us, file=sys.stderr)
 
 if __name__ == '__main__':
     main()

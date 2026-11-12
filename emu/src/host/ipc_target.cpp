@@ -13,14 +13,18 @@ bool ipc_target::open(const std::string &spec, std::string &err)
 	// hello: offer our highest protocol version; the target answers the version it
 	// will speak (<= ours). v1 targets always answer 1. v2 adds 'F' (opcode fetch);
 	// v3 adds WAIT / RESET in the reply lines and target power in the H reply.
-	u8 ver = req('H', 0x0003, 0);
+	// [tek8002] v4: the prototype's clock, which the probe takes from the socket's clock pin
+	u8 ver = req('H', 0x0004, 0);
 	if (m_fd == net::BAD) { err = "target closed the connection"; return false; }
-	if (ver < 1 || ver > 3) { err = "target speaks protocol version " + std::to_string(ver) + ", expected 1 to 3"; net::close(m_fd); m_fd = net::BAD; return false; }
+	if (ver < 1 || ver > 4) { err = "target speaks protocol version " + std::to_string(ver) + ", expected 1 to 4"; net::close(m_fd); m_fd = net::BAD; return false; }
 	m_version = ver;
 	m_power = ver < 3 || (m_lines & 8);
 	m_lines &= 3;
+	if (ver >= 4) { const unsigned lo = req('K', 0, 0), hi = req('K', 1, 0); m_clock_hz = double(lo | hi << 8) * 1000.0; m_lines &= 3; }
 	m_wait = 0;
-	fprintf(stderr, "[prototype link: protocol v%d%s]\r\n", ver, m_power ? "" : ", NO TARGET POWER");
+	char clk[40] = "";
+	if (m_clock_hz > 0) snprintf(clk, sizeof clk, ", clock %.3f MHz", m_clock_hz / 1e6);
+	fprintf(stderr, "[prototype link: protocol v%d%s%s]\r\n", ver, clk, m_power ? "" : ", NO TARGET POWER");
 	return true;
 }
 

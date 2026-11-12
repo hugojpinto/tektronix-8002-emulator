@@ -24,7 +24,8 @@ RESET (`H`, `T`, `Z` too).
 | Memory in blocks mapped **U** | program memory | **target** | target |
 | Z80 I/O (`IN`/`OUT`) | none (reads 00) | **target** | target |
 | SVC ports F0–F7 / the 6800's FEF0–FEF7 | SVCs | target (EMULATE turns SVCs off) | target |
-| Interrupts, RESET | none | **from target** | from target |
+| Interrupts, RESET | none | **from target** (interrupts while control bit 4 is set: user code) | from target |
+| Clock | the board's | **the target's** (v4) | the target's |
 | TEKDOS's access to prototype memory (`DUMP`, `PATCH`, `MOVE`, the trace's instruction bytes) | — | through the firmware's GET/PUT, for U blocks | GET/PUT for all |
 
 - **TEKDOS's control bytes:** `EMULATE 0/1/2` makes the run value 92 / B2 / F2. Firmware
@@ -77,6 +78,20 @@ emu/build/tek8002 -target tcp:127.0.0.1:18002 -0 sources/bitsavers/disks/Tek8002
 (see the sibling project) speaks the same protocol, so a ZX Spectrum can be the prototype of
 the 8002's Z80 board as well.
 
-**Not modelled:** the prototype's clock (the boards keep their own), bus timing beyond WAIT,
+## Version 4 (tek8002): the prototype's clock
+In modes 1 and 2 the emulator processor runs from the prototype's clock, which the probe takes
+from the socket's clock pin (070-3665 §1, §3). Version 4 carries its rate:
+- `H` with addr = 4. A v4 target answers 4; older targets answer their own version and are
+  served as before.
+- `K`, clock: addr 0 returns the rate in kHz, low byte; addr 1 the high byte. 0 = not reported.
+  The emulator asks once, after `H`.
+- With a rate, the board runs at it in modes 1/2, and `T` and WAIT count that clock: WAIT
+  T-states are the processor's own. Without one, the board's own clock is used, and the v3
+  meaning holds.
+- `tools/proto_target.py --clock MHZ` reports one, and prints the target time it saw at
+  disconnect.
+- The sibling tektronix-8550-emulator and FUSE still speak v3. Nothing changes for them.
+
+**Not modelled:** bus timing beyond WAIT,
 DMA from the target, and the copying of mode-1 writes to P blocks that the 8550's board does
 (nothing says the 8002's does).

@@ -112,8 +112,9 @@ void tek8002_debug::run_slave(tek8002_slave &s, int cycles2650, double master_hz
 		m_events = 0;
 		s.step();
 		m_frac -= double(s.cycles() - c0);
-		if (s.halted()) m_events |= 1u << INT_SLAVE_HALTED;
 		if (debugging() && !(m_control & 0x10)) m_events |= 1u << INT_SINGLE_CYCLE;
+		if (!s.debug_signals()) m_events &= ~((1u << INT_BP1) | (1u << INT_BP2) | (1u << INT_SINGLE_CYCLE));
+		if (s.halted()) m_events |= 1u << INT_SLAVE_HALTED;
 		if (m_events) {
 			// PC last/next follow the slave's fetches only while debugging is enabled (F8 bit 5
 			// low; ztpe.nl Annex B "kept up to date"): TEKDOS disables it before it sends the

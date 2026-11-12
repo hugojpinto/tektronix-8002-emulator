@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-12 — Control bits 2 and 4, the 6800's status bit 7, the prototype clock
+- Control bit 2: the board's signals reach the Debug module's breakpoint and single-cycle logic. TEKDOS sets it when it hands them to the Debug module, and clears it for a trace board. Modelled as a gate on those events. Control bit 4 (user runs) gates the prototype's interrupts. Both meanings are inferred from TEKDOS (`notes/emulators.md`).
+- The 6800's status bit 7: most likely "stopped on an instruction boundary", since TEKDOS resets the board and re-runs the instruction when it is 0. It reads 1 here.
+- The prototype's clock: in modes 1 and 2 the boards run at the rate the target reports over link v4 (`K`), backward compatible with v1–v3. The Z80 board adds the 8002A's two wait states per memory cycle (Z80 Emulator Processor manual 070-3665). `tools/proto_target.py --clock`.
+
 ## 2026-11-12 — The Z80 Emulator Processor; status bits; emulation modes 1 and 2
 - `tek8002_epz80` (E3, 4 MHz): the Z80 TEKDOS discs run programs on it, and their DEBUG works (`tests/runz80.sh`, with Tektronix's DEMO%S). Its firmware entries are the 8550 board's (F806 restore, F809 dump); the register block is TEKDOS's own.
 - What the boards share moved into `tek8002_emboard`: control and status ports, the firmware window (control bit 1 = 0), firmware calls, modes.

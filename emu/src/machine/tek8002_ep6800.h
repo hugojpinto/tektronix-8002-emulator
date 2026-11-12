@@ -33,7 +33,7 @@ public:
 
 	explicit tek8002_ep6800(slave_bus &bus) : tek8002_emboard(bus, 0xe2), cpu(*this) {}
 	const char *name() const override { return "6800 Emulator Processor"; }
-	double clock_hz() const override { return 1.0e6; }
+	double board_clock_hz() const override { return 1.0e6; }
 	m6800_cpu_device cpu;
 
 protected:
