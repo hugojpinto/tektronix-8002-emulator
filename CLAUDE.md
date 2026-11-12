@@ -66,6 +66,6 @@ build/tek8002 -0 ../disks/TekDOS_3.3_6800_cpy1.img -cycles $((25*1250000)) -type
 - **No personal paths** (`/Users/...`) in tracked files.
 
 ## Known gaps
-- **Not emulated yet:** emulator boards, PROM programmers, RTPA / Real Time Trace, parity errors, the front panel, the disc controller at low level.
-- **Lost:** the emulator boards' PROMs (e.g. the 6800 board's 82S115 "SYSTEM" and "FETCH"), any 8002 diagnostic disc, the 8001's TEKOPS PROMs.
-- **Inferred:** the memory map's counter reset (a write with D1 set); the boards' unknown status/control bits and where their PROMs sit (`notes/emulators.md`); the factory interleave (`notes/fdc.md`).
+- **Not emulated yet:** the 8080, 8085 and 6500/1 emulator boards (their TEKDOS discs are in `sources/`), PROM programmers, the RTPA / Real Time Trace board, the Maintenance Front Panel (its manual 070-2725 is lost; `notes/8002.md`), the CT8100's BUFFER mode (`notes/ct8100.md`).
+- **Lost:** the emulator boards' PROMs (e.g. the 6800 board's 82S115 "SYSTEM" and "FETCH"), any 8002 diagnostic disc, the 8001's TEKOPS PROMs, the Maintenance Front Panel manual.
+- **Inferred:** the memory map's counter reset (a write with D1 set); the boards' unknown status/control bits and where their PROMs sit (`notes/emulators.md`); the factory interleave (`notes/fdc.md`); that SYS lights over the MASTER LEDs, and SYS/RUN while SYSTEM RESTART is held (`notes/8002.md`); the CT8100's LF DOES CR strap, line wrap and blink rate (`notes/ct8100.md`); RAM powering up with good parity.
