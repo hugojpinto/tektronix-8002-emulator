@@ -1,0 +1,22 @@
+
+ TEKDOS  6800    VERSION 3.3  
+
+> LDIR
+
+ 
+
+FILE NAME  BLKS
+
+TEKDOS      16
+.          176
+COPYSYS      1
+NEWDISC      1
+CHANGE       0
+CONCO        1
+
+TOTAL FILES         6 
+TOTAL BLOCKS USED 203 
+BLOCKS AVAILABLE  101 
+TOTAL BAD BLOCKS    8 
+
+> 

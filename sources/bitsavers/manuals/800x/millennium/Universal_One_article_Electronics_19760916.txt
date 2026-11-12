@@ -1,0 +1,410 @@
+              nical articles _ _ _ _ _ _ _ _ _ __
+
+
+
+
+Adaptability to various microprocessors
+comes from separating
+prototype- and system-related tasks;
+in-circuit emulation and
+new high-level language are bonuses
+
+
+
+'Universal' development system
+is aim of master-slave processors
+by Robert D. Catterton and Gerald S. Casilli, Millennium Information Systems Inc.. Santa Clara. Calif.
+
+D In the ever-changing world of the microprocessor, one              or slave, C PU. As many as four different slaves may be
+element is fixed: heavy investments in person nel training,          installed sim ultaneous ly a nd indi vidually used through
+software, and development aids can lock designers into a             operator commands. This multiple architecture enables
+particular processor for their systems. Each recently                the hardw?.re to support new microprocessors with the
+introduced hardware a nd software development system,                addition of a pc card containing the new slave C PU.
+for example, is based on a particular family of devices                 Since the master processor need not be changed to
+a nd isn't easily adaptable to other families. What is               accommodate new slave units, all of the operating
+needed to free the designer from design compromises                  system software remains the same. Presently, the system
+that reduce performance or cost effectiveness is a "uni-             supports the 8080A a nd the 2650 central processors as
+versal" development system that can accommodate                      slaves, with in-circuit emulation capability. It's easy to
+many different microprocessors.                                      add other 8-bit processors to the system, and 16-bit
+   A new system, called the Universal-One, achieves                  devices may be added with only relatively little
+universality by a division into two functional areas .               reconfigura tion .
+Those tasks that are related to the development system                  Although universality is the basic objective, there are
+are assigned to a master centra l processing unit , and              four other major requirements that today's development
+those that are prototype-related are assigned to a second,           systems should satisfy. Use of a disk-based storage
+
+
+Electronics /September 16, 1976                                                                                              91
+system will achieve high throughput for maximum soft-                        • In-circuit emulation-a cable extends from the slave
+w11.re-development productivity. A disk-based operating                      to the CPU socket in the prototype.
+system should be specifically tailored for microprocessor                       The system architecture (Fi.g. I) includes a bus struc-
+development. The user's interface with the system should                     ture to tie the components together and to permit the
+be simple and remain unchanged regardless of the                             exchange of data and control signals. The basic bus
+processor under development. The test and debug capa-                        design was governed primarily by the dual-memory and
+bilities should support developm~nt of hardware and                          the multiple-CPU architectures. Other design considera-
+software and their integration into an operating proto-                      tions for the bus were that the memory portion had to be
+type system.                                                                 able to handle 8- and 16-bit data words, and that the
+                                                                             overall structure had to accommoqate future higher-
+Functions                                                                    speed microprocessors.
+   The master CPU is responsible for all of those system                       -The system services the peripheral 110 devices and
+services that are not prototype-dependent, such as:                          debug logic with interrupts rather than with polling.
+• File management - the storage and retrieval of data                        Wjth an interrupt-driven system, the peripherals can get
+and programs.                                                                service when they need it, without waiting for their turn
+• Text editor-maintains text files contained on the                          in the polling sequence. It also ailows an efficient
+disk .                                                                       software structure - that is relieved of the overhead
+• System input/output-the normal 110 activities                              inherent to polling. In this way, maximum throughput is
+between the standard system peripherals, such as flexible                    achieved. -                                       ·-
+disk, printer, and terminal.
+                                                                             Memory structure
+• System utilities, including programing of read-only
+memories for the final version of the prototype.                                The random-access memory of the system is organized
+ii Debug functions-the master executes the debug soft-                       as 65,536 bytes of common memory and a 16,384-byte
+ware and controls the slave through a separate debug-                        master memory. The logic on the master CPU module
+ging hardware module.                                                        allows appending any one of four !()-kilobyte segments
+   The slave CPU 's functions include:                                       of common memory (Fig. 2) to the master mem()ry
+• Program assembly - each slave may be used as a                             space. - This al!ows master-slave communication for
+resident assembler of prototype programs.                                    transfer of data during 110 service requests a!Jd gives the
+• Prototype-program execution -the prototype program                         master access to pr9gram-trace information developed
+is loaded into the slave memory and executed by the                          by the debug logic discussed later.
+slave.                                                                          Master-memory protection is accomplished J:>y a
+• Prototype 110 - any special input/output required in                       special' bus-control signal, which is sensed on the
+the prototype is performed by the slave.                                     memory cards. Only the master CPU contains the
+
+
+
+                                                                               PERIPHERALS
+                                                                           INPUT/OUTPUT PORTS
+                                                                              PROG RAMABLE
+             IN·CI RCUIT         I-"                                        REAO-ONl Y MEMORY
+             EMULATOR      t-'
+
+
+
+                                                            IN -CIRCUIT                               DISK
+                                                           EMULATORS                                OPERATING
+                                       P-ERIPHERALS                                                  SYSTEM
+
+
+
+
+     ...,..._
+         --  _-
+              _,.3
+                -... 4                                       SLAVE                                    MASTER
+                                           SLAVE            CENTRAL              MASTER              CENTRAL
+                2                      INPUT/OUTPUT        PROCESSING         INPUT/OUTPUT          PROCESSING            CONSOLE
+        SLAVE                                                 UNIT                                     UNIT
+
+
+
+
+                                                                      SYSTEM BUS
+
+
+
+
+                                         65 KILOBYTES OF                                     16 KILOBYTES OF
+                                         COMMON MEMORY                                       MASTER MEMORY
+
+
+
+
+1. Two CPUs. The Universa l-One system uses two central processing units- master and slave. In-circuit emulation is performed through the
+slave CPU. which duplicates the type of microprocessor used in the prototype. The master CPU handles system-related functions.
+
+
+
+92                                                                                                       Electronics/September 16, 1976
+                                                  A new compiler
+   To go along with the development system , Millennium has      be either 8 or 16 bits, and both 8 and 16-bit elements are
+   developed µBasic, a high-level language compiler              supported at the same time.           ·
+   designed for microprocessor applications. Although it was        Examples of statement types are:
+   tailored to meet the needs of engineers, it also provides a   • LET -the assignment statement.
+   useful tool for the professional programer.                   • FOR .. . NEXT -used for loop construction .
+      The new compiler offers the advantages of a high-level     • IF-the test statement .
+   language-greater programing productivity, easier pro-         • GOTO, GOSUB, RETURN-control transfer statement.
+   gram maintenance. and portability from pne micropro-          • ON-for a computed GOTO or GOSUB.
+   cessor to another. In the Millennium development system,         The µBasic compiler features an ability to specify
+   it also provides a "universal" programing capability, since   memory locations for arrays. This is quite important in
+   the same µBasic statements can produce object                 connecting a peript']eral device to the system. Many peri-
+   programs for the different microprocessors.                   pheral devices operate out of a dedicated-space memory.
+       As shown in the figure, µBasic statements are first       To conveniently interface a program written in a higher-
+   brought into the "statement-analyzer" software package,       level language to that device, the programer must be able
+   where they are converted for input to the code emitter.       to position the array in the same location in memory that
+   Then, depending on the microprocessor and resident            the device is using. This is also very important in micropro-
+   assembler being used, the code emitter generates the          cessor systems where there is a RAM / ROM trade-off. The
+   assembly-language statements, which are subsequently          programer can control the origin of the portions of the
+   passed through the assembler to produce object code for       program to be put in ROM and RAM.
+   the selected microprocessor. This two-step compilation           In comparing µBasic with PL/M (the most widely used
+   process gives the programer more flexibility when working     high-level language), it can be seen that the latter is a
+   out the program for the prototype.                            "richer" language. A professional programer is comforta-
+       A major criticism of high-level languages in micropro-    ble using PL / M and can take advantage of its greater
+   cessor applications is that more memory is used than with     complexity. However, the logic designer or other nonpro-
+   assembly languages. and execution is slower. However,         fessional programer probably will have to expend some
+   µBasic allows the programer to intermix assembly              effort to learn enough about PL / M to be able to write
+   language. In situations where a programer thinks it neces-    programs using it. In contrast , µBasic is easy to learn and
+   sary, this intermixed assembly language may use the           use, while being quite effective.
+   same labels and variables as does the µBasic
+   program.
+      A debug-optimize report produced by the compiler                                      µBASIC
+                                                                                            SOURCE
+   helps avoid software error conditions that the two-step                                 PROGRAM
+   compilation process might cause. The report shows the
+   µBasic statement followed by the assembly-language
+   listing that was generated to perform the original state-     ,---------- ----------,
+   ment.
+      Typically, a programer would first code and debug the
+   program without regard to memory or performance
+                                                                 1
+                                                                 I
+                                                                                      STATEMENT ANALYZER                     ,
+                                                                                                                             I
+
+                                                                                                                             I
+                                                                 I
+   constraints. Then , when the program is functioning           I                                                           I
+   correctly, the debug-optimization report can be used to                 X CODE                            8080 CODE       I
+                                                                 I        EMITTER                             EMITTER
+   show those areas that may require assembly coding to                                                                      I
+                                                                 I
+   optimize memory usage. Since memory comes in fixed            L __ _
+   increments, the most important optimization is usually
+   done when the program size exceeds that specified incre-
+                                                                              ------------ ---~
+   ment. If the program generated by µBasic does not
+                                                                         ASSEMBLER                          ASSEMBLER
+   exceed the memory increment available. then assembly-                SOURCE CODE                        SOURCE CODE
+   language optimization may not be needed.
+      Performance optimization also can be in assembly
+   language. Usually, some small portion of the code is used
+   most of the time-for example, 10 to 15% of the code
+   might be used 80 to 90% of the time. Consequently, a
+   concentration on those heavily used portions will produce
+   the greatest increase in performance.
+      In its data and statement types, µBasic is generally              OBJECT CODE                         OBJECT CODE
+   equivalent to PL / M. The length of the data element may
+
+
+circuitry to activate this control line. Thus, the slave         the 8-bit master to address a 16-bit slave memory as
+processor cannot gain access to the master memory and            sequential bytes.
+destroy its contents or (through damage to the file                There are also commands that permit the operator to
+manager or part of its data structure) the files them-           display and alter common memory. He may inspect and
+selves, out on the disk .                                        change the contents of the memory, and he may display
+   The slave can address the common memory as a 65-              and alter the contents of the registers . He may interact
+kilobyte or as a 32,768-word, 16-bit memory. This allows         with his program and change variables - change register
+
+
+Electronics/September 16, 1976                                                                                                   93
+                                                     Using the software
+     The Millennium development system has many software                and placed on a single file , which can be assembled . If an
+     features related to its use of a floppy disk for mass storage     error shows up in the assembly, only that piece of the
+     and the UDOS operating system for the disks. The system           source program which contains the error need be edited .
+     can have up to four floppy-disk drives all in use at the          All of the pieces can then be combined again and the
+     same time. A file name in use on one disk can be the same         assembly repeated.
+     as one on another. The user can specify the file he wants             All 110 operations can be assigned to channels by
+     by appending the floppy-disk drive number to the file             software. The user can assign any device attached to the
+     name; i.e., TESTPROG / 1 or TESTPROG / 2.                         system to any one of up to eight 110 channels and need
+         Through use of the VERIFY command , a user can check          not concern himself with the characteristics of the device.
+     the floppy disks to determine if any of the tracks are bad .      This feature allows the user to prepare programs whose
+     The bad tracks are recorded in the disk 's directory and          input and output sources can be determined at run time.
+     thereafter are not allocated to a file.                           Channels can be assigned for a program externally
+         The user need not create a file or otherwise establish it     through the console or internally by the program itself.
+     before writing data on it. When he issues a UDOS                      A sequence of UDOS commands can be executed one
+     command with a file name as an output device, the file will       at a time from a command file. The user can thus invoke
+     automatically be created, and the name will be placed in          any number of commands simply by issuing the name of
+     the directory for the floppy disk.                                the command file. The individual command can be filled
+         The user need not allocate space for .a file before using     with parameters that are given at the time the command
+     it, for disk space is dynamically allocated by UDOS as it is      file is invoked. Thus frequently used command sequences
+     needed. When the file is closed , the space allocated is          can be invoked simply. Command files can also be
+     recorded in the directory. When the file is deleted, the          chained-the last UDOS command in a file can be the
+     space allocated is freed up and made available for alloca-        name of another file, allowing a series of jobs to be run in a
+     tion to other files.                                              batch mode, perhaps overnight , unattended.
+         A file name may contain as many as eight alphanumeric             The text editor is line-oriented and has a command
+     characters and special characters. This allows the user to        repertoire similar to those available on large time-sharing
+     use namfi)s that are more indicative of the file content; i.e.,   systems. The user can create a file of assembly-language
+     PROGLIST rather than PRGLST, or, worse yet, PGLS. A               statements or a data file by entering lines of text through
+     disk file may contain anywhere from 1 to 311 ,296 data            the system console. Subsequently, he can insert lines
+     bytes. The user need not concern himself with extraneous          anywhere in the file, delete lines, replace them, or modify
+     data or otherwise keep track of the number of "real" data         part of the text on a line.
+     bytes in his file.                                                    During a text-editing session, the user can get lines of
+         The entire contents of a disk can be duplicated in            text from any file and merge them into the file being edited
+     another. This feature allows back-up of important disks           or put lines of text from the file being edited to any other
+     and allows the user to recover if a file is inadvertently         file. This feature provides the capability of manipulating
+     deleted, written over, or otherwise destroyed.                    lines of text from several files and merging them into one
+         Disks can be identified with a string of up to 44 ASCII       file quickly and easily. With the text editor, the user can
+     characters. Users can thus briefly describe the contents of       combine several text-editing commands into one complex
+     the disk and the date it was created , and need not rely          command and then cause it to be executed several
+     totally on the label, which could become marred or                times.
+     destroyed.                                                            The user can set tabs dynamically and designate any
+         The user can string together a group of files into one        console key as the tab character at any time during a text
+     with a single UDOS command. This feature allows devel-            editing session. He can also issue UDOS commands and
+     opment of the source program in small , manageable                cause other system functions to be initiated during a text-
+     pieces. Subsequently, all of the pieces can be combined           editing session.
+
+
+contents or change the data elements being used in the                 and modify it quickly and easily, assemble it, load the
+debug process.                                                         resulting object code into common memory (or into the
+                                                                       prototype memory), and cause it to be executed under
+The disk operating system
+                                                                       debug control.
+   A universal disk operating system called uoos was                      During execution, the program steps can be traced,
+developed for the multiple-CPU architecture. This soft-                breakpoints can be set, and memory can be inspected
+ware is executed by the master in its own totally                      and altered as required. Subsequently, the program can
+protected master memory. The uoos feature is floppy-                   be corrected or modified at the source level, using the
+disk-oriented, taking into account the characteristics and             text editor, then reassembled , loaded, and executed
+peculiarities of such disks. Many file-management func-                again for the next round of debugging. (see "Using the
+tions usually performed by the user are performed                      software") .
+automatically . The user need only direct that certain
+                                                                       In-circuit emulation
+data be stored on a file or taken from a file.
+   The operating system allows the user to develop                        Each slave contains circuitry to support in-circuit
+microcomputer programs with a high-level language (see                 emulation. When the prototype becomes ready for test,
+"A new compiler"), a symbolic assembler , or both. The                 all of the development-system resources become avail-
+user can prepare a program with a text editor, correct                 able to it once the emulator cable is plugged into the
+
+
+94                                                                                                 Electronics/September 16, 1976
+microprocessor socket of the prototype. The operator can
+                                                                                                              0 ....--------.
+then use the system's debugging software to debug the
+prototype hardware and software and then to integrate                               DISK
+them .                                                                           OPERATING
+                                                                                  SYSTEM
+   The system supports two operating modes for emula-                              (UODS)
+tion . In one, the user can substitute the memory of the
+development system for that of the prototype. In the             16KILOBYTES1 - - - - - - - t              16 K 1 - - - - - - - - l
+other mode, when the prototype's memory becomes
+available and its 110 functions have been thoroughly                              COMMON·
+tested, the operator can execute programs from the                                MEMORY
+                                                                                ACCESSIBILITY ..-----./
+prototype memory while maintaining full control
+through the development system.
+   When operating with the prototype memory, most of             32 KILOBYTES-----                         32 K ,___ _ _____.
+
+the system debugging features are still available. The                        MASTER-MEMORY
+                                                                              ADDRESS SPACE
+user can use the address breakpoint and do a full trace.
+If this mode requires the programable ROM of the final
+prototype, the master can directly program the assem-
+bled instruction into the PROM chips. If the object resides
+                                                                                                           48 K 1 - - - - - - - - l
+on paper tape, it can be loaded into the system and
+transferred to the PROMS.
+   The user can switch emulation modes at any time by a
+console command, with no hardware changes. The cable
+may be left attached to the slave even when the emula-
+tion feature is not in use.                                                                       64 KILOBYTES.___ _ ____,
+   The development system's memory is comparable to                                                           COMMON -MEMOR Y
+                                                                                                               ADDRESS SPACE
+the memory speed of most prototype systems, and thus it
+nearly simulates real-time operation when programs are
+executed from the system. When programs are executed          2. Memory addressing. The master CPU can address 32 kilobytes
+from the prototype memory, the slave can operate at the       of memory. Of thi s total. 16 kilobytes are used by the disk-operating
+the prototype's clock and memory speeds. Timing differ-       system, UDOS, while the other half can consist of any of four 16-
+ences resulting from the use of the umbilical cord are        kilobyte block s in the common-memory addressing space.
+minimal.
+                                                              set to break on any of a variety of memory-access
+Master-slave interaction                                      conditions. Another capability is a dynamic trace of the
+   When input/output from a master-controlled peri-           user program. On an instruction-by-instruction basis, the
+pheral is required by a slave program, the slave CPU          user can trace the activity of the program being
+executes a service-request instruction, which causes the      executed, with a display of the location of the instruc-
+slave to pause temporarily while the master obtains the       tion , its mnemonic, the register contents, and the state of
+necessary data for the slave program. When the 110            the machine (such as the condition of the carry flip-
+requirements are completed, the master releases the           flop) .
+slave so that it may continue the process of program             Dynamic trace may be performed on every instruc-
+execution.                                                    tion, on instructions between two memory limits, or on
+   The debug logic is on a separate module and includes       only the jump instructions. The jump-instruction trace
+breakpoint registers, address-computation circuitry, two      reduces print-out time and runs through the program
+program-counter registers, and single-step and interrupt      faster. If the user isolates a problem area, he may go
+logic. The functions controlled by this logic are indepen-    back to the full-trace mode a nd examine every one of the
+dent of the slave microprocessor and thus support the         instructions.
+universal aspects of the system design for application to
+                                                              I I 0 and interrupts
+a variety of target processors.
+   Part of the master-slave interaction includes control of      The functions associated with the master and slave
+breakpoint and trace operations. The master loads the         CPUs dictate the need for separate master/ slave
+breakpoint addresses under command from the user.             input/output and interrupt structures. The master has a
+When the memory address and operation from the slave          256-port 110 address space and a 32-level interrupt
+match the breakpoint value, the program running under         structure. Sixteen interrupts a re devoted to debug func-
+the slave pauses, and control is passed to the master. The    tions and service requests . The other 16 are related to
+debug module stores the slave's instruction-fetch address     the system 110 .
+to enable the software to examine the prototype program          The master card contains the 110 ports to support such
+and to interpret operating codes for the trace printout.      standard peripheral devices as the dua l-drive floppy disk,
+Synchronization signals are provided to a id the user in      a line printer, and a cathode-ray tube or teletypewriter
+triggering events necessary to debugging of prototype         console. With the addition of a standard general-purpose
+hardware.                                                     110 card, the system- rel ated functions a re easily
+   The two memory-address breakpoint registers may be         expanded to support other peripherals, such as high-
+
+
+Electronics/September 16, 1976                                                                                                        95
+                                   CONSOLE                                                   END·USER
+                                                                                              SYSTEM
+
+
+
+
+                                                              FRONT PANEL
+                                                                                                                        REMOTE
+                                                                                                                         INPUT
+                                                                                                                        DEVICE
+
+
+
+                                    MASTER                                                    SLAVE
+                                   CENTRAL                       DEBUG                       CENTRAL
+                                  PROCESSING                     LOGIC                     ·PROCESS! NG
+                                     UNIT                                                      UNIT
+
+
+
+
+                                                              SYSTEM BUS
+
+
+
+
+                                          MASTER MEMORY                             COMMON
+                                                                                    MEMORY
+
+
+
+
+3. Smaller system. For applications in which users have already invested in software development aids. the Universal-One ca n be pared
+down to provide only emulation and PROM programing. Memory is much smaller, while the blocks shown in dashed lines are opti onal.
+
+speed paper-tape or card readers .                                  charge or " grow back" a fu sible link if not programed
+   The slave has a 256-port 110 address space and an                properly. Therefore, the ca rds have many protection a nd
+eight-level priority-interrupt structure. It cannot directly        error-checking features such as over-voltage protection,
+address the system 110. However, through the use of                 current limiting to prevent overstressing, and power-
+service requests to the master, it has full access to the           failure protection aga inst partial programing of the
+system peripherals.                                                 devices.
+   The user also has the option of using a general-
+                                                                    The universal emulator
+purpose 110 card as interface between the slave and its
+special devices, such as the prototype's keyboard or                    Many companies a lready have some method of
+printer. In such a case, the slave will perform its own 110          accomplishing the pure software-development function
+functions on those devices. The general-purpose card                 of assembling and editing programs, but they lack means
+provides a full EIA-RS-232-compatible port and four 8-               of performing emulation or PROM progra ming for use in
+bit input/output ports.                                              the prototype system. Other companies have a complete
+                                                                     microprocessor development system, but they are
+Expandable PROM programing                                           involved in multi-project situations with one particular
+   Capability for programing erasable metal-oxide-semi-              project fully occupying their development system . In
+conductor and bipolar-fusible PROMS for the final version            either situation, companies may find a second version of
+of the prototype is integral to the development system.              the Millennium development system useful. With an
+Two card slots in the motherboard and three front-panel              expanded front panel and a paring-down of the system
+sockets are provided with the standard system . Person-              memory to 12 kilobytes, it becomes a universal emulator
+ality cards are available for programing the 1702A MOS               and PR O M programer (Fig. 3) .
+PROM and the 82S 115 4- and 8-bit bipolar family. New                   All of the software debug functions for both emulation
+programing cards are easily substituted for other                    modes previously discussed will be reta ined. The basic
+families of PROMS.                                                   functions, such as patch, dump, examine, breakpoint,
+   As well as eliminating the need for a separate PROM               and others will be resident in the PROM . Only the trace
+programer, this feature is more cost-effective, since dual           program, which will change for each target slave, will be
+110 circuitry is unnecessary and operation is controlled             loaded into master memory from the console device.
+by the master CPU rather than by a separate processor.               User programs may be entered into common memory
+The programing cards are interrupt-driven, freeing the               either from the console device or remotely from a host
+master for other tasks during the programing of each                 computer via an EIA-RS-232 serial interface. Also,
+byte.                                                                PROMS may be used to hold user progra ms that will be
+   Even though a PROM verifies correctly, it may lose                executed in the prototype.                             D
+
+
+96                                                                                               Electronics/September 16, 1976
+

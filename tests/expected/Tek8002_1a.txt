@@ -1,0 +1,63 @@
+
+ TEKDOS  6800    VERSION 3.1  
+
+> LDIR
+
+SYS 680X
+
+FILE NAME  BLKS
+
+TEKDOS      16
+.          172
+COPYSYS      1
+NEWDISC      1
+V;S          1
+P682X%S      3
+N;S          1
+EDEF%S       2
+EDEF;O       1
+ECALC%S      5
+EKEY%S       5
+EMAIN;O      3
+M;S          3
+EKEY;O       2
+ECALC;O      3
+ELK          8
+ELOAD        2
+ELS          1
+LINKS        1
+EMAIN%S      6
+EFE          3
+EKEY;S       5
+EFE2         3
+P682X;O      1
+V680X;O      1
+NMI;O        1
+EDEF%O       1
+EMAIN%O      3
+EKEY%O       2
+ECALC%O      3
+P682X%O      1
+V680X%O      1
+NMI%O        1
+WORK         2
+TEST         3
+EV           1
+EP           3
+GLOBALS      3
+EN           1
+ED           2
+EM           6
+EK           5
+LO860731     3
+LS860731     1
+EC           5
+EECC;O       3
+GLOBLEB      3
+
+TOTAL FILES        47 
+TOTAL BLOCKS USED 304 
+BLOCKS AVAILABLE    0 
+TOTAL BAD BLOCKS    0 
+
+> 

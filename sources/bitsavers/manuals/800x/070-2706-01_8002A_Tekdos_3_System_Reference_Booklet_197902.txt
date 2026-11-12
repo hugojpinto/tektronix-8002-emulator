@@ -1,0 +1,1770 @@
+"Tektronix
+
+8002A
+µPROCESSOR LAB
+
+
+System Ref ere nee Booklet
+TEKDOS VERSION 3
+                                                                                                                                             TABLE OF CONTENTS
+
+                                                                                                              Section 1 Overview
+                                                                                                              8002A Block Diagram ...................................................................................... 1-1
+                                                                                                              Device Names, Jacks, and Functions ............................................................ 1-2
+                                                                                                              File Name Specifications ................................................................................. 1-2
+                                                                                                              File Types Diagram .......................................................................................... 1-3
+                                                                                                              TEKDOS Command Memory Areas ............................................................... 1-4
+                                                                                                              Emulation Mode Configurations .................................................................... 1-5
+
+
+                                                                                                              Section 2 Command Dictionary
+                                                                                                              Command Index ............................................................................................... 2-1
+                                                                                                              Command Syntax Conventions ...................................................................... 2-1
+                                                                                                              TEKDOS Commands            .................................................................................. 2-2
+
+
+                                                                                                              Section 3 Editor Dictionary
+                                                                                                              Editor Text Flow Diagram ............................................................................... 3-1
+                                                                                                              Editor Index ...................................................................................................... 3-2
+                                                                                                              Editor Syntax Conventions ............................................................................. 3-2
+                                                                                                              Editor Commands             ....................................................................................... 3-3
+
+
+                                                                                                              Section 4 Service Calls
+                                                                                                              SVC Memory Layout... ..................................................................................... 4-1
+                                                                                                              SVC Function Code Descriptions .................................................................. 4-1
+                                                                                                              Device Identification and Type Code ............................................................ 4-2
+
+
+                                                                                                              Section 5 Command Files
+                                                                                                              Description ........................................................................................................ 5-1
+                                                                                                              Invocation ......................................................................................................... 5-1
+                                                                                                              Parameter Substitution .................................................................................... 5-1
+                                                                                                              Command File Control Commands ............................................................... 5-1
+
+
+                                                                                                              Section 6 lntersystem Communication
+                                                                                                              COMM Block Diagram .................................................................................... 6-1
+                                                                                                              Entering COMM ............................................................................................... 6-2
+                                                                                                              Unformatted Transfer ...................................................................................... 6-2
+                                                                                                                  Download Command Line ....................................................................... 6-2
+                                                                                                                  Upload Command Line ............................................................................ 6-3
+                                                                                                              Formatted Transfer .......................................................................................... 6-3
+                                                                                                                  Load Mode Command Line ..................................................................... 6-3
+                                                                                                                  Save Mode Command Line ...................................................................... 6-4
+                                                                                                              Status Mode ...................................................................................................... 6-4
+
+Copyright' 1977. 1978, 1979, Tektronix. Inc. All rights reserved. First printed April. 1977. Tektronix, Inc
+in U.S.A. Information in this publication supersedes all previously published material. U.S.A. and Foreign
+Products of Tektronix, Inc. are covered by U.S.A. and Foreign Patents and/or Patents Pending
+
+070-2706-01                                                                               REV A. FEB 1979
+
+
+                                                                                                              8002A System Reference Booklet                                                     @
+Section 7 Tables
+ASCII Code Conversion Table ....................................................................... 7-1
+Tektronix Hexadecimal Format ...................................................................... 7-1
+                                                                                                                                                    Section 1   Overview
+     Message Block .......................................................................................... 7-2
+     Terminating Block .................................................................................... 7-2
+     Abort Block ................................................................................................ 7-2
+SMS Format ...................................................................................................... 7-3
+Motorola Load Module Format. ...................................................................... 7-3                                             Section 2   Command Dictionary
+Intel Load Module Format... ............................................................................ 7-4
+
+
+Section 8 Error Explanations                                                                                                                                    Editor Dictionary
+                                                                                                                                                    Section 3
+TEKDOS Error Codes ...................................................................................... 8-1
+SRB Status Codes ............................................................................................ 8-6
+Editor Messages ............................................................................................... 8-7
+                                                                                                                                                    Section 4   Service Calls
+
+
+
+
+                                                                                                                                                    Section 5   Command Files
+
+
+
+
+                                                                                                                                                    Section 6   I ntersystem Communication
+
+
+
+
+                                                                                                                                                    Section 7   Tables
+
+
+
+
+                                                                                                                                                    Section 8   Error Explanations
+
+
+
+
+ii                              @                                  8002A System Reference Booklet                       8002A System Reference Booklet                @                 iii
+                               Section 1
+                             OVERVIEW
+
+The 8002A µProcessor Lab is a tool for developing and testing
+microprocessor-based products. The block diagram in Fig. 1-1 illustrates the
+relationship between the 8002A and the various system components. The
+minimum 8002A system components are highlighted. All other components
+are optional.
+
+
+                               External
+                               Computer
+                               (REMI, REMO)
+
+
+
+
+                                                             line Printer
+                                                             (LPT1)
+
+
+                                                            Paper Tape
+                                                            Reader /Punch
+                                                            (PPTR, PPTP)
+
+
+                                                             PROM
+                                                             Programmer
+
+
+                                                              Real-Time
+                                                              Prototype
+                                                              Analyzer
+
+
+
+
+                                                                   Signal
+                                                                   Clips
+                                                                    --,
+                                                      User                  I
+                                         I                 I
+                                                    Prototype
+                                         L _ _ _ _ _ _ _ _J
+
+                  Fig. 1-1. 8002A block diagram.
+
+
+8002A System Reference Booklet                     @                        1-1
+                                                                       Overview    Overview
+
+
+The 8002A communicates with the various peripheral devices through jacks
+J100, J102, and J103. Communication with the external computer takes place
+through J101. The 8002A communicates with the Flexible Disc Unit through a
+                                                                                        BASIC
+cable attached to the Debug and Front Panel 1/0 module. This module resides             Source
+within the 8002A mainframe.                                                             File
+
+                                                                                                                                                     Assembler
+The optional PROM Programmer and RTPA modules also reside within the
+                                                                                                                                                     Listing
+8002A mainframe. The PROM Programmer sockets on the 8002A Front Panel
+are connected via a cable to the PROM Programmer module. These sockets
+allow you to read from, com pare, and write to, three different types of PRO Ms:       LIBGEN
+1702, 2704, and 2708. The RTPA permits the 8002A to store and monitor                  Listing
+Emulator Processor operations at full processing speed.
+
+                                  Table 1-1
+               Device Names, Jacks, and Functions
+
+
+            Device
+            Name       Jack       Function
+
+            CONI      J100      Console input
+
+            CONO      J100      Console output
+
+            LPT1      J102      Line printer
+
+            PPTP      J103      Paper tape punch
+
+            PPTR      J103      Paper tape reader
+            REMI      J101      Remote input (external computer)
+                      J101                                                                                                       Fetch File
+            REMO                Remote output (external computer)
+
+            TTYR      J100      Teletypewriter/reader
+                                                                                                             Fig. 1-2. File types diagram.
+
+
+File Name Specifications                                                           This figure shows how each file type is created and where it is used. The
+                                                                                   square boxes represent commands, while circles represent file types. Each file
+File names may not exceed eight characters. File names must begin with a           type is identified by the suffix letter as described in Table 1-2.
+letter. The rest of the characters in the file name may be alphanumeric, or may
+include the following special characters:
+
+                           ?%"=;*{)#&!@
+
+
+
+
+1-2                    @                       8002A System Reference Booklet      8002A System Reference Booklet                        @                    1-3
+                                                                       Overview    Overview
+
+
+                                  Table 1-2                                                                     Memory Area 2
+
+                     Suggested File Type Suffixes                                  ABORT          CLOSE           DUMP           MOVE            TRACE
+                                                                                   ASSIGN         CNT             EVT            PATCH           TYPE
+                                                                                   BIAS           CONT            EMULATE        RENAME
+                                               Suggested Suffix                    BIF            DELETE          EXAM           RESET
+               File Type                          Character                        BKPT           DEVICE          FILL           RTT
+                                                                                   CAL            DISM            HELP           SET
+           Assem bier source                            s                          CLBP           ORT             KILL           STATUS
+           Object Module                                0                          CLOCK          DST AT          MAP            SUSPEND
+
+           Load                                         L
+           Fetch                                        F                              Program Memory              Resident Commands        Command Files
+           Assembler listing                            A                          ASM                FIX                FETCH              User-Defined
+                                                                                   BASIC              GET                GO                 COPY SYS
+            Linker listing                              K
+                                                                                   CONVERT            LIBGEN             SYSTEM             NEWDISC
+            Li bgen listing                             N                          EDIT               LINK               XEQ
+                                                                                   FDUMP              REPLACE
+            Library listing                             y
+
+            BASIC source                                B
+
+            BASIC listing                               c                          EMULATION MODE CONFIGURATIONS
+
+            Tekhex                                      x                          The following diagrams illustrate the three types of emulation modes:
+            Vendor hex                                   v
+
+                                                                                                       Emulation Mode 0 -   System Mode
+To indicate temporary files, you may precede the suffix letter with a semicolon.
+To indicate permanent files, you may precede the suffix letter with a percent
+sign.
+
+
+
+TEKDOS COMMAND MEMORY AREAS
+
+      Memory Area 1                Memory Areas 1 and 2
+COPY                 RVHEX                CMPF
+CSMS                 RSMS                 COMM
+DEBUG                SEND                 CPR OM
+DUP                  VERIFY               LDIR
+FORMAT               WHEX                 LOAD
+PRINT                WVHEX                MODULE
+PRINTL               WSMS                 RPROM
+RHEX                                      WP ROM
+
+
+
+
+1-4                   @                      8002A System Reference Booklet        8002A System Reference Booklet                     @                    1-5
+                                                   Overview
+
+
+      Emulation Mode 1 -   Partial Emulation                                                  Section 2
+                                                                                  COMMAND DICTIONARY
+
+                      Prototype Probe                          COMMAND INDEX
+                     (Emulation Cable)
+                                                               System Commands
+
+                                                               ABORT       CMPF             FETCH           LIBGEN          REPLACE
+                                                               ASM         CONT             FIX             LINK            STATUS
+                                                               ASSIGN      CONVERT          FORMAT          LOAD            SUSPEND
+                                                               BASIC       DELETE           GET             MAP             SYSTEM
+                                                               BIAS        DEVICE           HELP            MODULE          TYPE
+                                                               CLOCK       EDIT             KILL            NEWDISC         VERIFY
+                                                               CLOSE       EMULATE          LDIR            RENAME          XEQ
+
+                                                               Data Transfer Commands
+
+                                                               COMM         DUP             MOVE              RHEX          WHEX
+                                                               COPY         EXAM            PATCH             RVHEX         WVHEX
+                                                               COPYSYS      FDUMP           PRINT             SEND
+                                                               DUMP         FILL            PR I NTL
+
+                                                               Debug Commands
+
+                                                               BKPT         CLBP            DISM              GO             SET
+                                                               CAL          DEBUG           DST AT            RESET          TRACE
+      Emulation Mode 2 -   Prototype Mode
+                                                               Special Function Keys
+
+                                                               BACK SPACE                ESC                        Space Bar
+                                                               CTRL Z                    RUB OUT
+
+                                                               Real-Time Prototype Analyzer Commands
+
+                                                               BIF          CNT             ORT               EVT            RTT
+
+                                                               PROM Programmer Commands
+
+                                                               CPROM        CSMS         RPROM         RSMS         WPROM       WSMS
+
+
+
+
+                                                               COMMAND SYNTAX CONVENTIONS
+                                                               The following list summarizes the conventions used in the syntax blocks
+                                                               contained in this booklet:
+
+                                                               1. UPPERCASE words must be entered exactly as shown. These include
+                                                                  command names, such as DUP, and parameters, such as OFF.
+
+                                                               2. Lowercase words represent items that identify the entry type. These include
+                                                                  items like offset amounts, program memory addresses, and file names.
+
+
+
+1-6                           8002A System Reference Booklet   8002A System Reference Booklet                         @                  2-1
+          @
+                                                           Command Dictionary    Command Dictionary
+
+
+3. Special characters must be entered exactly as shown. These include:
+   * , = : I and the hyphen.                                                                                          device                  }
+                                                                                 ASSIGN       {channel number}      { file name [/disc drive]
+4. Required command line parameters are enclosed in {braces}. Optional
+   command line parameters are enclosed in [brackets].                                                      r
+                                                                                                            Lchannel number
+                                                                                                                                 {device
+                                                                                                                                  file name[/disc drive]
+                                                                                                                                                         }]
+
+5. Minimum entries are underlined.
+                                                                                Connects channels to files and devices. CONO, CONI, and file names may
+6. To omit an optional parameter in a command line (and thus specify the        each be assigned to more than one channel. All other devices are limited to one
+   default value}, use two consecutive commas in place of the parameter. To     channel assignment at a time. Once a device or file has been assigned to a
+   omit two consecutive optional parameters, use three consecutive commas.      channel, the system cannot access that device, except through service calls.
+                                                                                Default parameter: system disc.
+7. If parameters are stacked one above another, you may choose only one.
+
+8. Parameters followed by trailing dots may be repeated.
+                                                                                BACK SPACE Key (CTRL H)
+TEKDOS COMMANDS
+                                                                                Deletes the last character entered. Use the RUBOUT key to delete and echo the
+                                                                                last character entered.
+
+
+
+ABORT      l~   command file name   (
+                ;ystem command name ~
+
+
+Terminates user or system program execution. The asterisk parameter aborts      BASIC
+                                                                                          device
+                                                                                        [ assembly file name [/disc drive]
+                                                                                                                           J   flist device
+                                                                                                                               ~ist file name[/disc drive]
+                                                                                                                                                             J
+all active programs. The slash parameter terminates all user programs and
+closes all assigned channels.                                                                                                     source device                  }
+                                                                                                                                { source file name [/disc drive]
+
+
+                                                                                Invokes the BASIC compiler. You must specify the source device or file.
+                                                                                Default parameter: system disc.
+
+ASM
+           object device               1
+         [ object file name[/disc drive]j
+                                              list device               J
+                                            [ list file name[/disc drive]
+
+
+                                         source device                 }
+                                       { source file name[/disc drive]
+                                                                                BI AS   [W=offset]    [ X=offset]   [Y=offset]      [Z=offset]
+
+Creates object and list files from source files. You must specify the source    Sets or displays the DUMP, EXAM and PATCH address offsets. All offsets
+device or file. Default parameter: system disc.                                 default to 0 at system startup or reboot.
+
+
+
+
+2-2                   @                      8002A System Reference Booklet     8002A System Reference Booklet                          @                        2-3
+                                                        Command Dictionary       Command Dictionary
+
+
+                                                                                 CLOSE     {channel number}      [channel number] ...
+ or
+
+
+ or
+       (mode}   rn                                                               Disconnects channels from files or devices. Channel number must be a
+                                                                                 number from 0 to 7. To disconnect all assigned channels, enter the ABORT
+                                                                                 command with the slash parameter.
+
+       [ ; ] {CLR}
+
+Sets, clears, or displays Bl F command line break options. Used in conjunction
+with the EVT command. Allowable mode parameters: 1, 2, ARM, LIM, IND, FRZ.
+Only available in the debug system. Default value: S (suspend).                  CMPF    {tile name[/disc drive]}    {file name[/disc drive]}
+
+
+                                                                                                                                 !output device                  l
+                                                                                                                                 Loutput file name[/disc drive]j
+
+
+BKPT      {address}
+                        READ
+                      [ ~RITE
+                              J [~]                                              Compares two files and lists differences to a file or device. Default parameters:
+                                                                                 CONO, system disc.
+Sets breakpoints. Defaults to either READ or WRITE. Only available in the
+debug system. Default value: S (suspend).
+
+                                                                                 CNT [option]
+
+                                                                                 Sets or displays the general purpose counter units. Allowable option
+ CAL                                                                             parameters: C (bus cycles), E (emulator clock cycles), F (bus fetch cycles), M
+                                                                                 (milliseconds), T (RTT buffer transactions), U (microseconds), 1 (EVT1
+ Allows hexadecimal calculations. Only available within the debug system.        comparisons), 2 (EVT2 comparisons). Default parameter: M.
+ Press the ESC key to return to the debug system.
+
+
+
+
+ CLBP     [address]
+                                                                                 COMM                                [P=prompt sequence] [T=delay time]
+ Clears breakpoints that were set with the BKPT command. Only available in the
+ debug system. To clear both breakpoints, enter this command without a
+ parameter.                                                                                                                                  [M=parity] [ C=   {~}]
+                                                                                 Allows communication with an external computer. Default parameters: E=R,
+                                                                                 L=O, no prompt sequence, T=OO, M=04, C=T.
+
+
+
+ CLOCK
+ Enables or disables the program clock. Access the program clock value with
+ the READ PROGRAM CLOCK SVC. System startup or reboot default: OFF.
+                                                                                 CONT
+                                                                                               command file name
+                                                                                               ;vstem command name)
+                                                                                                                       l
+                                                                                           {
+
+                                                                                 Continues execution of a suspended system or user program. The asterisk
+                                                                                 parameter continues all suspended programs.
+
+
+
+
+ 2-4                    @                    8002A System Reference Booklet      8002A System Reference Booklet                          @                      2-5
+                                                           Command Dictionary         Command Dictionary
+
+
+
+
+CONVERT
+                source device
+              { source file name [/disc drive]
+                                               }
+                                                                                      CSMS    [program memory address]
+                                                                                                                                  device
+                                                                                                                                [ file name[/disc drive]
+                                                                                                                                                           J
+                                             destination device                  }    Compares SMS formatted data with program memory data. Memory address
+                                           { destination file name [/disc drive]      defaults to 0. Device must not be CONO. Default parameter: system disc.
+
+Converts vendor assembler source code to Tektronix Assembler source code.
+Default parameter: system disc.
+
+                                                                                      CTRL Z
+                                                                                      Provides an end-of-file character during an ASCII read operation.
+
+       input device name
+COPY { input file name[/disc drive]
+                                    }      [input device name
+                                             input file name[/disc drive]
+                                                                            J ...
+                                                   output device name
+                                                 { output file name[/disc drive]
+                                                                                 }
+                                                                                      DEBUG
+                                                                                                   device
+                                                                                                 [ file name[/disc drive]
+                                                                                                                            J
+ or                                                                                   Loads the debug system into system memory. Default parameter: CONO,
+                                                                                      system disc.
+ COPY {input file name [/disc drive]}
+
+ Transfers data from one device orfileto another device or file. Output defaults
+ to CONO if second form is used. Default parameter: system disc.
+                                                                                      DELETE     {file name/disc drive}     [file name/disc drive] ...
+
+                                                                                      Deletes the specified files from the flexible disc. Disc drive must be specified.
+
+ COPYSYS       {input disc drive}    {output disc drive}
+
+ Copies the TEKDOS operating system from one disc to another. Use the
+ NEWDISC command to format, verify, and create a new TEKDOS system disc.
+                                                                                      DEVICE     {device name}     {~}
+                                                                                      Informs TEKDOS of device availability. All devices default to U (up).
+
+
+
+
+CPROM [memory address]
+                                [ ~~~~]
+                                    2708     [prom lower address]
+                                                                                      DISM     [lower address]    [upper address]
+
+                                                       [prom upper address]     [~]   Translates object code to mnemonics and operands. Only available in the
+                                                                                      debug system. If you only enter the upper address parameter, disassembly
+                                                                                      begins at address 0000.
+Compares PROM data with program memory data. Default parameters: 0,
+2708, O, highest addressable PROM location, 0.
+
+
+
+
+                                                                                      D RT   [ n*umber of bus transactions]
+
+                                                                                      Displays the real-time trace buffer contents. Only available in the debug
+                                                                                      system. The asterisk displays all transactions.
+
+ 2-6                    @                      8002A System Reference Booklet         8002A System Reference Booklet                            @                   2-7
+                                                          Command Dictionary        Command Dictionary
+
+
+                                                                                    EVT
+            SHORT]
+DSTAT     [ !:_ONG                                                                  or
+
+Displays the Emulator Processor status. Only available in the debug system.         EVT    {mode}
+Default parameter: SHORT.                                                           or
+
+
+
+
+                                                                                    or
+                                                                                           g}
+        [~lower
+                                                                                    EVT             [CLR]   {option} {operator} {value}
+
+QUMP                   address)    [upper address]
+                                                       device
+                                                     [ file name[/disc drive]
+                                                                                J
+                                                                                                                               [{option} {operator} {value   }J. ..
+Transfers memory contents to a file or device. Default parameters: zero offset,
+CONO, system disc.                                                                  Sets, clears, or displays EVT command line options. Used in conjuction with
+                                                                                    the BIF command. Allowable mode parameters: ARM, LIM, IND. Allowable
+                                                                                    option parameters: A (bus address), D (bus data), T (test clips), B (bus
+                                                                                    options), P (pass count), C (counter delay).
+DUP {input disc drive}     {output disc drive} [output disc name]
+
+Copies the contents of one disc to another. Before you enter this command,
+format and verify the output disc.
+
+
+
+
+EDIT [infile name[/disc drivel] [outfile name[/disc drivel]
+Invokes the 8002A Editor. Default parameter: system disc.
+                                                                                    ~XAM     m        {address)
+                                                                                    Displays or alters data. Default parameter: zero offset.
+
+
+
+
+EMULATE       {emulation mode}
+                                                                                                                            output device                 J'NJ
+Selects the emulation mode. Possible modes: 0, 1, or 2. Your prototype must be                                                                            L
+                                                                                    F DUMP {input file name[/disc drivel} [ output file name [/disc drive] W
+connected in modes 1 and 2.
+                                                                                    Displays a file in its hexadecimal and ASCII representation. Default
+                                                                                    parameters: CONO, system disc, N (for CONO display), W (for LPT1 display).
+
+
+ESC Key
+Suspends or terminates program execution. Deletes lines from the command
+input buffer.
+                                                                                    FETCH {fetch file name[/disc drive]} [program parameters] ...
+
+                                                                                    Loads a fetch file from a disc to program memory. Default parameter: system
+                                                                                    disc.
+
+
+
+
+2-8                    @                     8002A System Reference Booklet         8002A System Reference Booklet                        @                      2-9
+                                                           Command Dictionary      Command Dictionary
+
+
+£.I LL    {lower address} {upper address} {hexadecimal string}                                   ERROR        }
+
+                                                                                                                  [~utput Ii
+                                                                                   HELP          command name     output device
+Fills memory with a hexadecimal string.                                                      {
+                                                                                                 error code                    le name [/disc drive   1]
+                                                                                    or
+
+                                                                                   .t!E LP
+
+                                                                                    or
+Compares the master bit map with the file bit maps and lists differences on the              output device                 l[SHORT]
+system console. Insert the known-good system disc in drive 0 and the disc to       HE LP,, [ output file name [/disc drivelj LONG
+check in drive 1.
+                                                                                   Displays command syntax and brief error message explanations. Default
+                                                                                   parameters: CONO, SHORT, system disc.
+
+
+FORMAT         {disc drive}   [disc name]
+
+ Prepares a disc for use with TEKDOS. Disc drive may not specify the system
+ disc.
+
+
+                                                                                   Terminates or continues command file execution upon error detection.
+                                                                                   System startup or reboot default parameter: ON.
+ GET {fetch file[/disc drive]} {system overlay file[/disc drive]}
+
+
+                                                               {member number}
+
+ or
+                                                                                   LOI R [disc drive] [{:file name} [:file name] ... ] [.] [/]
+ GET {@command file[/disc drive]} {system overlay file[/disc drive]}
+                                log file[/disc drive]]
+                              [ log device
+                                                                                                                                          foutput device             J
+                                                                                                                                          Loutput file name/disc drive
+Copies one or more System Overlay File members to the specified fetch files        Outputs the disc directory contents to a file or device. Disc drive must be
+for modification. Default parameters: CONO, system disc.                           specified for output file name. The plus sign functions as the wild card
+                                                                                   character. Default parameters: CONO, system disc.
+
+
+
+QO       [address]
+
+ Passes execution control to the Emulator Processor.                               LIBGEN [newlib] [,listfile [/disc drive]] [,oldlib]
+                                                                                      or             ,list device
+
+                                                                                   LIBGEN
+
+                                                                                      or
+
+                                                                                   LIBGEN {@command file name [/disc drive]}
+
+                                                                                   Creates or modifies a library file. Default parameter: system disc.
+
+
+
+
+ 2-10                     @                       8002A System Reference Booklet   8002A System Reference Booklet                             @                   2-11
+                                                             Command Dictionary         Command Dictionary
+
+
+
+                                                                   l
+                                                                                                  t~~}
+                                    rist device
+_bJ_NK [load file name[/disc driveJ]~ist file name[/disc drivelj
+
+                                                                                        MOVE             (lower address) {upper address) (starting address)
+                  object1 [/disc drive]
+                { LIB(libfile) [/disc drivel
+                                             }    [,object2 [/disc drive]         J     Copies data from one memory location to another.
+                                                    ,LIB(libfile) [/disc drive]   ···
+
+or
+
+                                                                                        NEWDISC
+or
+                                                                                        Formats, verifies, and copies the TEKDOS operating system from the disc in
+!::_Ui..1$_ {@command file name[/disc drive]}                                           drive 0 to the disc in drive 1. Use COPYSYS to copy the TEKDOS operating
+Merges object code files into one executable program. Default parameter:                system from one disc to another.
+system disc.
+
+
+
+
+                                                                                                  [~]
+LOAD [/offset amount] {file name[/disc drive]} [file name[/disc drive]] ...
+
+ Reads Assembler or Linker object files into program memory. Default
+ parameters: zero offset, system disc.
+                                                                                        _F'ATCH           {address) {hexadecimal string)
+                                                                                        Alters memory with a hexadecimal string. Defaults to zero offset.
+
+
+
+
+MAP     [~]                                                                               PRINT      l {input device                    }   [output device                   J
+                                                                                        { PR I NTL   J   input file name[/disc drive]        output file name[/disc drive]
+  or
+
+
+MAP     {~} { {lower address} [-upper add res~]}
+                                                                                                                          [{lower line number}       [upper line number]    J
+                                                                                        Copies data from a file or device to another file or device. PR I NTL numbers the
+                                                                                        lines. Default parameters: one line, LPT1, system disc.
+                                    [ { lower address}     [-upper address]] ...
+
+Displays or sets memory maps assignments. The hyphen must be entered with
+the upper address parameter. If the system is not in emulation mode 1, the
+system console displays the message WARNING-EMULATOR NOT IN
+MODE 1.                                                                                 RE_NAME      {old file name/disc drive} {new file name[/disc drive]}
+                                                                                            or
+                                                                                        RENAME       {disc drive}   {disc name}
+
+_M_ODULE {file name[/disc drive]} {lower address} {upper address}                       Renames a file or disc. First disc drive parameter must be specified; second
+                                                                                        disc drive parameter defaults to the disc drive number specified with old file
+                                                                                        name.
+                                         {starting address}      [identifying string]
+
+Writes binary code from program memory into a fetch file on disc. Default
+parameter: system disc.
+
+2-12                    @                        8002A System Reference Booklet         8002A System Reference Booklet                           @                    2-13
+                                                            Command Dictionary        Command Dictionary
+
+
+REPLACE [fetch file[/disc drive]] {system overlay file[/disc drive]}                  RTT    [option]
+                                                                                      Selects or displays the type of RTT buffer transactions stored. Allowable
+                  {member number}           [new system overlay file [/disc drive]]
+                                                                                      option parameters: ALL (all bus transactions), F (instruction fetches), I (1/0
+or                                                                                    addresses), IR (1/0 reads), IW (1/0 writes), M (memory accesses), MR (memory
+REPLACE {@command file[/disc drive]} {system overlay file[/disc drive]}               reads), MW (memory writes), R (read operations), W (write operations).
+                                                                                      Default parameter: ALL.
+
+                   log file [/disc drive]
+                 [ log device               [new system overlay file[/disc drivel]
+
+Creates a new SOF (System Overlay File) that is a copy of an updated SOF.             RUB OUT Key
+Default parameters: CONO, system disc.
+                                                                                      Deletes and displays the last character entered on the system console. Use the
+                                                                                      BACK SPACE key to delete but not display characters.
+
+
+RESET
+Sets known values in Emulator Processor registers. Only available in the debug
+system.
+                                                                                                                device                   l
+                                                                                      RV HEX [/offset amount] { file name[/disc drive] f
+
+                                                                                      Reads and converts vendor-formatted object code to binary and stores the
+                                                                                      code in memory. Default parameters: zero offset, PPTR, system disc.
+
+                         device                  }
+RH EX [/offset amount] { file name [/disc drive]
+                                                                                      SEND
+Reads and converts Tektronix Hexadecimal Format code to binary and stores
+the code in memory. Default parameters: zero offset, PPTR, system disc.               Transfers Tekhex object code files from the 8002A to 8001 program memory.
+
+
+
+
+                                                                                      SET    {initial register} {hexadecimal value} [hexadecimal value] ...
+                                  1702]
+                                  2704                                                Alters Emulator Processor register contents. Only available in the debug
+                                [
+RPROM    [memory address]         2708       [prom lower address]                     system.
+
+
+
+                                                      [prom upper address]    [~]
+Transfers PROM data to program memory. Default parameters: 0, 2708, 0,                Space Bar
+highest addressable PROM location, 0.                                                 Suspends or continues the console display. Press once to suspend the display;
+                                                                                      press again to continue.
+
+
+
+
+RSMS    [program memory address]
+                                          device
+                                        [ file name[/disc drive]
+                                                                   J                  STATUS
+
+Reads SMS formatted data into program memory from a file or device. Default           Displays Emulator Processor, program execution, channel, and command file
+parameters: 0000, CONI, system disc.                                                  status.
+
+
+
+2-14                   @                       8002A System Reference Booklet         8002A System Reference Booklet                                             2-15
+                                                                                                                                             @
+                                                        Command Dictionary     Command Dictionary
+
+
+
+             ~ command file name        ?                                      WHEX {lower address}       {upper address}
+SUSPEND      ( :ystem command name)
+                                                                                                                    [{,,lower address}       {upper address}] ...
+
+Suspends user or system program execution. The asterisk suspends all active
+programs.
+                                                                                                               [ {starting address}
+                                                                                                                                        device
+                                                                                                                                      [ file name [/disc drive]
+                                                                                                                                                                  J]
+                                                                               Converts program memory contents to Tektronix Hexadecimal Format and
+                                                                               writes the converted contents to a device or file. Default parameters: CONO,
+SYSTEM     [disc drive]                                                        system disc.
+Designates the system disc drive. Default value: system disc.
+
+
+
+
+TRACE                                                                          WPROM       [memory address]
+                                                                                                                [~~g~l
+                                                                                                                 2708J      [prom lower address]
+
+  or
+
+TRACE      {i~~}     [STEP I [I lower address] I u pperadd ress]   J                                                                  [prom upper address]    [~]
+                                                                               Writes data from program memory to a PROM. Default parameters: 0, 2708, 0,
+  or
+                                                                               highest addressable PROM location, 0.
+           \LONG I
+TRACE      ,\~HORT f
+Allows you to monitor program execution. Only available in the debug system.
+LONG and SHORT affect only certain microprocessors. Up to three TRACE
+                                                                               WSMS      [program memory address]
+                                                                                                                         device
+                                                                                                                       [ file name [/disc drive]
+                                                                                                                                                   J
+commands may be active at onetime. Default parameters: SHORT, 0000, FFFF.
+                                                                               Translates program memory data to SMS format. Writes the data to a file or
+                                                                               device. Default parameters: 0000, PPTP, system disc.
+
+
+
+
+                                                                               WVHEX       {lower address}    {upper address}
+Displays or suppresses display of each command in a command file as the
+command executes. System startup or reboot default: ON.                                                             [{,,lower address}       {upper address}] ...
+
+
+
+                                                                                                              [ {starting address)
+                                                                                                                                         device
+                                                                                                                                       [ file name [/disc drive]
+                                                                                                                                                                   J]
+VER I FY   {disc drive}
+                                                                               Converts program memory contents to vendor format and writes the converted
+Checks for and records any bad disc sectors. Use after the FORMAT              contents to a file or device. Default parameters: CONO, system disc.
+command.
+
+
+
+                                                                               .?S_EO   {fetch file name[/disc drive]} [program parameters] ...
+
+                                                                               Loads a fetch file into program memory and.executes the file. Equivalent to the
+                                                                               FETCH and GO command sequence. Default: system disc.
+
+
+2-16                      @                 8002A System Reference Booklet     8002A System Reference Booklet                            @                    2-17
+                                Section 3
+                     EDITOR DICTIONARY
+
+
+
+
+                                              PIF   Primary Input File
+ A. COPY Command
+                                              POF = Primary Output File
+
+                                              AIF - Alternate Input File
+
+                                              AOF - Alternate Output File
+
+                                              AOD -~ Alternate Output Device
+
+
+
+
+  B. GET, PUT, PUTK. LIST, and TYPE Commands
+
+
+
+                   Fig. 3-1. Editor text flow diagram.
+
+
+These block diagrams illustrate how the Editor can move text between the
+primary and alternate files. Fig. 3-1 (A) demonstrates how text may be
+transferred with the COPY command. Fig. 3-1 (B) depicts the flow of text to and
+from the workspace.
+
+
+8002A System Reference Booklet                          @                      3-1
+                                                                Editor Dictionary   Editor Dictionary
+
+
+ EDITOR INDEX
+                                                                                    EDITOR COMMANDS
+Move Pointer Commands
+
+BEGIN           DOWN
+                                                                                    8GAIN
+                                END              FIND           UP
+                                                                                    Repeats the previous command. Does not repeat the BRIEF, TAB, TABS, or
+Change Text Commands                                                                AGAIN commands. Does not redefine a macro, but repeats the execution of the
+                                                                                    last repeatable command of a macro.
+INPUT           INSERT          KILL             REPLACE        SUBSTITUTE
+
+Transfer and Display Commands
+COPY                  FILE                GET
+LIST
+                                                                                    §EGIN
+                      PUT                 PUTK               TYPE
+                                                                                    Moves the workspace pointer to the first line of text and displays the line. To
+Utility Commands                                                                    suppress the display, follow this command with a period.
+AGAIN           BRIEF           ESC Key          MACRO          N
+QUIT            SUSPEND         TAB              TABS           ?
+
+                                                                                    BRIEF
+ EDITOR SYNTAX CONVENTIONS
+                                                                                    Disables the display of certain Editor commands. Enter BRIEF again to re-
+The fol I owing conventions are used with the Editor commands. The Command          enable the display.
+Syntax Conventions specified in Section 2 also apply to the Editor commands.
+
+1. The colon character(:) allows you to enter several commands on the same
+   line. Insert a colon between each command on the input line.
+
+2. Use the right and left arrows to repetitively execute a command Ii ne.
+                                                                                           number of lines} {primary input file                               l
+                                                                                    QOPY { range of lines     alternate input file [/disc drivel[
+   Enclose the command Ii ne with the arrows as follows:
+
+      12<PUT 1-5 LPT1:D.10>                                                                                                       output device
+                                                                                                                                [ alternate output file [/disc drive]
+                                                                                                                                                                        J
+      The number that precedes the left arrow designates the number of times the
+      command line will be repeated. The arrows may be nested up to 16 levels.      Copies text from an input file to an output file or device. If you do not specify an
+                                                                                    output file or device, the Editor appends text to the primary output file.
+3. The letter B (beginning line). C (current line}, or E (ending line) may be
+   entered as a parameter anywhere a number or number of lines is required. A
+   space must follow the command and the B, C, or E parameter.
+
+                                                                                    DOWN        [number of lines]
+                                                                                    Moves the workspace pointer down the specified number of lines and displays
+                                                                                    the line. To suppress the display, follow this command with a period. Default
+                                                                                    parameter: one Ii ne.
+
+
+
+
+                                                                                    END
+                                                                                    Moves the workspace pointer past the last line of text and displays the text
+                                                                                    *EOF*. To suppress the display, follow this command with a period.
+
+
+
+
+3-2                    @                     8002A System Reference Booklet         8002A System Reference Booklet                              @                     3-3
+                                                                Editor Dictionary   Editor Dictionary
+
+
+ESC Key                                                                                      number of linesl
+Deletes an input line or suspends the Editor. Press once to delete an input line;   !SI LL [ range of Ii nes   J
+press twice to suspend the Editor and return control to TEKDOS.
+                                                                                    Deletes lines of text from the workspace. The workspace pointer moves to the
+                                                                                    line following the last line deleted. Default parameter: one line.
+
+
+
+FILE
+Transfers text from the workspace to the primary output file and returns
+                                                                                             number of linesl
+control to TEKDOS. To return control to TEKDOS without saving text, enter
+the QUIT command.
+                                                                                    !::IST [ range of lines    J
+                                                                                    Displays lines of text on the line printer (LPT1). The workspace pointer does
+                                                                                    not move. Default parameter: one Ii ne.
+
+
+fl ND    {delimiter string delimiter}
+Searches for the specified string. The workspace pointer does not move if the       MACRO        [number[=[command line]]]
+Editor does not find the string.
+                                                                                    Displays, executes, deletes, or defines a macro. To display the current macros,
+                                                                                    enter this command without any parameters. To delete a macro, enter Mx=
+                                                                                    followed by a carriage return, where x represents the macro number. You may
+                                                                                    define up to 127 macros.
+
+
+QET     Lt[f range
+             number of lines} [primary input file
+                   of Ii nes
+                                                                l]
+                               alternate input file [/disc driveU
+
+Transfers text from a primary or alternate input file to the workspace. Lines are   N
+inserted above the workspace pointer: The pointer does not change. Default
+parameters: one line, primary input file, system disc.                              Displays the line position of the workspace pointer.
+
+
+
+
+INPUT
+Allows you to enter text into the workspace from the system console. Follow         f UT
+                                                                                             r{number of lines} [output device
+                                                                                             L range of lines
+                                                                                                                                                   11
+                                                                                                                 alternate output file [/disc driveLJj
+this command with a carriage return; then enter text. Text is inserted above the
+workspace pointer. To exit input mode, enter two carriage returns or the CTRL
+                                                                                    Transfers text from the workspace to a file or device. If you do not specify an
+Z function.
+                                                                                    output device or file, the Editor appends text to the primary output file. Default
+                                                                                    parameters: one Ii ne, system disc.
+
+
+
+!NSERT {text line}
+Allows you to enter a line of text into the workspace from the system console.
+                                                                                    PUTK
+                                                                                             r{number of lines} [output device
+                                                                                             L range of lines    alternate output file [/disc driveLJJ
+                                                                                                                                                               11
+Follow this command with a space, the desired line of text, and a carriage
+return. Text is inserted above the workspace pointer.
+                                                                                    Transfers text from the workspace to a file or device. Deletes the text
+                                                                                    transferred from the workspace. If you do not specify an output device or file,
+                                                                                    the Editor appends text to the primary output file. Default parameters: one line,
+                                                                                    system disc.
+
+
+3-4                     @                     8002A System Reference Booklet        8002A System Reference Booklet                           @                      3-5
+                                                              Editor Dictionary   Editor Dictionary
+
+
+
+                                                                                         number of lines]
+Terminates the Editor and returns control to TEKDOS. To terminate the Editor      IYPE [ range of lines
+and save text, enter the Fl LE command.
+                                                                                  Displays Ii nes of text on the system console (CONO). The workspace pointer
+                                                                                  does not move. Default parameter: one line.
+
+
+_BEPLACE     {text line}
+Replaces the current line with the specified text. The workspace pointer does     UP   [number of lines]
+not move.
+                                                                                  Moves the workspace pointer up the specified number of lines and displays the
+                                                                                  line moved to. To suppress the display, follow this command with a period.
+                                                                                  Default parameter: one line .
+
+.§UBSTITUTE       {$old string$new string$}
+Replaces a character string with a new character string. The delimiters may not
+be spaces. The workspace pointer does not move.                                   ?
+                                                                                  Display the Editor 1/0 status.
+
+
+
+SUSPEND
+Suspends the Editor and returns control to TEKDOS. Same effect as pressing
+the ESC key twice. To return control to the Editor, use the CONT command.
+
+
+
+
+TAB    {character}
+Defines the tab character. The character defined may not be a colon, comma,
+space, or right or left arrow. The tab character is not entered into the
+workspace.
+
+
+
+
+TABS    {column}      [column] ...
+Assigns tab positions. Column numbers must be in ascending order. Tab
+positions default to 8, 16, 24, 32, 40, 48, 56, 64.
+
+
+
+
+3-6                   @                     8002A System Reference Booklet        8002A System Reference Booklet                       @                    3-7
+                                Section 4
+                           SERVICE CALLS
+
+           SRB
+                                  SRB
+           Location
+                                  (Service Request Block)
+           Vector
+
+40-41
+
+42-43
+
+44-45
+
+46-47
+
+48-49
+
+4A-4B
+                                                                   BUFFER
+
+
+
+           Pointers
+                                                      }-
+
+                      Fig. 4-1. Service call memory layout.
+
+The service call within your program determines which of the six SRB pointers
+will be used. The SRB addressed by the selected pointer contains the
+necessary parameters passed for the SVC. Depending upon the function
+specified in the first byte of the SRB, an 1/0 buffer may be needed. In this case,
+the length and the location of the buffer are indicated in the last three bytes of
+the SRB.
+
+SVC FUNCTION CODE DESCRIPTIONS
+01-Read ASCII and wait. Suspends your program until TEKDOS reads a line
+of characters and a carriage return from the device assigned to the selected
+channel. Requires the channel number, buffer length, and buffer pointer.
+Returns the number of characters read in Byte Count and the characters read
+in the Buffer.
+
+02-Write ASCII and wait. Suspends your program until TEKDOSwrites a line
+of characters and a carriage return to the device assigned to the selected
+channel. Requires the channel number, buffer length, buffer pointer and the
+Buffer (containing the line to be written and a carriage return). Returns the
+number of characters written in Byte Count.
+
+
+8002A System Reference Booklet                          @                      4-1
+                                                                   Service Calls    Service Calls
+
+
+03-Close Channel. Closes an assigned channel. Channels used for output              15-Get device status. Requires the channel number assigned to the device.
+must be closed before your program terminates, to ensure that data is not lost.     Returns the hardware status byte of a device assigned to the channel. The
+Requires the channel number.                                                        channel number is indicated in Byte Data.
+
+04-Rewind file. Positions the pointer to the beginning of a disc file. Ignored if   16-Get last CONI character. Returns the last character received from the
+the selected channel is not assigned to a disc file. Requires the channel           system console in Byte Data.
+number.
+                                                                                    17-Load overlay. Loads an overlay module into program memory. Requires
+OS-Delete file. Deletes a disc file. Ignored if the selected channel is not         the buffer length, buffer pointer, and the Buffer (containing the overlay file
+assigned to a disc file. Requires the channel number.                               name and a carriage return).
+
+06-Rename file. Renames a disc file. Ignored if the selected channel is not         18-Load overlay and execute. Loads and executes an overlay module.
+assigned to a disc file. Requires the channel number, buffer length, buffer         Requires and returns the same parameters as function code 17.
+pointer, and the Buffer (containing the new file name and a carriage return).
+                                                                                    19-Suspend program. Suspends your program. Continue the program with
+10-Assign device or file. Assigns a channel to a device or file. Must be            the CONT command.
+performed before a read or write SVC may be executed. Requires the channel
+number, buffer length, buffer pointer, and Buffer (containing the device or disc    1A-Exit program. Terminates your program. Continue the program with the
+file name, and a carriage return).                                                  GO command. Does not close the channels. Terminates the debug system.
+
+11-Read program clock. Reads the program clock. Enter the CLOCK ON                  1C-Get execution line parameter. Requires the parameter number, buffer
+command before executing. Returns the high-order clock byte in Byte Data            length, and buffer pointer. Returns a parameter issued with the XEQ command
+and the low-order clock byte in Byte Count.                                         line in the Buffer and the parameter length in Byte Count.
+
+13-Get command file invocation line. Retrieves one of the parameters entered        ff-Abort program. Terminates your program. Closes all channels.
+in a command file invocation line. Requires the parameter number, buffer            Terminates the debug system.
+length, and buffer pointer. Returns the Buffer (containing a command file
+parameter and a carriage return) and the parameter length in Byte Count.            21-Read without echo from CONI. Requires the channel number assigned to
+                                                                                    CONI, the buffer length, and the buffer pointer. Returns the line read from the
+14-Get device identification and type. Requires the channel number assigned         system console in the Buffer and the number of bytes read in Byte Count. Does
+to the device. Returns the device identification in Byte Data and the device type   not echo the characters. Only used for channels assigned to CONI.
+in Byte Count. See Table 4-1.
+                              Table 4-1                                             41-Read 'inary and wait. Suspends your program until TEKDOS reads data
+                                                                                    from the selected channel. Does not strip parity. Requires the channel number,
+                Device Identification and Type Code                                 buffer length, and buffer pointer. Returns the number of bytes transferred in
+             TYPE                                                                   Byte Count and the bytes transferred in the Buffer.
+   l.D.      CODE         DESCRIPTION
+                                                                                    42-Write binary and wail. Suspends your program until the Buffer contents
+      01       01         ASCII read from CONI (Console input)                      are written to the device assigned to the selected channel. Does not strip parity.
+      02       02         ASCII write to CONO (Console output)                      Requires the channel number, buffer length, buffer pointer, and Buffer
+                                                                                    (containing the data-a carriage return is not necessary). Returns the number
+      03       02       ASCII write to LPT1 (Line printer)                          of bytes written in Byte Count.
+      06       01         ASCII read from TTYR (TTY reader)
+                                                                                    57-Load overlay with bias. Load an overlay into program memory with the
+      08       01         ASCII read from PPTR (Paper tape reader)                  offset specified in Byte Data and Byte Count. Also requires the buffer length,
+                                                                                    buffer pointer, and Buffer (containing the overlay file name).
+      09       02         ASCII write to PPTP (Paper tape punch)
+
+      OA       01         ASCII read from REMI (Remote input)
+
+      OB       02         ASCII write to REMO (Remote output)
+
+      FF       43         Binary read/write from disc (disc file name)
+
+
+4-2                                                                                  8002A System Reference Booklet                          @                     4-3
+                      @                       8002A System Reference Booklet
+                                                                 Service Calls
+
+
+81-Read ASCII and proceed. Reads ASCII characters from a device assigned                                        Section 5
+to the selected channel. TEKDOS returns control to your program before the
+transfer is completed. Requires the channel number, buffer length, and buffer                            COMMAND FILES
+pointer. Returns the number of characters read in Byte Count and the
+characters read in the Buffer.
+                                                                                 Description
+82-Write ASCII and proceed. Writes ASCII characters to a device assigned to
+                                                                                 A command file is a file containing TEKDOS commands. A command file may
+a selected channel. TEKDOS returns control to your program before the
+                                                                                 contain comment lines for documentation purposes. All comment lines must
+transfer is complete. Requires the channel number, buffer length, buffer
+                                                                                 begin with an asterisk followed by a space. COPYSYS and NEWDISC are
+pointer, and Buffer (containing the line to be written and a carriage return).
+                                                                                 examples of command files.
+Returns the number of characters transferred in Byte Count.
+
+C1-Read binary and proceed. Similar to function code 41, but uses the
+                                                                                 Invocation
+proceed function as described in function codes 81 and 82. Requires the
+channel number, buffer length, and buffer pointer. Returns the number of         To invoke a command file, enterthe command file name, the parameters, and a
+bytes read in Byte Count and the bytes read in the Buffer.                       carriage return. If the command file does not reside on the system disc,
+                                                                                 immediately follow the command file name with a slash(/) and the disc drive
+C2-Write binary and proceed. Similar to function code 42, but uses the           number.
+proceed function as described in function codes 81 and 82. Requires the
+channel number, buffer length, buffer pointer, and Buffer (containing the        One command file may invoke another. When this occurs, TEKDOS terminates
+data-a carriage return is not necessary). Returns the number of bytes            the first command file and passes control to the next one.
+transferred in Byte Count.
+
+
+                                                                                 Parameter Substitution
+                                                                                 You may pass parameters when you invoke the command file. To do so, enter
+                                                                                 these parameters afterthe command file name and a space. Each parameter in
+                                                                                 the command file invocation line is assigned a one-digit decimal identifier.
+
+                                                                                 Parameters may be referenced within the command file with the one-digit
+                                                                                 identifier preceded by the dollar sign ($). TEKDOS substitutes this two-
+                                                                                 character sequence with the actual parameters passed during command file
+                                                                                 invocation. TEKDOS identifies the first parameter with $1, the second
+                                                                                 parameter with $2, and so on. To access the command file you invoked, use $0.
+
+
+                                                                                 Command File Control Commands
+                                                                                 ABORT command name Terminates system program execution.
+
+                                                                                 ABORT program name        Terminates one of your command files or programs.
+
+                                                                                 ABORT*                    Terminates all executing programs.
+
+                                                                                 ABORT I                   Terminates all of your command files or programs.
+                                                                                                           Closes all assigned channels.
+
+
+
+
+4-4                   @                     8002A System Reference Booklet       8002A System Reference Booklet                        @                    5-1
+                                                           Command Files
+
+
+
+CONT command name       Continues a suspended command file                                                 Section 6
+CONT program name       Continues a suspended system program
+                                                                                      INTERSYSTEM COMMUNICATION
+CONT*                   Continues all suspended programs
+
+CONT I                  Continues all suspended user programs
+
+KILL ON                 Terminates command file execution whenever one
+                        of the commands within the command file generates
+                        an error.
+KILL OFF                Ignores an invalid command in a command file,
+                        generates the appropriate error message, and
+                        continues command file execution.
+
+SUSP command name       Suspends system program execution.
+
+SUSP program name       Suspends one of your command files or programs.
+
+SUSPEND *               Suspends all executing programs.
+
+SUSPEND I               Suspends all of your executing command files or
+                        programs.                                                                                              }    Te•minal Level
+
+TYPE ON                  Displays commands in a command file as they
+                         execute.
+
+TYPE OFF                 Suppresses display of commands in a command file.
+
+
+
+
+                                                                                       ~                                     ~
+                                                                                            Formatted                           Unformatted
+                                                                                        (Program Memory)                         (Disc File)         _,)
+                                                                                   '--~~~~~~~~~~-............,,.-~~~~~~~~~~-"
+                                                                                                            Transfer Level
+
+
+                                                                                                  Fig. 6-1. COMM block diagram.
+
+                                                                             This figure illustrates the various modes of data transfer available with the
+                                                                             COMM command and shows the two types of transfer levels.
+
+
+
+
+ 5-2                @                     8002A System Reference Booklet     8002A System Reference Booklet                     @                          6-1
+                                                   lntersystem Communication       lntersystem Communication
+
+
+ENTERING COMM                                                                      Upload Command Line
+
+The 8002A responds Ii ke a terminal to the external computer after you enter the   To transfer text from the 8002A to an external computer, perform the following
+COMM command line. This mode of operation is called terminal level. Each           steps:
+external computer requires a certain set of COMM parameters to communicate         1. Enter the external computer command that transfers a file to the system
+with the 8002A. Space is provided below to write in the parameters that apply to      console.
+your external computer. To return control to TEKDOS from terminal level,
+enter the null character and press the ESC key.                                    2. Enter the null character.
+
+                                                                                   3. Press the left arrow key {<).
+                           Table 6-1
+                     COMM Parameter Checklist                                      4. Enter the 8002A file name that contains the data to be transferred.
+
+                                                                                   5. Enter a carriage return.
+  Parameter                                Value
+                                                                                   After the data transfer is complete, the 8002A returns to terminal level.
+       E=
+
+       L=                                                                          FORMATTED TRANSFER
+       P=                                                                          Load Mode Command Line
+       T=                                                                          To transfer Tekhex object code files to the 8002A, perform the following steps:
+
+       M=                                                                          1. Enter the name of the external computer program that downloads a Tekhex
+                                                                                      file.
+       C=
+                                                                                   2. Enter the null character.
+
+                                                                                   3. Enter a carriage return.
+UNFORMATTED TRANSFER
+                                                                                   Any of the following conditions returns the 8002A to terminal level from Load
+Download Command Line                                                              mode:
+To transfer text from the external computer to the 8002A, perform the following    • You press the BREAK key on the system console.
+steps:
+                                                                                   • The 8002A receives a Terminating Block from the external computer.
+1. Enter the external computer command that transfers a file to the system
+   console.
+                                                                                   • The 8002A receives an Abort Block from the external computer.
+2. Enter the file name you desire to transfer.
+                                                                                   • An attempt is made to load beyond 8002A program memory location FFFF.
+3. Enter the null character.
+                                                                                   • A memory read or write error is generated in the 8002A.
+4. Press the right arrow key (>).
+                                                                                   • Downloading is com pl et ed.
+5. Enter the name of the 8002A file name where the data will be transferred.
+
+6. Enter a carriage return.
+
+After the data transfer is completed, the 8002A returns to terminal level.
+
+
+
+
+ 6-2                  @                       8002A System Reference Booklet       8002A System Reference Booklet                         @                    6-3
+                                                  lntersystem Communication
+
+
+Save Mode Command Line
+                                                                                                                  Section 7
+To transfer Tekhex object code from the 8002A to the external computer,
+perform the following steps:                                                                                       TABLES
+1. Enter the name of the external computer program that uploads Tekhex
+   object code.                                                                     ASCII Code Conversion Table
+                                                                                                                             HEXADECIMAL
+2. Enter the null character without a space following it.
+                                                                                                                   MOST SIGNIFICANT CHARACTER
+3. Enter the program memory address where the code starts. Enter a space.
+                                                                                                            0                2      3       4    5    6      7
+4. Enter the program memory address where the code ends. Enter another                               0     NUL      OLE     SP      0       @l   p           p
+   space.                                                                                            1     SOH      DC1                     A    Q     a     q
+                                                                                                     2     STX      DC2             2       B    R     b
+5. Optionally, enter the program memory address where code begins
+    execution.
+                                                                                                     3     ETX      DC3      #      3       c    s     c     s
+                                                                                                     4     EOT      DC4      $      4       D    T     d
+6. Enter a carriage return.                                                        LEAST             5     ENO      NAK      %      5       E    u     e     u
+                                                                                   SIGNIFICANT       6     ACK      SYN      &      6       F    v      f    v
+Any of the following conditions returns the 8002A to terminal level from Save      CHARACTER         7     BEL      ETB             7       G    w     g     w
+mode:                                                                                                8      BS      CAN             8       H    x     h     x
+                                                                                                     9      HT       EM             9        I   y           y
+• You enter an invalid address or address range.
+                                                                                                     A      LF      SUB                     J    z            z
+• You press the BREAK key on the system console.                                                     B      VT      ESC      +              K    [     k     {
+                                                                                                     c      FF       FS             <       L                 I
+                                                                                                                                                              I
+
+• A memory read or write error is generated in the 8002A.                                            D      CR       GS                     M          m      }
+                                                                                                     E      so       RS             >       N    /\    n
+• The 8002A receives an Abort Block from the external computer.                                      F      SI       us             ?       0          0    DEL
+
+•   Error code 80, 82, or 83 occurs and the C=T parameter has been specified.
+
+•   Uploading is completed.                                                                                          EXAMPLES
+
+                                                                                                                          w = 57
+                                                                                                                          H = 48
+STATUS MODE
+This mode displays the contents of the Remote Port Status Register. To obtain       TEKTRONIX HEXADECIMAL FORMAT
+this information, perform the following st'3ps:
+                                                                                    General Description
+1. Enter the null character.
+                                                                                   • The message block contains a slash (/) as the Header Character.
+2. Press the S key.
+                                                                                   • A carriage return (EOL) terminates the message block.
+3. Enter a carriage return.
+                                                                                   • A message block is limited to 72 characters.
+The system console displays the register contents as two hexadecimal digits.
+For a description of these digits, refer to Table 8-3 in the 8002A System User's   • All characters must belong to the printable ASCII character set, except EOL.
+Manual.
+                                                                                   • A checksum represents the sum of the hexadecimal digits. The checksum is
+                                                                                     a two-digit number.
+
+
+
+6-4                     @                    8002A System Reference Booklet        8002A System Reference Booklet                       @                   7-1
+                                                                           Tables    Tables
+
+
+Message Block Format                                                                 SMS Tape Format
+                                                                                     •   AT APE ON character (CTRL R) precedes each SMS data block and resets
+                                                                                         the address to zero.
+
+                                                                                     • The data block consists of up to 512 bytes.
+•   Location Counter: four digits that represent the starting address of the block
+                                                                                     •   A TAPE OFF character (CTRL T) terminates the data block.
+    in program memory.
+                                                                                     • One or two characters represent each data word.
+•   Byte Count: two digits that represent the number of data bytes in the block.
+                                                                                     •   An apostrophe follows each data word.
+•   First Checksum: two digits that represent the sum, modulo 256, of the six
+    digits that make up the Location Counter and Byte Count.
+                                                                                     •   All characters are punched in the standard 8-channel ASCII teletype code.
+•   Data: N bytes, each represented by two digits (maximum of thirty).
+                                                                                     •   Parity is not checked.
+•   Second Checksum: two digits that represent the sum, modulo 256, of the
+    digits that make up the N data bytes.
+                                                                                     Motorola Load Module Format
+                                                                                     Format Description
+Terminating Message Block
+
+
+
+
+                                                                                     • Start of Record: always an S.
+• Transfer Address: four digits that represent the program memory address of
+  the first data byte in the record.                                                 •   Type of Record: 0 (header record), 1 (data record), or 9 (end-of-file record).
+
+•   Byte Count: set to zero, indicating a Terminating Block.                         •   Byte Count: two digits that specify the number of data bytes in the record,
+                                                                                         including checksum and address data.
+• Checksum: two digits that represent the sum, modulo 256, of the six digits
+  that make up the Transfer Address and Byte Count.                                  •   Address: four digits that represent the program memory address where the
+                                                                                         record is stored.
+
+Abort Block                                                                          •   Data: N data bytes, each represented by two digits.
+
+                                                                                     • Checksum: Two digits that represent the one's complement, of the sum
+                                                                                       modulo 256, of the record type, data bytes, address, and byte count.
+
+
+
+
+•   Error Information: a programmer-defined message string of ASCII
+    characters.
+
+
+
+
+7-2                       @                    8002A System Reference Booklet        8002A System Reference Booklet                            @                     7-3
+                                                                          Tables
+
+
+Intel Load Module Format
+                                                                                                                    Section 8
+Format Description
+                                                                                                       ERROR EXPLANATIONS
+
+                                                                                   TEKDOS Error Codes
+                                                                                   01-Directory read error. The Flexible Disc controller cannot read the disc.
+                                                                                   The disc may not be formatted (see the FORMAT command). The disc may
+•     Header Character: always a colon.
+                                                                                   have a damaged sector. A file may have an invalid header. The disc drive door
+                                                                                   may be open. The disc may be inserted incorrectly. The specified drive number
+ •    Record Length: two digits that represent the number of data bytes. Record
+                                                                                   may not be connected.
+      length of 0 indicates the last file record.
+                                                                                   02-Directory write error. The Flexible Disc controller cannot transfer data to
+ •    Starting Address: four digits that represent the program memory address of
+                                                                                   the disc. Make sure the write-enable tab covers the write-protect notch on the
+      the first data byte in the record.
+                                                                                   disc. The disc drive door may be open. The disc may be inserted incorrectly.
+                                                                                   The disc may have a damaged directory sector. The disc may not be formatted.
+ • Type of Record: 00 = normal record. 01 = last file record.
+
+                                                                                   03-Commandfile not found. TEKDOS does not recognize the command. The
+ • Data: N data bytes, each represented by two digits.
+                                                                                   command entered does not exist and does not represent the name of a
+                                                                                   command file. If it is a debug command, make sure you have invoked the debug
+ • Checksum: two digits that represent the two's complement of the sum,
+                                                                                   system (via the DEBUG command). If it is a command file, make sure you have
+   modulo 256, of the preceding bytes.
+                                                                                   spelled the name correctly. If the command file does not reside on the system
+                                                                                   disc, make sure you have specified the disc drive number.
+
+                                                                                   04-Command file input error. The file name used for command file invocation
+                                                                                   does not represent an ASCII file. Make sure your command file is not a load or
+                                                                                   fetch file.
+
+                                                                                   OS-Procedure busy. A command file is executing. Two command files cannot
+                                                                                   run at the same time.
+
+                                                                                   06-Device read error. The SVC has read fewer bytes than requested by the
+                                                                                   SRB on a binary read. No return character is in the buffer on the ASCII read. For
+                                                                                   ASCII reads, make sure the file you are reading ends with a carriage return.
+
+                                                                                   07-Device write error or end-of-device. The file written does not end with a
+                                                                                   carriage return character. The disc cannot hold any more data. Check your
+                                                                                   directory listing. The disc cannot contain more than 78 files or more than 304
+                                                                                   data blocks. (Some disc sectors are reserved for TEKDOS.)
+
+                                                                                   08-Drive not specified. You did not specify a disc drive number with the first
+                                                                                   parameter of the RENAME command.
+
+                                                                                   09-lnvalid drive. The drive number or file name specified with a command is
+                                                                                   invalid. File names may not exceed eight characters. File names must begin
+                                                                                   with a letter. The rest of the characters may be alphanumeric, or consist of the
+                                                                                   following special characters:
+
+                                                                                                             ?"#&%();=!*@
+
+
+
+
+7-4                     @                    8002A System Reference Booklet
+                                                                                   8002A System Reference Booklet                         @                      8-1
+                                                                Error Explanations     Error Explanations
+
+
+10-0verlay load failure. The file you tried to load is not a fetch file. One of your   21-Channel assign failure. A device assigned to a channel cannot be assigned
+modules, or a system module, may have been deleted, altered, or destroyed.             to another channel (except CONO, CONI, and file names). Close the channel
+Use the MODULE command to recreate the fetch file if this error occurs when            (with the CLOSE command) and reassign it (with the ASSIGN command).
+trying to fetch one of your modules. If this error occurs after you enter a            Display channel assignments with the STATUS command.
+TEKDOS command, either create a new system disc, or find the damaged
+overlay and use the GET and REPLACE commands to reconstruct it.                        22-Command line buffer overflow. The command line entered is longer than
+                                                                                       one system console display line. The resulting line, after all command file
+11-0verlay area in use. An attempt has been made to concurrently execute               parameter substitution, is too long.
+two commands that reside in the same system memory or program memory
+area. Use the ABORT command to free the memory areas.                                  23-lnvalid command. This error occurs when you try to change emulation
+                                                                                       modes while programs are running or suspended.
+12-lnvalid file name. The specified file name does not begin with a letter or has
+too many characters. File names may not exceed eight characters. File names            24-Job not active. An attempt has been made to abort a non-active program.
+must begin with a letter. The rest of the characters may be alphanumeric, or           Check the status of programs with the STATUS command.
+consist of the following special characters:
+
+                            ?"#&%();=!*@
+                                                                                       25-Job not suspended. An attempt has been made to continue a program that
+                                                                                       is executing. Check the status of programs with the STATUS command.
+13-lnput file not found. The specified file name does not exist. If the file does
+not reside on the system disc, you must enter the disc drive parameter.                26-Job already suspended. An attempt has been made to suspend a program
+                                                                                       that has already been suspended. Display the status of all programs with the
+14-lnvalid input device. An attempt has been made to assign an output device           STATUS command.
+for input.
+                                                                                       27-Job executing. The program is already executing.
+15-lnvalid output device. An attempt has been made to assign an input device
+for output.                                                                            28-Job under debug control. The program is al ready under debug control.
+
+16-lnput device assign failure. The specified input device is not operational.         29-PROM power failure. PROM commands will not execute because the
+Check connections, plugs, and ON-OFF switches.                                         PROM POWER switch is turned off.
+
+
+17-0utput device assign failure. The specified output device is not                    30-lnvalid parameter. The system does not recognize one of the parameters
+operational. Error code 63 may also occur under this condition. Check                  entered in a command line. Check the required format and parameters in the
+connections, plugs, and ON-OFF switches.                                               Command Dictionary. The 9900 Emulator Processor requires two-byte data
+                                                                                       entry. Check for odd-numbered field length.
+18-Device in use. The device specified in an ASSIGN command has already
+been assigned to a channel. CONO, CONI, and file names may each be                     31-Parameter required. A command Ii ne that requires another parameter has
+assigned to more than one channel. All other devices are limited to one channel        been entered. Check the required parameters in the Command Dictionary.
+assignment at a time. This error may also occur if you have made eight channel
+assignments and two or three commands are executing, and if a command file             32-Too many parameters. The system cannot use one or more of the specified
+has been activated. Close some of the channels (with the CLOSE command)                parameters. Check the required format in the Command Dictionary.
+a.nd use the ABORT command to free the system overlay areas.
+                                                                                       33-Bias parameter error. The offset specified with the LOAD, RHEX, or
+19-lnvalid channel number. The channel number specified in the ASSIGN or               RVHEX command line is illegal. The offset must be a hexadecimal number in
+CLOSE command line, or specified in the SRB, is not in the range 0-7 inclusive.        the range 0-FFFF inclusive, preceded by a slash.
+
+20-Channel in use. The specified channel has already been assigned. A                  34-lnvalid address. An illegal address parameter has been entered. Only
+channel may have only one device at a time assigned to it. Close the channel           hexadecimal numbers are legal. Make sure the address is less than or equal to
+(with the CLOSE command) and reassign it (with the ASSIGN command).                    FFFF.
+Display channel assignments with the STATUS command.
+                                                                                       35-lnvalid start address. An illegal address parameter has been entered. Only
+                                                                                       hexadecimal numbers are legal. Make sure the address is less than or equal to
+                                                                                       FFFF.
+
+
+8-2                     @                      8002A System Reference Booklet                                                              @
+                                                                                       8002A System Reference Booklet                                           8-3
+                                                            Error Explanations    Error Explanations
+
+
+36-lnvalid end address. The end address parameter is illegal. Make sure the       49-Fetch file assign failure. An attempt has been made to fetch a file with an
+address is a hexadecimal number in the range of 0-FFFF and greater than or        illegal name.
+equal to the start address parameter.
+                                                                                  50-File not a fetch module. A file name parameter that has been entered with
+37-lnvalid GO address. An illegal address parameter has been entered with         the FETCH or XEQ command line does not represent a file created with the
+the GO command. Only hexadecimal numbers are legal. Make sure the                 MODULE command.
+address is less than or equal to FFFF.
+                                                                                  51-lnvalid fetch request. An attempt has been made to fetch a file while
+39-lnvalid hex character. The ESC key has been pressed while using the            another program is executing. Use the ABORT command to end the execution
+EXAM command to modify memory, and the last memory byte was not altered.          of all programs and free all system memory areas.
+Re-enter the command. The system cannot convert characters received from a
+TTYR device. Check your TTYR. Check the parity requirements for TEKDOS.           54-lnvalid mode. The system does not recognize the emulation mode
+Refer to the 8001/8002A Installation Guide.                                       parameter. Valid parameters are 0, 1, and 2. An attempt may have been made to
+                                                                                  use the EDIT, ASM, or LINK command while in emulation mode 1 or 2.
+40-lnvalid RHEX input format. The RHEX checksums do not match,
+indicating that the code block is incorrect. Check the code.                      55-lnvalid memory. The specified memory is non-existent or unavailable.
+                                                                                  This condition may also generate error code 30 or 59. Check the Program
+41-lnvalid breakpoint access mode. An attempt has been made to set a third        Memory module jumpers.
+breakpoint. Only two breakpoints may be active at one time. This condition
+may produce the message, TOO MANY BKPTS.                                          57-File name in use. The file name entered with the RENAME command line
+                                                                                  already exists. Check your directory listing.
+42-lnvalid register parameter. An attempt has been made to alter the contents
+of a register that does not exist. This condition may also generate error code    58-Device assign failure. The system cannot read from or write to a device.
+30.                                                                               Check connections, cables, and ON-OFF switches, fuses, and correct
+                                                                                  implementation of the RS-232-C control lines between the device and the
+43-lnvalid data parameter. An attempt has been made to set a register to an       8002A. Refer to the 8001/8002A Installation Guide.
+illegal value. Only hexadecimal numbers are legal.
+                                                                                  59-Memory write error. The specified memory is non-existent or unavailable.
+44-lnvalid TRACE mode parameter. An attempt has been made to set a fourth         Error code 55 may also occur under this condition. Check all cables and
+TRACE command. Only three TRACE commands may be active at one time.               prototype connections. Check the address range of prototype RAM. Check the
+Check the Command Dictionary for correct parameters.                              Program Memory module jumpers.
+
+45-lnvalid Emulator Processor SRB address. The SRB address is greater than        60-End of media. No more data can be read from or written to a device.
+16K.
+                                                                                  61-File in use. The file name entered in the DELETE command line is in use.
+46-Emulator halted. An Emulator Processor HALT instruction occurred while         Check the status of all programs with the STATUS command.
+a program was executing outside of the debug system. Error code 68 may also
+occur under this condition. Make sure the appropriate Emulator Processor          61-Device not operational. The system has tried to read from or write to a
+module is plugged in. Make sure the Assembler Processor module is plugged         device that is not turned ON. The PROM Programmer module may not be in the
+in.                                                                               8002A mainframe.
+
+47-System area bad. The disc space reserved for TEKDOS has been                   63-Directory full. The disc contains 78 files, and an attempt was made to
+damaged. Save your files on another disc and re-format and verify the disc in     create another file. A disc may contain a maximum of 78 files. Error code 17
+question. If the problem persists, use another disc.                              may also occur under this condition.
+
+48-Fetch file not found. The system cannot find the fetch file required to        64-lnvalid disc. The disc read from or written to may not be TEKDOS-
+execute the command Ii ne entered. One of the SOF members may be deleted,         compatible. If the disc is TEKDOS-compatible, make sure it has been
+incorrectly or inadvertently altered, or missing. You may need to create a new    formatted and verified.
+system disc. If this error occurs when trying to fetch one of your modules, re-
+create the file with the MODULE command.
+
+
+
+
+8-4                   @                     8002A System Reference Booklet        8002A System Reference Booklet                         @                    8-5
+                                                           Error Explanations   Error Explanations
+
+
+65-System memory parity error. Hardware failure. Toggle the SYSTEM              07-No return character on ASCII write.
+RESTART switch and repeat the last command line. If theerror occurs again, a
+damaged or malfunctioning System Memory module may be causing the               08-lllegal disc drive number.
+problem.
+                                                                                09-File in use.
+66-Program memory parity error. Hardware failure. Toggle the SYSTEM
+RESTART switch and repeat the last command line. If the error occurs again, a   OA-Device not operational.
+damaged or malfunctioning Program Memory module may be causing the
+problem.                                                                        OB-Device not available.
+
+67-Emulator clock missing. The Emulator Processor is malfunctioning             OC-Device not ready.
+because one or more clock phases are missing. Check the prototype hardware.
+Make sure the prototype power switch is ON, and that the prototype clock is     OD-Device in use.
+functioning correctly.
+                                                                                OE-Directory read error.
+68-Emulator faulted. The Emulator Processor is malfunctioning. Error code
+46 may also occur under this condition. Check the hardware, fuses, and clean    OF-Directory write error.
+the board contacts. Make sure that the prototype power switch is ON, and that
+the prototype clock is functioning correctly.                                   10-Directory full.
+
+69-Address not on word boundary. An attempt has been made to modify             11-Device read error.
+program memory data that does not begin on a word boundary, or to modify an
+odd number of bytes.                                                            12-Device write error.
+
+70-Word or byte boundary error. An uneven number of characters has been         15-File name in use.
+entered in an attempt to modify memory. You cannot modify a half-byte.
+                                                                                16-lllegal file name.
+80-REMl/REMO port does not have a carrier signal. See the Technical Notes
+section regarding lntersystem Communication.                                    17-File in read/write progress.
+
+82-REMI port parity error. See the Technical Notes section regarding            18-Channel already assigned.
+lntersystem Communication.
+                                                                                19-lncorrect flexible disc.
+83-REMI port framing error. See the Technical Notes section regarding
+lntersystem Communication.
+                                                                                EDITOR MESSAGES
+SRB STATUS CODES
+                                                                                **ABORTED**
+00-Function complete. No error.
+                                                                                The command line exceeded 127 characters. The whole line is lost.
+01-Channel assigned to a new file.
+                                                                                **Al**
+02-lllegal channel number.                                                      The Editor response referred to an alternate input file.
+
+03-Channel not assigned.                                                        **AO**
+                                                                                The Editor response referred to an alternate output file.
+04-Channel busy.
+                                                                                **ASSIGN PROBLEM**
+OS-Illegal function code.                                                       The Editor was unable to assign a channel to a given device.
+
+06-No return character on ASCII read.
+
+
+8-6                   @                    8002A System Reference Booklet       8002A System Reference Booklet                       @              8-7
+                                                           Error Explanations   Error Explanations
+
+
+*BREAK*                                                                         **(OUTPUT)**
+The ESC key was pressed to terminate execution of a file 1/0 function.          The Editor response referred to an output attempt.
+
+**COMMAND**                                                                     **Pl**
+An unknown command was encountered in the command line.                         The Editor response referred to the primary input file.
+
+**DISC FULL**                                                                   **Pl NEW FILE?**
+The output disc is full and cannot accept any more text.                        The primary input file specified upon invoking the Editor does not exist on the
+                                                                                disc. Control is returned to TEKDOS.
+**EOF**
+                                                                                **PO**
+The end of a file or of the text in the workspace has been reached.
+                                                                                The Editor response referred to the primary output file.
+**(INPUT}**
+The Editor response referred to an input attempt.                               **PROCEDURE ERROR**
+                                                                                Editor usage is in error.
+**(LPT1}**
+The Editor response referred to the line printer.                               **RANGE**
+                                                                                The range of lines specified is not in the workspace or an invalid range
+*MODE*                                                                          parameter was given.
+An attempt was made to execute a macro from another macro. This is not
+allowed.                                                                        *READ FILE*
+                                                                                An attempt was made to read from a non-existent or invalid input device.
+*NEST*
+The nested repetition brackets < and > do not match.                            **TEKDOS STAT=XX**
+                                                                                XX is the TEKDOS SRB status byte returned to the Editor when an unusual
+**NEW FILE**                                                                    request or event has occurred. The meaning of the status byte can be found
+A new file was created on the disc.                                             under SRB Status Codes.
+
+**NO FILES SPECIFIED**                                                          **TRUNCATED**
+The Editor was invoked without primary input and primary output files           An INPUT or SUBSTITUTE command line has exceeded 127 characters. An
+specified. You must specify alternate input and output files when using the     INPUT line is truncated and the characters over 127 are placed on a new line.
+GET, PUT, and PUTK commands.                                                    The SUBSTITUTE line is truncated and the characters over 127 are lost.
+
+**NO Pl**                                                                       **WSP FULL**
+The Editor was invoked without specifying a primary input file. You must        The workspace is full. You may delete edit macros to get a little more space.
+specify an alternate input file when using the GET command.
+
+**NO PO**
+The Editor was invoked without specifying a primary output file. You must
+specify an alternate output file when using the PUT and PUTK commands.
+
+**NOT FOUND**
+The specified string could not be found.
+
+**NUMBER**
+An invalid number of lines was specified.
+
+
+
+
+8-8                   @                     8002A System Reference Booklet      8002A System Reference Booklet                        @                     8-9
+

@@ -1,0 +1,7 @@
+CPU cores and disassemblers, copied unchanged from the sibling Tektronix 8550 emulator
+(tektronix-8550-emulator, commit 86caf61, emu/src/cpu/ and emu/src/emu.h):
+  s2650/       MAME src/devices/cpu/s2650 (BSD-3-Clause), standalone port; changes marked [tek8550]
+  z80/z80dasm  MAME src/devices/cpu/z80/z80dasm (BSD-3-Clause)
+  z80/superzazu/  superzazu/z80 (MIT), see superzazu/SOURCE.txt
+MAME commit: reference/MAME-SOURCE.txt.
+Changes made in this project are marked [tek8002] and listed here. None so far.

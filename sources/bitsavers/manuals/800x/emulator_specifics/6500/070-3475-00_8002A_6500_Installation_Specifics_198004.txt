@@ -1,0 +1,237 @@
+                                     lektron~     COMMITTED TO EXCELLENCE
+
+
+
+
+                            WARNING
+              THE FOLLOWING SERVICING INSTRUCTIONS
+              ARE FOR USE BY QUALi Fi ED PERSONNEL ONLY.
+              TO AVOID PERSONAL INJURY, DO NOT
+              PERFORM ANY SERVICING OTHER THAN THAT
+              CONTAINED IN OPERATING INSTRUCTIONS
+              UNLESS YOU ARE QUALIFIED TO DO SO.
+
+
+
+
+                                             Supplement to
+
+                                    8001 /8002/8002A
+                                    µProcessor Lab Installation Guide
+                                              070-2717-01
+
+                                            6500/1
+                                INSTALLATION SPECIFICS
+                                            8001 Option 14
+                                           8002A Option 24
+
+
+
+Tektronix, Inc.
+P.O. Box 500
+Beaverton, Oregon   97077                     Serial Number _ _ _ _ __
+
+
+070-3475-00                                                       First Printing APR 1980
+Tbere"iS no implied warranty of fitness for a particular purpose. Tektronix is not liable for
+consequential damages.
+
+     Copyright@ 1980 by Tektronix, Inc. All rights reserved. Contents of this publication
+     may not be reproduced in any form without the permission of Tektronix, .Inc.
+
+     Productsof Tektronix, Inc;. and it.ssubsid. iaries a~e covered by U.S:and foreign
+     patents and/or pending patents'.
+
+
+     TEK~bNIX'.. TEK, sC<?PE-MOBtLE.TELEOUlf?MEl'Ji._~fld.
+     trademarks of Tektromx, Inc..
+         <·   :, •   '.   •   •   •   :   ,   •   •   ·'   (   •   •   <   <
+                                                                               , .·
+                                                                                '.   ,
+                                                                                         . · · ·
+                                                                                         •,   ;   ~   <   ,
+                                                                                                              ·... , · ·
+                                                                                                                     <:   '
+                                                                                                                              if
+                                                                                                                              .· ·   •'
+                                                                                                                                          are
+                                               6500/1 Specifics-8001 /8002/8002A: Installation Guide
+
+
+
+
+                                          PREFACE
+
+
+
+    1hese pages describe insrn11auon information specific to the 6500/1 Emulator Processor.
+    This information is designed to supplement the 8001 /8002/8002A µProcessor Lab
+    Installation Guide, Tektronix part number 070-2717-01. Place these pages in the Emulator
+    Specifics portion of Section 10, near the back of your Installation Guide. You may want to list
+    this supplement in your Table of Contents.
+
+    In this supplement, all references to the 8002A µProcessor Lab apply equally to the 8002
+    µProcessor Lab.
+
+
+
+
+                                                NOTE
+            References in this supplement to section or figure numbers in the
+            8001 /8002/8002A Installation Guide apply only to the current version of the
+            guide (070-2717-01 ). Some section or figure references do not correspond to
+            earlier versions of the Installation Guide. For ordering information, contact
+            your Tektronix representative.
+
+
+
+
+@                                                                                                     1 OJ-i
+                                             6500/1 Specifics-8001 /8002/8002A: Installation Guide
+
+
+
+
+                        Section 1 OJ
+               6500/1 EMULATOR PROCESSOR
+              AND PROTOTYPE CONTROL PROBE
+                  INSTALLATION SPECIFICS
+
+
+    GENERAL INFORMATION
+    To install the 6500/1 Emulator Processor in your 8001 /8002A, follow the procedures in
+    Section 10 for emulator processors that do not use a mobile microprocessor. However, note
+    one very important exception: with the 6500/1, the microprocessor is always mounted inside
+    the prototype control probe assembly. Thus, the probe must be attached to the emulator
+    processor module at all times. The probe cables attach to the top edge of the emulator
+    processor module.
+
+
+
+    JUMPERS AND SWITCHES
+
+    Emulator Processor
+    There are no user-selectable switches or jumpers that would require you to remove the
+    6500/1 Emulator Processor module from the 8001 /8002A µProcessor Lab.
+
+
+
+    Prototype Control Probe
+    The 6500/1 microcomputer can operate at frequencies up to 4 MHz. However, the 6500/1 E
+    microcomputer, which is used to emulate the 6500/1, will not operate at frequencies that
+    exceed 2 MHz. If your prototype is designed to be operated at speeds greater than 2 MHz, you
+    must set the Clock Selection switch inside the Prototype Control Probe assembly.
+
+
+
+
+    Clock Selection Switch Procedure
+
+       1. Make sure that power to the µProcessor Lab is OFF.
+       2. Set the probe assembly so that the rubber feet face upward. Remove the four screws
+          outside the rubber feet on the bottom of the probe assembly.
+       3. Set the probe assembly back on its feet. Lift the cover upward and set it aside.
+       4. You're looking at Driver-Receiver board "A", inside the assembly. Remove the three
+          screws along each side of board "A", and swing the board to the left, as shown in Fig.
+          10J-1.
+
+
+
+
+@                                                                                                  1 OJ-1
+6500/1 Specifics-8001 /8002/8002A: Installation Guide
+
+
+
+
+          5. Now, the probe assembly is open. The two driver-receiver boards are joined by short
+             ribbon cables. The board on the right (as shown in Fig. 1OJ-1) is Driver-Receiver board
+             "B".
+          6. Refer to Fig. 1OJ-2. The Clock Selection switch (S2022) is located in the lower center of
+             the board, between the microcomputer and the braided-pair cables.
+          7. Switch 1 controls the clock speed.
+                •When the prototype clock speed exceeds 2 MHz, place switch 1 in the OFF
+                 position.
+                • When the prototype clock speed is 2 MHz or less, place switch 1 in the ON
+                  position.
+
+             (Switch 2 is not used.)
+          8. Now set board "A" back into place, and reinstall the six screws that you removed in
+             step 4. Reinstall the four screws that you removed in step 2.
+          9. This concludes the procedure.
+
+
+
+
+                                                                                                3475-1
+
+
+                          Fig. 1 OJ-1. 6500/1 Prototype Control Probe Interface assembly.
+
+
+
+
+1 OJ-2
+                                                                6500/1 Specifics-8001 /8002/8002A: Installation Guide
+
+
+
+
+                                                           To Braided-Pair Cables
+
+
+
+
+                                                                     @                             @
+
+
+                         :::::::::::::
+                         ·11..• ..· : .•
+                                   :·@·····o:
+                                      :::.•
+                                          ·:·.·.::·.·
+                                                                                                         Braided-Pair
+                                                                                                         Cables
+
+
+
+
+                         lJ
+                                                                                                         (To Probe Plug)
+
+
+
+
+                                                                                           a
+                                                                                       S2022
+                                                                                       Clock Selection
+
+
+
+
+                                                                                                   @
+
+
+
+
+                                                        To Driver-Receiver Board "A"                               3475-2
+
+
+
+                   Fig. 1 OJ-2. 6500/1 Prototype Control Probe, Driver-Receiver board "B".
+
+
+
+
+    FOR MORE INFORMATION
+    For 6500/1 user information, refer to the Emulator Specifics section in your System User's
+    Manual.
+
+    Service information may be found in the optional 8001 /8002A µProcessor Lab 6500/1
+    Emulator Processor Service Manual.
+
+
+
+
+@                                                                                                                           10J-3
+

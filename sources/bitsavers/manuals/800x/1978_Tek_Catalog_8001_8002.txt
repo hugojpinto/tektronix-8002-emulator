@@ -1,0 +1,1160 @@
+             Microprocessor Lab
+8002         A Complete Software Development System
+
+
+
+Multiple Microprocessor Support
+
+Real-Time Trace Option
+
+
+
+The 8002 Microprocessor Lab is a complete
+software development system for the design
+of microprocessor-based products. A key
+feature is its ability to support many micro-
+processor chips, including the Intel 8085A
+and 8080A, Motorola 6800, Texas Instru-
+ments TMS9900, and Zilog Z80A. In ad-
+dition to multiple microprocessor support,
+the 8002 offers a superior operating system
+and powerful text editor, assembler, and de-
+bugging programs; three optional levels of
+emulation for software debugging, partial
+and full emulation; and a real-time proto-
+type analyzer option offering all the capabil-
+ities of a microprocessor analyzer with eight      The 8002 Microprocessor Lab consists of the 8002 mainframe; the dual flexible disc unit;
+channels of external input.                        an optional system terminal (TEKTRONIX CT8100 or CT8101 recommended); and two sets of
+Software Development and Debugging                 assembler software for two different microprocessors, chosen from the microprocessors
+                                                   supported at time of purchase. An emulator processor module for each microprocessor the
+In a typical design sequence, software is
+                                                   system supports, and its associated prototype control probe, are offered as options.
+developed using all the resources of TEK-
+DOS, the disc-operating system software for
+the 8002 Microprocessor Lab. TEKDOS per-           Partial and Full Emulation                       A system communications module provides
+forms flexible disc and file utility functions,    After the software has been debugged, it         three RS-232-C-compatible ports for inter-
+data transfer functions, and system/ peri-         may be exercised on the prototype circuitry      face with system peripherals. Two ports are
+pheral device control functions. In addition       in the partial emulation mode (mode 1). Dur-     designated for such peripherals as the op-
+to relieving the user of these housekeeping        ing partial emulation, control may be re-        tional TEKTRONIX CT8100 Crt Terminal,
+chores, TEKDOS also supervises the text            leased from the 8002 to the prototype in         CT8101 Console Terminal, and LP8200 Line
+editor, assembler, and linker programs and         stages. The developmental software runs          Printer. The remaining port is designated
+the optional emulation support, debugging          using 8002 memory space and prototype            as a communications port for use with a
+system, and PROM programming routines.             1/ 0 and clock. The 8002 memory mapping          modem. Baud rate is selectable for each
+                                                   feature allows memory to be gradually map-       port as 110, 300, 600, 1200, or 2400.
+Program entry and editing may be accom-            ped over to the prototype in 128-byte ad-
+plished module by module. The line-orient-         dress blocks. Throughout partial emulation ,                  8002 PHYSICAL CHARACTERISTICS
+ed text editor provides 150 60-character           the user has access to prototype circuitry       Dimensions                   cm                  in
+lines of buffer workspace, and offers sev-         through the debugging system, which en-            He i ght                   24.7                9 .6
+eral convenience features for preparing,
+                                                   ables him, as before, to trace, set break-         Wi dth                     48.3               18.8
+correcting , and modifying the program                                                                Length                     57.3               22.3
+                                                   points, examine and change memory and
+quickly and easily. The macro assember al-
+                                                   register contents.                               Weight                        kg                 lb
+lows a multiple-step routine to be defined
+                                                                                                      Net                         30                 66
+by one new command . At the end of each            In fu ll emulation (mode 2) the program is
+work session, file space is allocated by TEK-      run on the prototype, but program execution           8002 ENVIRONMENTAL CHARACTERISTICS
+DOS; duplicate files of important material         is still under the complete control of the       Temperature
+may be readily created. When program entry         debugging system. All 1/ 0 and timing func-        Operati ng           o c t o + 35° C ( +32° F to 95° F).
+                                                                                                                            0
+
+has been completed, all program files may          tions are directed by the prototype; all mem-      Sto rage             Not available.
+be merged with a single TEKDOS command.            ory has been mapped over to the prototype;       Humidity               To 90° relative noncondensing .
+                                                   and only the prototype control probe is sti II   Altitude
+The assembler processor, with the appro-           in place, emulating the target microproces-        Operating            To 15,000 ft max.
+priate disc inserted in the flexible disc drive,   sor. Although the prototype is effectively         Sto rage             To 50,000 ft max.
+performs program assembly functions for            free-standing, then, the user may still direct
+each microprocessor supported by the 8002.         program activity from the 8002.                           8002 ELECTRICAL CHARACTERISTICS
+
+After an error-free assembly listing has been                                                       Ac Input Voltages           115 V ac ±10% or
+                                                             8002 CHARACTERISTICS                                               230 V ac ± 10%.
+obtained, the resulting object code may be
+                                                   The 8002 Microprocessor Lab is a modular         Frequency Range             60 Hz (50 Hz special o rd er).
+executed in system emu lation (mode 0) on
+                                                   system whose mainframe houses up to 20
+the optional emu lator processor. The emu la-
+                                                   plug-in circuit boards. Two Assembler Soft-         8002 DUAL FLEXIBLE DISC CHARACTERISTICS
+tor processor is identical to the micro-
+                                                   ware Support packages for the microproc-         Flexible Disc Unit - The Flexi ble Disc Unit consists
+processor that will finally be installed in
+                                                   essors of choice are selected at the time        of two disc d ri ves, a controller, and power suppl ies .
+the user's prototype. Execution is performed
+                                                   of purchase; their associated Emulator Sup-      The two disc drives are designated as dr ive O and
+under control of the debugging system ; dur-                                                        d r ive 1. Drive 0 is th e default sys tem d ri ve . System
+                                                   port packages may be ordered as options.
+ing execution, program steps can be traced,                                                         prog rams are p laced in thi s drive, includi ng d isc-
+                                                   A terminal is necessary for system opera-        operating system programs , th e text edi tor, and th e
+software breakpoints can be set, and mem-
+                                                   tion , and may be ordered as an optional         debugging rout ines peculi ar to a specific emulato r
+ory can be examined and changed as re-                                                              processor. Drive 1 may be used f or storing user files,
+                                                   peripheral.
+quired. Should an error be discovered, that                                                         for mod ifyi ng user files, o r as a scrat ch data area.
+portion of the program can be corrected at         The Real-Time Prototype Analyzer module,         Drive 0 or drive 1 may be designated as the system
+                                                                                                    dr ive.
+the source level using the text editor. It         additional 16K byte Program Memory mod-
+can then be reassembled and executed               ules, and PROM Programmer modules for            Disc Organization - Each d isc contains 77 concen -
+                                                                                                    tric tracks. Each qu arter track, o r block, is spl it into
+again . This procedure continues until the         the 1702 or 2704/ 2708 are available as sys-     eight sectors, and each secto r can contain 128 byt es.
+program is correct.                                tem options.                                     Due t o directory limitations, a max imum of 72 fil es
+
+
+30
+                                                                                                                           Microprocessor Lab
+                                                                                                A Complete In-Prototype Test and Emulation System
+                                                                                                                                                                  8001
+
+can be contai ned o n one d isc . The d isc-operating
+system reserves track O fo r the d isc di rectory ; tracks
+o ne through four a re norm al ly auto matically rese rved
+for syste m programs .
+Write Protection - Each disc has a write-protect sl ot .
+I f the sl ot is co vered, th e disc is wri te-enabled ; if the
+slot is not covered , th e disc is write-protected. If an
+attempt is made to write to a write-protected d isc , an
+e rror message w ill be displayed on th e approp ri ate
+pe ripheral.
+
+         ENVIRONMENTAL CHARACTERISTICS
+Temperature
+  Operating           + 1o0 c to 35° C
+                        (+ 5o° F to 95° F).
+  Sto rage            Not avai lable .
+Humidity
+ Operating            To 90% re lative noncondensing.
+ Storage              Not ava il able.
+Altitude
+  Operatin g          T o 15,000 feet max.
+  Storage             T o 50,000 fee t max.
+
+              PHYSICAL CHARACTERISTICS
+Size                    cm                       in               The 8001 Microprocessor Lab consists of the 8001 mainframe; an optional system terminal
+  Height                27                     10.5               (TEKTRONIX CT8100 or CT8101 recommended); and a Microprocessor Support Package for
+  Width                 44                     17.5               the microprocessor selec ted. A support package includes an emulator ROM, an emulator
+  Length                60                     23.6               processor, and a prototype control probe.
+Weight                  kg                       lb
+  Net                  38.6                      85               Multiple Microprocessor Support                  maintai ning complete con t rol through the
+                                                                                                                   Mi croprocessor Lab. All 1/ 0 and timing func-
+             ELECTRICAL CHARACTERISTICS                           Real-Time Trace Option
+                                                                                                                   tions are directed by the prototype ; all mem-
+Line Voltages               Voltage                   Current
+                                                                  The 8001 Mic roprocessor Lab is a total          ory has been mapped over to the prototype ;
+                      115 V ac ± 10%                   3.5 A
+                                                                  hardware debugging environment for the           and on ly th e prototype cont rol probe is still
+                      230 V ac ±10%                    2.0 A                                                       in pl ace, emulating the target micro proces-
+                                                                  design of microprocessor-based products.
+Line Frequency        60 Hz (50 Hz special                        A key feature is its ability to support many     sor. Although the prototype is effectively
+                      orde r).                                                                                     free-standing, then , the user may stil l direct
+                                                                  microprocessor chips, including the Intel
+                                                                  8085A and 8080A, Motorola 6800, Texas In-        program activtity through the prototype con-
+             DISC UNIT CHARACTERISTICS                                                                             tro l probe.
+                                                                  struments TMS9900 and Zilog Z80A. In ad-
+Capacity                                Bits    Bytes
+            77 x 32 x 128 x 8 bits = 2,523,136 315,392
+                                                                  dition to multipl e microprocessor support,                      8001 CHARACTERISTICS
+Per Disc
+                 32 x 128 x 8 b its =   32,768   4,096
+                                                                  the 8001 offers three emulation modes for        The 8001 Microprocessor Lab is a modular system
+Per Tra ck
+                      128x8   b its =    1,204     128
+                                                                  software debugging, parti al and fu ll emu la-   whose mainframe houses up to 20 p lug- in ci rcui t
+Per Sector                                                                                                         boards . A n emulator processor modu l e f or the micro-
+                                                                  tion, as well as a real-ti me prototype analy-   processor of choice, its associated prototype cont rol
+Access Time            10 ms/ t rack
+                                                                  zer option offering all the capabi lities of a   probe, and a ROM-based software modu l e are pro-
+                                                                  mic roprocessor analyzer with eight c han-       vided with the system. Add itiona l Emu lator Processo r
+       ORDERING INFORMATION *                                     nels of extern al input.                         packages are available as opt ions fo r each mic ro-
+                                                                                                                   processor t he system supports. A term inal is neces-
+8002 Microprocessor Lab .. . .. . .... $9950                                 Three Emulation Modes                 sary fo r system ope ration , and may be ordered as an
+                                                                                                                   optional peripheral.
+                                                                  In a typical design sequence, software is        Th e Real-Time Prototype A nalyzer modul e, add itional
+                                                                  first developed independently using time-        16K byte Prog ram Memory mod ules, and PROM Pro-
+                                                                  sharing, a minicomputer, another develop-        grammer modules for the 1702 o r 2704/ 2708 are avail-
+                                                                  ment system, or som e other means. It is         able as system opt ions.
+                                                                  then downloaded to the 8001 . At thi s point     A system commun icat ions modul e p rovides th ree
+                                                                  the in-prototype emulation and software/         RS-232-C-compat ible ports f o r inte rface w ith system
+                                                                                                                   pe ripherals. Two ports are designated fo r such peri-
+                                                                  hardware integration capabilities of the 8001    pherals as th e optional TEKTRONI X CT8100 Crt Te r-
+                                                                  come into pl ay.                                 minal , CT8101 Console Term inal, and LP8200 Li ne
+                                                                                                                   Pr inter. The remai ning port is designated as a com-
+                                                                  In emulation mode 0, the software runs only      municat ions port f o r use with a modem. Baud rate is
+                                                                  on the emulator processor. This enables the      selectable fo r each port as 110, 300, 600, 1200, or
+                                                                                                                   2400.
+                                                                  program to be debugged on a microproces-
+                                                                  sor identical to the one that will ultimately             8001 PHYSICAL CHARACTERISTICS
+                                                                  be used in the completed product. In emu-        Dimensions              cm            in
+                                                                  lation modes 1 and 2, the prototype control        Height               24.7           9.6
+                                                                  probe is connected to the emulator proces-         W idth               48.3          18.8
+                                                                  sor at one end and plugged into the proto-         Length               57.3          22.3
+                                                                  type's empty microprocessor socket at the        Weight                  kg            lb
+                                                                  other.                                             Net                   30            66
+                                                                  Partial emulation (mode 1) lets the user               8001 ENVIRONMENTAL CHARACTERISTICS
+                                                                  release control in methodical steps from the     Temperature
+                                                                  800 1 to the prototype. The developmental          Operati ng
+                                                                  software runs using 8001 memory space              Storage          Not avai la ble.
+                                                                  and prototype 1/ 0 and clock. The 8001 mem-      Humidity           To 90° relative noncondensi ng.
+                                                                  ory mapping feature allows memory to be          Altitude
+                                                                  gradually mapped over to t he prototype in         Operating        To 15,000 feet max.
+                                                                  address blocks. Throughout partial emula-          Storage          To 50,000 feet max.
+                                                                  tion , the user has access to prototype cir-
+                                                                  cuitry via the powerful 8001 debugging sys-             8001 ELECTRICAL CHARACTERISTICS
+                                                                                                                   Ac Input Voltages    115 V ac ± 10% or
+                                                                  tem , which enables him to trace, set break-                          230 V ac ± 10%.
+                                                                  points, examine and change memory and            Frequency Range      60 Hz (50 Hz special order).
+*The 8002 and 8001 may not be avai lable in                       register contents.
+ some areas of the world. Consult your Dis-                       Full emulation (mode 2) lets the user exer-             ORDERING INFORMATION*
+ tributor or Representative.                                      cise the program on the prototype while stil l   8001 Microprocessor Lab ... . ... . .. $7650
+
+                                                                                                                                                                       31
+Emulator Processor and Prototype Control Probe Support Packages
+
+
+The 8002 and 8001 Microprocessor Labs
+currently support five different microproces-
+sors: the Intel 8085A and 8080A, Motorola
+6800, Texas Instruments TMS9900, and Zi-
+log Z80A. Tektronix will continue to intro-
+duce support for selected microprocessors
+on a regular schedule.
+Emulator packages for the 8002 and 8001
+may be ordered as system options ; one emu-
+lator package is provided at the time of
+purchase with the 8001. These options pro-
+vide the capabilities necessary to fully emu-
+late the target microprocessor in a user's
+prototype system.
+The emulator processor, which resides on
+a plug-in circuit module along with control-
+ling logic circuitry, enables the user to exe-
+cute and debug the program on a micro-
+processor identical to the one which wi II
+be used in the prototype, while giving him
+access to the full 64K bytes of Micropro-
+cessor Lab program memory.
+The prototype control probe, which links
+the emulator processor to the prototype
+system, allows partial and full in-circuit
+emulation .                                                  From 8080 to                                                          TIMING CHARACTERISTICS
+                                                          Interface Assembly Typ                  Max (in ns)                       Emulation Interface Delays*
+All emulation operations are controlled by                HOLDA•••            39                      55                   To 6800 from
+the powerful Microprocessor Lab system                    SYNC                37                      45                Interface Assembly    Maximum TPCS ' (in ns)
+software. The user is able to monitor pro-                WAIT                37                      45                     01                   26     -
+gram execution, set software breakpoints,                 WR                    37                      45                   02                   26     -
+                                                                                                        45                   NMI                 30      200
+examine and change memory and register                    OBIN                  37
+                                                          INTE                  39                      55                   IAQ                  67     200
+contents. Debug trace information is dis-                                                                                    RESET               94      200
+                                                          ADDRESS               27                      35
+played in a format unique to the micropro-                                                                                   HALT*•               72     -
+                                                          DATA                  50                      63
+cessor, with instruction fetches disassem-                                                                                   DATA                 28     114 (input setup)
+                                                             •Assumes 6 ft of cable at 1.5 ns/ft.
+bled into mnemonics for easy interpretation .                                                                                DBE ****            -       -
+                                                           ••ROY is ignored unless user memory or I I 0 is ac-
+                                                              cessed in control mode 2 or special mode.                      Tse···           not used -
+                                                          •••The equation for HOLDA to tristate timing is as               From 6800 to
+         8080 EMULATOR SUPPORT PACKAGE
+                 CHARACTERISTICS                              follows : HOLDA• OBIN = FLOAT. Tristate of data           Interface Assembly     Maximum     TAD2   (inn~
+                                                              and address follows the trailing edges of OBIN or
+8080 and 8080A refer to mi croprocessors manufac-             WR by approximately 20 ns.                                     ADDRESS              20       300
+tured by Intel Corporation. Tektronix, Inc. , does not                                                                       DATA****             28       460
+guarantee th at other vend ors' versions of the 8080                   ORDERING INFORMATION                                  VMA                  45       300
+will be compat ibl e with the TEKTRONIX Microproces-                                                          Field          A/W                  63       300
+                                                                                 Factory  Field
+sor Labs.                                                 Option Description      Price  Number               Price          BA                   35       -
+                                                          8001 Microprocessor Lab      $7650                              •Assumes 6 ft of cable at 1.5 ns/ft.
+            PHYSICAL CHARACTERISTICS                                                                                     ••HALT must occur within 80 ns after the falling
+                                                            Option 01 8080
+Length 6 ft of cable from the emulator processor to         Microprocessor                                                  edge of 01 to be recognized at the rising edge of
+       the interface assembly.                              Support Package             NC       8001F01      $2950         the following 02.
+       1.5 ft of cabl e from th e interface assembly to                                                                 ... Delay to tristate, TSD=36 ns. Trista te is per-
+                                                          8002 Microprocessor Lab      $9950                                formed by the interface buffers, not by th e 6800 .
+       th e 40 pi n plug.
+                                                            Option 01 8080                                             .... Data from the 6800 will be available to the proto-
+Cable Configuration
+                                                            Assembler Software                                              type 460 ns after the rising edge of 01 or DBE   +
+6 ft   2 40 conductor ribbon cables with alternat i ng      Support                     NC       8002F01      $ 550         36 ns, whichever is grea ter.
+       ground and signal paths.                                                                                            'TPCS-Control signal setup time prior to 02 fall-
+                                                            Option 16 8080                                                  ing edge.
+1.5 ft 2 twi sted pair 40 conductor cables.                 Emulator Support          +$1850     8002F16      $1950       2T AD-Output propagation delay from clock after
+Termination                                                                                                                 01 rising edge.
+                                                            Option 31 8080
+6 ft   The interface assembly contains resisti ve           Prototype Control
+       termin ation and rece ivers for data, address,       Probe                     +$ 850     8002F31      $ 950
+       and control from the emulator processor                                                                                      ORDERING INFORMATION
+       mod ule.                                                                                                                                Factory  Field             Field
+1.5 ft   Not terminated.                                                                                               Option Description       Price  Number             Price
+
+40 pin plug-40 pin spring plate protected plu g. When              6800 EMULATOR SUPPORT PACKAGE                       8001 Microprocessor Lab       $7650
+        used w ith a zero insertion fo rce socket. an                        CHARACTERISTICS                             Option 02 6800 Micro-
+        included 40 pin low profile DIP socke t must      6800 refers to mic roprocessors manufactured by Mo-            processor Support
+        be used between the zero insertio n for ce        toro la Corpo ration. Tektron ix , Inc. , does not guaran-     Package                      NC     8001F02     $2950
+        socket and the 40 pi n probe plug.                tee that other vendors' versions of the 6800 will be
+                                                          compatible with th e TEKTRONI X Microprocessor               8002 Microprocessor Lab       $9950
+                                                          Labs.                                                          Option 02 6800 Assem-
+              TIMING CHARACTERISTICS                                                                                     bier Software Support        NC      8002F02     $ 550
+              Emulatio n Interface Delays*
+                                                                     PHYSICAL CHARACTERISTICS                            Option 17 6800 Emulator
+    To 8080 from                                                                                                         Support                 + $1850 8002F17          $1950
+Interface Assembly Typ                 Max ( in ns)       Length 6 ft of cable fro m t he e mulator processor to
+                                                                 the interface assembly.                                 Option 32 6800 Prototype
+01                    44                    60
+                                                                 1 ft of cabl e from the interface assembly to           Control Probe            + $ 850 8002F32         $ 950
+02                    44                    60                   the 40-pin plu g.
+HOLD                  44                    67
+                                                          Cable Configuration
+RESET                 44                    67
+                                                          6 ft   2 40 conductor ribbon cables with a ltern ating
+ADY **                35                    40                   ground and signa l path s.
+ INT                  63                   104            1 ft   2 twisted pair 40 conducto r cab les made up
+1YATA                 44                    53                   of signal/ground pairs.
+
+
+ 32
+                                                                     Emulator Processor and Prototype Control Probe Support Packages
+
+
+         Z80 EMULATOR SUPPORT PACKAGE
+                  CHARACTERISTICS
+280 and Z80A refer to microp rocessors manufactured
+by Zi log Corporation. Tektroni x , Inc. , does not guar-
+antee that othe r vendor's versions of the Z80 wi ll be
+compatible with the TE KTRONIX Microprocessor
+Labs .
+
+            PHYSICAL CHARACTERISTICS
+Length 6 ft of cable from the emulator pr ocessor to
+       the interface asse mbly.
+       1 ft of cable from the interface assembly to
+       the 40 pin plug.
+Cable Configuration
+6 ft   2 40 conductor r ibbon cables with chassis
+       ground plane and signal paths .
+1 ft   2 40 conductor twisted pai r cabl es.
+
+Termination
+6 ft   The interface assembly contains receivers for
+       data, address, and contro l f rom the Z80
+       emulator processor module.
+1 ft     Not term inated .
+
+
+             TIMING CHARACTERISTICS
+The Z80 emulator processor was designed to match
+the ac char acteristics of th e Z80 microprocessor with
+two exceptions . Those exceptions are :
+Prototype Cl ock
+The prototype clock may not be stretched over a
+total of 10 µs during any one memo ry or 1/ 0 request
+                                                                         TIMING CHARACTERISTICS                              8085 EMULATOR SUPPORT PACKAGE
+when a Microprocessor Lab memory access may oc-
+                                                              To TMS9900 from     Emulation Interface Delays*                          CHARACTERISTICS
+cur in th e next cycle. This exception is valid onl y if
+                                                             Interface Assembly   Typical    Maximum (in ns)         8085 and 8085A refer to microprocessors manufac-
+the prototype clock runs in excess of 1 MHz.
+                                                                  01                41              59               tured by Intel Corporation. Tektron ix, Inc. , does not
+NMI                                                               02                41              59               guarantee that other vendor's versions of the 8085
+NMI (Non Maskable Interrupt) must occur o ne-half                 03                41              59               will be compatib le with the TEKTRONI X Microproces-
+cycle earlier than in a standard 280 confi guration .             04                41              59               sor Labs.
+Th is means the NMI must occur before th e next to                CRU IN            12              23
+l ast trailing edge of the M cycle just prior to M1 .             INTREQ            12              18                           PHYSICAL CHARACTERISTICS
+                                                                  1CO               12              23               Length 6 ft of cable from the emulator processor
+                                                                  IC1               12              23                      to t he interface assembly.
+             ORDERING INFORMATION                                 IC2               12              23                      1 ft of cable from the interface assembly to
+                        Factory  Field             Field          IC3               12              23                      the 40 pin plug.
+Option Description       Price  Number             Price          HOLD              12              18               Cable Configuration
+                                                                  READY             12              18               6 ft   2 40 conductor ribbon cables with chassis
+8001 Microprocessor Lab       $7650
+                                                                  LOAD              12              18                      ground plane and signal paths .
+   Option 03 Z80 Micro-                                           RE SET            68              98               1 ft   2 40 conduct or twi sted pair cables .
+   processor Support                                              DATA              14              21
+   Package                      NC     8001F03    $2950                                                              Termination
+                                                              From TMS9900 to                                        6 ft   The interface assembly con tains receivers for
+8002 Microprocessor Lab        $9950                                                                                        data, address, and control from the 8085
+                                                             Interface Assembly      Typical       Maximum (in ns)
+   Option 03 Z80 Assem-                                                                                                     emulator processor module.
+                                                                  OBIN                  24               41
+   bier Software Support         NC    8002F03     $ 550                                                             1 ft   Not terminated .
+                                                                  MEMEN                 12               18
+   Option 18 Z80 Emulator                                         WE                    12               18
+   Support                   + $1850 8002F18       $1950          CRUCK                 12               23                           AC CHARACTERISTICS
+                                                                  CRUOUT                12               23          Emulation Clock
+   Option 33 Z80 Emulator                                                                                            Mode 1 or Mode 2
+   Prototype Control Probe + $ 850 8002F33         $ 950          HOLDA                 12               23                                       6.25 MHz max*; crystal,
+                                                                  WAIT                                               (user's c lock), wi th       RC timin g network or
+                                                                                        12               23
+                                                                                                                     8085 Prot otype Con-         TTL input to X1 .
+                                                                  IAQ                   12               23          trol Probe.
+                                                                  ADDRESS               14               21
+                                                                  DATA                                               Mode 0 (system clock)        6.25 MHz ±0.01 %
+                                                                                        14               21
+     TMS9900 EMULATOR SUPPORT PACKAGE                       "Assumes 1.5 ft of cable at 1.5 ns/ ft.                  Operational Speed
+                CHARACTERISTICS                                                                                      Full speed o r 1 wait state pe r machine cycle during
+                                                            Note : All inputs and outputs of the 64 pin plug at      8001 / 8002 program memory access selectable with
+TMS9900 refers to mi croprocesso rs manufactured by
+                                                                   the end of the prototype control probe are        jumpe r.
+Texas Instruments Corporation . Tektronix, Inc. , does
+                                                                   buffered by 74LSXXX type devices. In all
+not g uarantee th at other vendor's versions of th e                                                                 One wait state per machine cycl e is inse rted when
+                                                                   cases, data and control should not change
+TMS9900 wi ll be compatible with the TE KTRONIX                                                                      using DEBUG breakpoi nts (BKPT) regardless of jum-
+                                                                   during clock 01.
+Microprocessor Labs.                                                                                                 per positi on. When the Real-Time Prototype Analyzer
+                                                                                                                     option is installed, real-t ime operation with break-
+                                                                         ORDERING INFORMATION
+                                                                                                                     points automatical ly ensured d uring DEBUG by using
+           PHYSICAL CHARACTERISTICS                                                 Factory  Field           Field   the event triggers (EVT).
+Length 6 ft of cabl e fro m th e emulator processor t o     Option Description       Price  Number           Price
+                                                                                                                     "A clock error detection circuit ensures that the
+       the inte rface assembly.                             8001 Microprocessor Lab       $7650                      user's clock is operational and basically within Intel
+       9.5 in of cable fro m the inte rface assembly to       Option 04 TMS9900                                      max ( 1 µs) and min (160 ns) specifications.
+       the 64 pin plug.                                       Microprocessor Support
+                                                              Package                   + $ 400 8001F04      $3350                ORDERING INFORMATION
+Cable Configuration
+                                                            8002 Microprocessor Lab      $9950                                               Factory  Field           Field
+6 ft   2 40 conductor rib bon cables with chassis                                                                    Option Description       Price  Number           Price
+       ground p lane and signal paths .                       Option 04 TMS9900
+                                                              Assembler Software                                     8001 Microprocessor Lab      $7650
+9.5 in   2 32 conductor twisted pair cables.                  Support                      NC     8002F04    $ 550     Option 05 8085 Micro-
+Termination                                                   Option 19 TMS9900                                        processor Support
+                                                              Emulator Support          + $2100 8002F19      $2200     Package                     NC      8001F05    $2950
+6 ft     The interface assembly con tains receive rs for                                                             8002 Microprocessor Lab      $9950
+         data, address, and co ntrol from th e TMS            Option 34 TMS9900
+                                                              Prototype Control                                        Option 05 8085 Assem-
+         9900 emulator processor module.                                                                               bier Software Support        NC     8002F05    $ 550
+                                                              Probe                     + $1000 8002F34      $1100
+9.5 in   Not te rm inated.                                                                                             Option 20 8085 Emu-
+                                                              Option 49 16K Memory                                     lator Support             + $1850 8002F20      $1950
+                                                              Module*                    + $1100 8002F49     $1210
+                                                                                                                       Option 35 8085 Proto-
+                                                            •One supplied with either Microprocessor Lab.              t yp e Control Probe       + $ 850 8002F35     $ 950
+
+
+                                                                                                                                                                        33
+8002 and 8001 Microprocessor Lab System Options
+
+
+        Real-Time Prototype Analyzer              two trigger events occur simultaneously;
+The Real-Time Prototype Analyzer, Option          when one trigger event precedes another;
+46 for the 8002 and 8001 Microprocessor           or when either trigger event occurs. When
+Labs, is comprised of a real-time trace           a break in the program execution takes
+module, a data acquisition interface, and         place, program transactions stored in the
+an 8-channel general logic probe. This op-        real-time trace buffer may be displayed or
+tion provides a real-time trace of the user       printed.
+program executing on the emulator proces-         Data stored in the real-time trace buffer is
+sor, with 43 channels of data acquired si-        displayed sequentially in the order it was
+multaneously. The prototype address bus,          acquired from the prototype. Buffer con-
+data bus, control bus, and any eight exter-       tent may be displayed in whole or in part.
+nal locations on the prototype circuit may        Optional command parameters are avail-
+be monitored without slowing up the opera-        able to limit the storing of data to any spe-
+tional speed of the processor. The Real-          cific transaction type, such as memory reads
+Time Prototype Analyzer is indispensable          only. If the total buffer contents are dis-
+when isolating critical timing errors and         played, a blank line will separate the data
+ hardware/ software sequence discrepancies        sequence associated with each program
+ during the final integration phases of proto-    starting point.
+type development.
+                                                  The Real-Ti me Prototype Analyzer features
+The analyzer module is a separate plug-in         a convenient and easy-to-understand dis-
+circuit card that may be inserted into either     play format. With this format, the address
+the 8002 or 8001 system mainframe. The            location, data, probe input, and control bus
+P6451 Probe connects to the prototype cir-        data of each acquired transaction are dis-
+cuitry and permits data transference from                                                                          1702 and 2704/2708 PROM Programmer
+                                                  played. If the transaction was an instruc-
+the prototype to the analyzer. Data from the                                                                    The 1702 and 2704/ 2708 PROM Program-
+                                                  tion fetch , the instruction is also disassem-
+prototype is buffered and driven by the           bled into the appropriate mnemonic read-                      mer, Options 47 and 48 for t he 8002 and
+probe to the data acquisition interface, and      out unique to the emulator type being used.                   8001 Microprocessor Labs, provide the abil-
+then loaded into the analyzer module's real-                                                                    ity to program either 1702 or 2704/ 2708
+time trace buffer.                                The Real-Ti me Prototype Analyzer functions                   erasable PROM chips. When the module is
+                                                  in all emulation modes and operates with                      installed in an 8002 or 8001 mainframe, the
+As the user program executes on the emula-        all commercial microprocessors supported                      PROM Programmer software enables com-
+tor processor, 48-bit data words are se-          by the 8002 and 8001 Microprocessor Labs.                     munication between 8002 or 8001 program
+quentially acquired from the prototype and
+                                                                                                                memory and the PROM installed in the front-
+loaded into the real-ti me trace buffer. Each              REAL-TIME PROTOTYPE ANALYZER
+                                                                                                                panel PROM programming porch .
+data word contains 16-bit data from the ad-                       CHARACTERISTICS
+dress bus; 8-bit or 16-bit data from the data          OPERATIONAL SPEED CHARACTERISTICS                        1702 or 2704/ 2708 PROM Programmer soft-
+bus; 8-bit data from the test probe; 3-bit        Processor      Maximum Processor Clock Rate*                  ware transfers one data byte at a t ime, and
+data identifying cycle type (read, write, 1/0,    8085           3.125 MHz (intern al cl o ck)                  actual addresses are assigned . Data may be
+memory, or instruction fetch); and 5-bit          8080                  2.08 MHz                                wri tten from 8002 or 8001 program memory
+data used internally to identify last start/      6800                  1.00 MHz                                (WPROM ); read from PROM into prog ram
+stop of the emulator processor. The analy-        Z80                   4.00 MHz                                memory (RPROM); or compared on the
+zer will continue to acquire these sequential     TM S9900           3.33 MHz                                   system terminal (CPROM).
+cycles of logic input until the processor is      •Maximum p rocessor clock rate for Real-Time Pro to-
+                                                   type Analyzer operation.                                     The RPROM command al lows t he program-
+stopped or the real-ti me trace buffer is                                                                       med PROM to be read into program memory
+frozen by a specified trigger occurrence.                  INPUT/OUTPUT CHARACTERISTICS                         and dumped to the system console. The
+The real-time trace buffer can retain up to       Variable Threshold                                            CPROM compare function performs an ad-
+128 data words in pre-, variable center, or                                                                     dress-by-address comparison between the
+                                                  Range                  > + 10 V de to < - 10 V de
+ post-trigger modes; thus enabling the stor-                                                                    PROM and the program under develo pment.
+                                                  Preset TTL Volta ge    + 1.4 V de ± 200 mV
+ age of pertinent program bus transactions.                                                                     When an inequality between PROM bytes
+                                                  Event Trigg er Out     High leve l voltage ou t (w hen
+ The Real-Ti me Prototype Ana lyzer offers ex-                             Vcc = Min , Vi = 0.5,                and memory bytes occurs, t he memory ad-
+                                                                           Ro= 50 n to GND) is > 2 V de .
+ panded breakpoints to aid in efficient loca-                                                                   dress, memory byte content, and PROM byte
+ tion of prototype problems. Two event com-       Adjustments-Variabl e Threshold may be adj usted              content are displayed on the system con-
+ parators located within the analyzer module      fro m > + 10 V de to < - 10 V de wi th a screwdri ver         sole. A successful comparison between des-
+                                                  adjus tmen t accessi ble at the rear pane l of th e Mic ro-
+ can be utilized to halt program execution                                                                      ignated PROM and memory bytes is indi-
+                                                  process or La b. Th is vol tage must be mon itored with
+ and stop real-ti me trace. A trigger may be      a voltmete r having an in put impedance of at least           cated by an End of Job message on the
+ generated on any specific data occurrence        10 MQ.                                                        console.
+ in the address bus, data bus, test probe in-     Jumpers--With the internal jumper i n position '0-3'
+ put, and instruction cycle type. Triggering      the clock threshold is designated to be the same                           ORDERING INFORMATION
+ may be immediate; delayed by counting the        as channel s 0-3. In posit ion '4-7' the jumpe r desig-
+                                                  nates the clock threshold to be the same as channels                               Factory    Field    Field
+ number of passes; or delayed by counting         4-7.
+                                                                                                                Option Description    Price    Number    Price
+ the number of clock select outputs (clock                                                                      8001 Micro-
+                                                   Cable Length -   50 cm (1 9.5 in).                           processor Lab        $7650
+ select may be by microseconds, millisec-
+ onds, emulator clocks, etc.). In addition, an                                                                  Option 47
+                                                                 ORDERING INFORMATION                            1702 PROM
+ output pulse may be generated, via the                                   Factory        Field      Field        Programmer          +$500     8001F47   $550
+ data acquisition interface, to trigger a logic    Option Description      Price        Number      Price       Option 48
+ analyzer or an oscilloscope.                     8001 Micro-                                                    2704/2708 PROM
+                                                  processor Lab             $7650                                Programmer          + $500    8001F48   $550
+ The two event comparators (triggers) may                                                                       8002 Micro-
+                                                  Option 46 Real-
+ be set to designate a break or halt in the       Time Prototype                                                processor Lab        $9950
+ program execution. These comparators             Analyzer                +$1950        8001F46     $2150
+                                                                                                                Option 47
+ may be used as independent breakpoints;           8002 Micro-                                                   1702 PROM
+                                                   processor Lab            $9950                                Programmer          +$500     8002F47   $550
+ or they may be used together to enable a
+                                                  Option 46 Real-                                               Option 48
+ breakpoint on a specific event combination.                                                                     2704/2708 PROM
+                                                  Time Prototype
+ The program execution can be halted when         Analyzer                +$1950        8002F46     $2150        Programmer          +$500     8002F48   $550
+
+
+
+ 34
+                                                                                  8002 and 8001 Microprocessor Lab System Peripherals
+
+
+
+
+                                                                                                               LP8200 Line Printer
+                                                                                                   The LP8200 Line Printer is an optional sys-
+                                                                                                   tem peripheral for the 8002 and 8001 Micro-
+                                                                                                   procesor Labs.
+                                                                                                   The LP8200 is serially interfaced to either
+                                                                                                   Microprocessor Lab through an EIA stan-
+                                                                                                   dard RS-232-C port on the system communi-
+            CT8100 Crt Terminal                   inch diagonal, refreshed crt to display up       cations module. Baud rates of 300 to 9600
+The CT8100 Crt Terminal is an optional per-       to 1920 characters.                              are selectable.
+ipheral recommend ed for use with the 8002                                                         The printout provides space for 132 charac-
+                                                            ELECTRICAL CHARACTERISTICS
+and 8001 Microprocessor Labs.                                                                      ters/ line, 6 lines / vertical inch. The full
+                                                  115/230 (Hi, Medium, Lo) V ac,
+The CT8100 is interfaced to the 8002 or the       50 to 400 Hz ; nominal 220 W.
+                                                                                                   ASCII set of 96 upper/ lower case charac-
+8001 through an EIA standard RS-232-C                                                              ters is provided .
+port on the system communications module.                      PHYSICAL CHARACTERISTICS                        ELECTRICAL CHARACTERISTICS
+Data formats and baud rate are switch-            Dimensions             cm             in
+                                                                                                   Voltage       90 to 132 V ac or 180 to 264 V ac.
+                                                  Height                33.02           13         Frequency     50 or 60 Hz ± 1 Hz.
+selectable for TTY or EIA operation .
+                                                  Width                 45.72           18         Power         400 W max (printing);
+The keyboard provides selection of the full       Length                68.58           27                       200 W max ( idle).
+ASCII set of 96 characters.                       Weight                  lb                                    PHYSICAL CHARACTERISTICS
+                                                  Net                    46                        Dimensions             cm              in
+The console screen provides space for 24          Shipping               67                        Height                85.09          33.5
+lines of 80 characters each, allowing the 12-                                                      Width                 69.85          27.5
+                                                         ORDERING INFORMATION                      Length                55.12          21.7
+                                                                                                   Weight                  lb
+                                                  CT8100 Crt Terminal ... . .......... $3495
+                                                                                                   Net                    102
+                                                                                                          ORDERING INFORMATION
+                                                                                                   LP8200 Line Printer ............... $3765
+
+         CT8101 Console Terminal
+The CT8101 Console Terminal is an optional
+peripheral recommended for use with the
+8002 and 8001 Microprocessor Labs.
+The CT8101 is interfaced to the 8002 or
+8001 through an EIA standard RS-232-C
+port on the system communications module.
+Data formats and baud rate are switch-
+selectable for TTY or EIA operation.
+The keyboard provides selection of the full
+ASCII set of 96 characters. It also features
+character repeat when any key is pressed
+at the same time as the REPEAT key.
+            ELECTRICAL CHARACTERISTICS
+Voltage                115 V RMS ; + 10%, -15%.
+Frequency              47 through 63 Hz.
+Power                  75 W max.
+             PHYSICAL CHARACTERISTICS
+Dimensions                  cm              in
+Height                    10.79            4.25
+Width                     37.08           14.60
+Length                    38.73           15.25
+Weight                      lb
+Net             11 .20 (includin g paper)
+
+       ORDERING INFORMATION
+CT8101 Console Terminal .......... $1395
+
+
+                                                                                                                                                      35
+8001 and 8002 Microprocessor Lab
+Ordering Information
+
+
+
+
+                                                                        Factory    Field     Field
+          Option Description                                             Price    Number     Price
+
+
+      8001 Microprocessor Lab                                           $7650
+
+Select        Option 01        8080 Microprocessor Support Package       NC       8001 F01   $2950
+one           Option 02        6800 Microprocessor Support Package       NC       8001F02    $2950
+with          Option 03        Z80 Microprocessor Support Package        NC       8001F03    $2950
+initial       Option 04        TMS9900 Microprocessor Support Package   +$ 400    8001F04    $3350
+order         Option 05        8085 Microprocessor Support Package       NC       8001F05    $2950
+
+              Option 46        Real-Ti me Prototype Analyzer            + $1950   8001F46    $2150
+              Option 47        1702 PROM Programmer                     +$ 500    8001F47    $ 550
+              Option 48        2704/ 2708 PROM Programmer               + $ 500   8001F48    $ 550
+              Option 49        16K Memory Module                        + $1100   8001F49    $1210
+
+
+
+      8002 Microprocessor Lab                                           $9950
+
+Select        Option 01        8080 Assembler Software Support            NC      8002F01    $ 550
+two           Option 02        6800 Assembler Software Support            NC      8002F02    $ 550
+with          Option 03        Z80 Assembler Software Support             NC      8002F03    $ 550
+initial       Option 04        TMS9900 Assembler Software Support         NC      8002F04    $ 550
+order         Option 05        8085 Assembler Software Support            NC      8002F05    $ 550
+
+              Option 16        8080 Emulator Support                    + $1850   8002F16    $1950
+              Option 17        6800 Emulator Support                    + $1850   8002F17    $1950
+              Option 18        Z80 Emulator Support                     + $1850   8002F18    $1950
+              Option 19        TMS9900 Emulator Support                 + $2100   8002F19    $2200
+              Option 20        8085 Emulator Support                    + $1850   8002F20    $1950
+
+              Option 31        8080 Prototype Control Probe             + $ 850   8002F31    $ 950
+              Option 32        6800 Prototype Control Probe             + $ 850   8002F32    $ 950
+              Option 33        Z80 Prototype Control Probe              + $ 850   8002F33    $ 950
+              Option 34        TMS9900 Prototype Control Probe          + $1000   8002F34    $1100
+              Option 35        8085 Prototype Control Probe             +$ 850    8002F35    $ 950
+
+              Option 46        Real-Time Prototype Analyzer             + $1950   8002F46    $2150
+              Option 47        1702 PROM Programmer                     +$ 500    8002F47    $ 550
+              Option 48        2704 / 2708 PROM Programmer              +$ 500    8002F48    $ 550
+              Option 49        16K Memory Module                        +$1100    8002F49    $1210
+
+
+
+      Peripherals
+
+              CT8100           Crt Terminal                             $3495
+              CT8101           Console Terminal                         $1395
+              LP8200           Line Printer                             $3765
+
+
+
+
+36
+Alphanumeric Index
+Type           Instrument Description                       Page    Type             Instrument Description                         Page
+7A11           Single-Trace Amplifier .......... . ...... 64        475A, R475A      250-M Hz Dual-Trace Osei lloscopes ... . . 102
+7A13           Differential Comparator Amplifier ........ 65        485, R485        350-M Hz Dual-Trace Osei lloscopes .... . 100
+7A15A          Single-Trace Amplifier ... . . . . ....... . .. 64   491, R491        10-MHz to 40-GHz Spectrum Analyzers .. 187
+7A16A          Single-Trace Amplifier .. . .. .. .......... 64      576              Semiconductor Curve Tracer .. . ....... 202
+7A16P          Programmable Vertical Amplifier ....... 193          577/ D1          Storage Curve Tracer Mainframe ... . .. . 206
+7A17           Single-Trace Amplifier . . ... . ........... 64      577/ 02          Curve Tracer Mainframe . ... ...... . . . . 206
+7A18           Dual-Trace Amplifier . . ............... . 66
+7A19                                                                602              Display Monitor . .... ................. 224
+               Single-Trace Amplifier . . . . ..... . ....... 64
+7A21N          Direct Access Unit ............ . ....... 65         604A             Low Cost Display Monitor . . . .... .... . . 221
+7A22           Differential Amplifier . .......... .. .... . 65     606A             High Resolution Display Monitor . . ...... 220
+7A24           Dual-Trace Amplifier ................ . . 66         607A             Variable Persistence Display Monitor . .. 223
+7A26           Dual-Trace Amplifier . . ... . .......... . . 66     608              High Brightness Display Monitor ... . . .. 219
+7B50A          Time Base . . . ...... .... . . ............ 67      611 , 611-2      Storage Display ... . . . .. . .... . ... . ... . 140
+7B53A          Dual Ti me Base ....... . .. . ........... . 67      613              Storage Display ... . .......... . ...... . 140
+7B80           Time Base ... .. ............ . ...... . .. 68       624              Display Monitor . . .... . .... . . . .. . ..... 218
+7B85           Delaying Time Base . .......... . ....... 68         634              Raster Scan Display Monitor .......... 217
+7B90P          Programmable Time Base ... . .. . .. . ... 193       851              Digital Tester ......... . ... ... ... ..... 129
+7B92A          Dual Ti me Base ..... ........ . ... . ... .. 69     1101             Probe Power Supply .... . .. . ......... . 239
+7CT1N          Plug-in Curve Tracer . ......... .. .. 70, 212       1105             Battery Power Supply ............. 128, 168
+7D01, 7D01 F   Logic Analyzer . ...................... 21           1106             Battery Pack ....................... . 128
+7D10, 7D11     Digital Delay Units .. . . . ............ 23, 71     1140A            Programmable Power Supply .......... 200
+7D12           Al D Converter .......... . ......... . ... 72
+7D13           Digital Multimeter ...... . ............ . . 73      1340             Data Coupler ...... . ................. 200
+7D14           Digital Counter ......... . ............. 74         1401A, 1401A-1   1-MHz to 500-MHz Spectrum Analyzers .. 188
+7D15           Universal Counter/ Timer ..... . ........ . 74       1405             Television Side-Band Adapter ...... . ... 186
+7K11           CATV Preamplifier ........... . ...... . 186         1502, 1503       TOR Cable Tester .................... 170
+7L5            Spectrum Analyzer .............. . .... 182          2701             50-n Step Attenuator . .... . ..... . ...... 186
+7L12           Spectrum Analyzer ........... ....... . 180          2703             75-n Step Attenuator ............. . .... 186
+7L13           Spectrum Analyzer .... . ........ . .... . 178       4006-1           Computer Display Terminal .... . ....... 14d
+7L18           Spectrum Analyzer ... ... ....... .... .. 176        4010-1           Computer Display Terminal ....... .. ... 14e
+7M11           Dual Delay Line .... .. ................ 76          4012
+7M13                                                                                 Computer Display Terminal . . . .. .... .. . 14f
+               Readout Unit .......... .. ...... .... ... 70        4013             Computer Display Terminal .......... . . 14f
+7S11           Sampling Unit .. .... . .... . .. . ... .. .... 76
+7S12                                                                4014-1           Computer Display Terminal ............ 14g
+               TOR/ Sampler ........... . . . .. . . . ..... 77     4015-1
+7S14           Dual-Trace Sampling Unit . . ............ 80                          Computer Display Terminal ... ........ . 14g
+7T11                                                                4023             Computer Display Terminal ............ 141
+               Sampling Sweep Unit ................. . 77
+                                                                    4024             Computer Display Terminal .. . .... 14b, 14c
+3              TEK Lab Cart .. .. ............. . .. 165, 256
+7                                                                   4025             Computer Display Terminal . .. ...... 14, 14a
+               TEK Rack Cart .................. 165, 258
+31             Programmable Calculator ............. 149            4051             BASIC Computing System ............. 14h
+109                                                                 4081             Interactive Graphics Terminal .......... 14i
+               250-ps Fast-rise Pulse Generator .... . .. 169
+134            Current Probe Amplifier ............... 242          4631             Hard Copy Unit ............... . . . ... . 14k
+172            Programmable Test Fixture ............ 204           4632             Video Hard Copy Unit ...... . .......... 141
+176            Pulsed High-Current Fixture ......... . . 205        4662             Interactive Digital Plotter .... . ......... 14j
+177            Standard Test Fixture ... .. ........ .. . 206       4907             File Manager ...... .. . . .............. 14m
+178            Linear IC Test Fixture ..... . ...... ... . 208      4923             Digital Cartridge Tape Recorder ........ 14d
+200-C          SCOPE-MOB! LE® Cart ......... . ..... 257            4931             Modem ............................. 14d
+205            SCOPE-M OBILE® Cart ...... . ........ 257            5110, R5110      2-MHz Single-Beam Osei lloscopes ... 90, 91
+206            SCOPE-MOBILE® Cart . . .......... . .. 257           5111 , R5111     2-MHz Single-Beam Storage
+209            Scope Stand ............... . ........ 128                               Oscilloscopes .. ... . .... . ........ 90, 91
+212            500-kHz Dual-Trace Osei Ilose ope ....... 120        5112, R5112      2-MHz Dual-Beam Oscilloscopes . .. . . 90, 91
+213            DMM Osei lloscope .................. . 118           5113, R5113      2-MHz Dual-Beam Storage
+214            500-kHz Dual-Trace Storage Osei lloscope 120                             Oscilloscopes ..... . . . ........... 90, 91
+221            5-MHz Portable Oscilloscope .... .... .. . 117       5115, R5115      2-MHz Single-Beam Storage
+284            70-ps Fast-rise Pulse Generator ... ..... 169                            Oscilloscopes ....... ... ......... 90, 91
+286            Sampling Head Multiplexers ........... 200           5440, R5440      60-MHz Single-Beam Osei lloscopes .... .. 85
+314            Dual-Trac e Storage Osei I loscope ....... 116       5441 , R5441     60-MHz Variabl e Persistence Storage
+323            4-MHz Oscilloscope .................. 115                                Osei I lose opes ... . .................. 86
+326            10-MHz Dual-Trace Oscilloscope . . . . ... 114       7313, R7313      Bi stable Storage Osei lloscopes . .. ... 61, 62
+335            35-MHz Dual-Trace Oscilloscope ...... 112            7603, R7603      100-M Hz Oscilloscopes ... . ......... . .. 52
+400            Recorder .. .. ...... . .......... .. .... 214       7603N11 S        Ruggedized Oscilloscope System .... .. .. 53
+401            Digital Readout Module . . .. . .......... 214       7613, R7613      Variable Persistence Storage
+408            Portable Patient Monitor .. ............ 214                             Oscilloscopes .............. . ....... 60
+412            Portable Patient Monitor .............. 214          7623A, 7633      Multi mode Storage Oscilloscopes .. . .. . . 58
+413            Neonatal Patient Monitor ... . .......... 213        R7623A, R7633    Multi mode Storage Oscilloscopes ... . .... 59
+414            Portable Patient Monitor ... . ... . ... . .. 213    7704A, R7704     250-M Hz Osei Iloscopes .. . ........ . . . .. 50
+434, R434      25-MHz Bistable Storage Osei lloscopes . . 11 O      7834             Fast Storage Oscilloscope ...... .. ..... . 56
+455            50-MHz Dual-Trace Osei lloscope ... . . . . 106      7844, R7844      400-MHz Dual-Beam Oscilloscopes ...... 48
+464            100-MHz Portable Storage Osei lloscope . 108         7904, R7903      500-M Hz Oscilloscopes ................ 46
+465, R465      100-MHz Dual-Trace Oscilloscopes ..... 102           7912AD           Programmable Digitizer . . ..... . ...... . 193
+465M           100-M Hz Dual-Trace Osei lloscope ... . .. 104       R7912            Transient Digitizer ........... . ........ 193
+466            100-MHz Portable Storage Oscilloscope . 108          8001             Microprocessor Lab ......... . .. . . . .. . . 31
+475, R475      200-M Hz Dual-Trace Osei lloscopes .. . .. 102       8002             Microprocessor Lab ................... 30
+
+
+
+
+270
+                                                                                     International Field Offices, Distributors, and Representatives
+
+
+ALGERIA                                    ECUADOR                                IRAN                                        2nd Floor. Mclean Building                            SUDAN
+                                                                                                                              2 10 Oxford Terrace                                     Cine & Photo Supply
+  Measurelec                                 Proteco Coasin Cia Lida.               lrantronix Company Ltd.                   (CPO. Box 2421 )
+  144 Bd Salah Bouakoulr                     Ave 6 de Oeciembre 865 y Roca          20 Salm Road                              Christchurch 1                                            Company (CPSC)
+  Algiers                                    (P 0 Box 228A)                         Roosevelt Avenue                          Phone: 64-403                                            P.O. Box 393
+  Phone 60 45 70 and 60 45 7 t               OuIto                                  Tehran                                                                                             Khartoum
+     (Algiers)                               Phone 52·6759. 52·9684                 Phone 826294. 831564. 836466.           NIGERIA                                                    Phone: 75162, 76943 and 42478
+  TelelC (Private telex is not available     Telex· 2665 PROTECO·EO                    834459                                 Mofat Engineering Co. Ltd.                               Telex· 304 Photok1na
+     today )                                 Cable PROTECO, Ou1to                   Telex. 212956 BERK IA                                                                              Gable: PHOTO KINA
+  Cable (Address as abo ve)                                                         Cable BERKEHKAR. Tehran                   PO Box 6369
+                                           EGYPT                                                                              89 Wakeman Street                                     SURINAME
+ARGENTINA                                                                         ISRAEL                                      Yaba
+                                            Giza Systems Engineering                                                          Lagos                                                  Wong Sang Tsoi & Co.
+ Coasin SA                                    Company                               Eastronics Ltd.                           Phone· 43195                                             20-24 Oominestraat
+  Virrey del Pino 407 1                                                             11 Rozan1s Street                         Telex· 21595 Mainlang                                    (P 0 . Box 163)
+                                             P 0 Bo x t913
+  Buenos Aires                               4 E1-Hesn Streel                       Tel-Baruch                                Cable: MOFATENG. LAGOS                                   Paramaribo
+  Phone 52· 3165. 51 ·9363                                                          (P 0 Box 39300)                                                                                    Phone: 73511. 75187. 72154. 76369
+                                             Giza                                                                             SW81 t 31 l1ebu Bye-pass
+  Telex 012·2284                             Ca iro                                 Tel Aviv                                                                                           Cable: SANG'rSOICO. Paramaribo
+  Cable· COASIN. Buenos Aires                                                       Phone- 475151                             Oke-Ado
+                                             Phone 967114. 987276                                                             P.O. Box 3464
+  25 de Mayo N' 1930
+                                                                                    Telex: 033-638
+                                                                                                                              Ibadan                                                SWEDEN
+                                           EL SALVADOR                              Cable EASTRONIX Tel Aviv
+  Cordoba                                                                                                                     Phone: 22824                                           Tektronix AB
+  Phone 51 -3037                             Electronica Cuscatleca.              ITALY                                                                                               Fack
+                                                                                                                            NORWAY                                                    S-1 7 1 04 Solna
+AUSTRALIA                                    S.A de C.V.                            Silverstar Spa. Ltd.
+                                             21 Aven1da Norte No 1334
+                                                                                                                             Morgenstierne & Co. A/S                                  Phone. 06183 00 80
+ Tektronix Australia Pty. Limited            Sa n Selvodor
+                                                                                    Via del Gracchi No, 20
+                                                                                                                              Konghellegt 3                                           Telex t783t Tekswed S
+                                                                                    20146 Miiano                                                                                      Cable: TEKTROSWEO Stockholm
+  80 Waterloo Road                           Phone· 25· 1763, 26· 1667                                                        (P.O. Box 6688 Rodelokka. Oslo 5)
+                                                                                    Phone 4996 ( 12 hnesl
+  North Ryde. N SW 21 I 3                                                           Tele x 39189 SILSTAR Miiano               Oslo                                                     Kommendorsgatan 6
+  Sydney                                   FEDERAL REPUBLIC                                                                   Phone: 35 61 10                                          S·4 14 59 Gothenburg
+                                                                                    Cable SILVERSTAR Milano
+  Phone 668-7066                                                                                                              Telex 11719                                              Phone: 031/42 7035
+  Telex AA24269                            OF GERMANY                               Via Pa1s1e110 No. 30                      Cable: MOROF Oslo
+  Cable TEKTRONIX Australia                  Rohde & Schwarz                        00196 Roma                                                                                      SWITZERLAND
+  128 Gilles Street                            Vertrieps GmbH                       Phone: 844,66.41 / 5 (five Imes)        PAKISTAN                                                 Tektronix International A.G.
+                                                                                    Telex : 61511 SILSTAR Roma
+  Adelaide. South Australia 5000             Grosse Bergstrasse 213                 Cable· SILVERSTAR Roma
+                                                                                                                             Pak-Land Corporation                                      (P.O Box 57)
+  Phone 223-2811                             2000 Hamburg 50                                                                  Central Commercial Area                                  CH-6301 Zug
+                                             Phone: (040) 36 0191                   Piazza Adriano, 9                         Iqbal Road                                               Phone: 042219192
+  260 Auburn Road
+                                             Tele x: 213 7 49                       10139 Torino                              p E.C.H. Society                                         Telex: 76608
+  Hawthorn, Vic 3122
+                                             Gable: ROHOESCHWARZ Hambur9            Phone: 4 4.32.7516                        Karach l-29                                              Cable: TEKINTAG
+  Mel bourne
+  Phone· 81 0594                                                                    Cable· SILVERSTAR Torino                  Phone: 437315. 438084
+                                             Kriegstrasse 39                                                                  Cable· PAKLANO. Karachi                               SYRIA
+AUSTRIA                                      7500 Ka~oruhe                        IVORY COAST
+                                             Phone: (0721) 2 79 61
+                                                                                    SITEL                                   PANAMA                                                    General Trading Company
+ Rohde & Schwarz-Tektro nix                  Telex: 7 826 730                                                                                                                          PO. Box 796
+   Ges.m.b. H.                               Cabl e: ROHOESCHWARZ Karlsruhe         Soc1ete lvonenne de                      Executive Marketing Corporation                           Damascus
+                                                                                       Telecommun1cat1on                      Apartado 4929                                            Phone: 114807. 224170. 559 t 08
+  Sonnle1lhnergasse 20                       Sedanst rasse 13-17                    20 Avenue de la foss~'                    Panama 5                                                 Telex: 11263 GITCO SY
+  A -1100 Wien                               5000 Kiiln 1                           BP2580                                    Phone· 64-9354. 64 -9851
+  Phone: Vienna 62 61 4 1                    Phone· (0221 ) 77 22·1                 Abidjan (cote d'lvorie)
+                                             Telex: 666·5417                                                                  Telex: 328·2220                                       TAIWAN
+  Tele x: Vienna 13933                                                              Ivory Coast                               Cable· MARKETING PA, Panama
+                                             Cable: ROHOESCHWARZ Koln               Phone: 32 18.52 & 32. 14,75                                                                       Heighten Trading Co. Ltd.
+BELGIUM                                      Tasslloplatz 7                         Telex : 525 RAYBACH·ABIOJAN             PERU                                                       16 Nank1ng East Road. Sechon 3
+ TEKTRONIX vn/sa                             8000 Munche n 90                                                                                                                          (P.O. Box 1406)
+                                             Phone: (069) 41 62·1                 JAPAN                                       lmportaciones y                                          Taipei 104 AOC
+  Merc ure Centre                                                                                                               Representaciones                                       Phone: 551·9916
+  Rue De La Fusee NA 100                     Telex: 523703                          Sony/Tektronix Corporation                                                                         Telex: 21472
+  1130 Bruxelle s                            Cable ROHDESCHWARZVERTRIEB             9·31 . K11ashmagawa • 5. Sh1nagawa·Ku       Electro nicas S.A
+                                             Munchen                                                                                                                                   Cable HEIGHTEN. Ta1pe1
+  Phone 021720 80 20                                                                Tokyo 141                                   (IRE lngenieros)
+  Telex 267 13                               Oonaustrasse 36                        (P.O. Box 14, Haneda Airport,                                                                   THAILAND
+  Cable TEKBEL                               8500 Ni.irnberg                        Tokyo 1491                                Avda. Franklin 0 Roosevelt 105
+                                             Phone: (0911) 6 46 61                  Phone: 445-0221 (Area 03/Tokyo)           Edlficlo Rimac                                          G. Simon Radio Company Ltd.
+BRAZIL                                       Telex: 0626255                         Telex: 02422850                           Li ma                                                    30. Patpong Avenue
+                                                                                    Cable· SONYTEK Tokyo                      Phone· 28-86-50                                          Bangkok
+ Tektronix lndustria e                       Techmsches Buro                                                                  Telex 25663                                              Phone: 30991 · 3
+   Comercio Lida.                            Plieninger Strasse 150                 clo Ta1so·Eb1su Buildi ng 1·6·11          Cable: IREING. Lima                                      Cable: SIMONCO. Bangkok
+                                             7000 Stuttgart 60                      Ebisuminam1 Sh1buya·ku
+  Rua Franz Schubert 59                                                             Tokyo t50                               PHILIPPINES
+  CEP 01454 Sao Paulo                        Phone: (0711 ) 72 20 39                                                                                                                THE NETHERLANDS
+                                             Telex· 0725533                         Phone: 710·8141 (a rea 03/Toyko)
+  Phone 212·3606. 212-4874                                                                                                   Philippine Electronic                                    Tektronix Holland N.V.
+                                                                                    clo Takahashi Building North No 2           Industries, Inc.
+  Rua Sarao de Lucena, 32                  FINLAND                                  2· 19 lsemachi K1ta·ku                                                                             Me1doornweg 2
+  CEP 20000 Rio de Janeiro                                                                                                    3rd Floor. RCA Global Buildmg                            "Postbus 164"
+  Phone 266·5364. 286·6946                   Into O/Y                               Osaka·shl 530
+                                                                                                                              8755 Paseo de Roxas                                      Badhoevedorp
+                                             P 0 Box 22                             Pho no: 312·2751 {area 06/0saka)
+                                                                                                                              (P.O. Box 498. Makali Commercial                         Phone· 02968·6 I 55
+CANADA                                       SF-00661 Helsinki 66                   8 Hijie·cho·2 Nakamura·ku                    Cenler)                                               Telex: 18490
+                                             Phone: 90-742133                       Nagoya                                    Makatl, Rizal 3117
+ Tektronix Canada Ltd.                       Telex· 121836                          Phone: 581 ·3548 (area 0521Nagoya)                                                              TURKEY
+  P.O. Box 6500 (Home Office)                                                                                                 Phone: 87·99·26. 87·99·27. 67-99·28
+                                             Cable INTO. Helsinki
+  Barrie. Ontano                                                                  JORDAN
+                                                                                                                              Telex: 7222036                                          Erkman Elektronik Aletler
+  L4M4V3                                   FRANCE                                                                             Cable: PHILECTRON. Manila                                T1caret Anon1m Suket1
+  Phone: (705) 737·2700                                                             TAREQ Scientific Bureau                                                                            Necatibey Caddes1 92/ 3
+  Telex: 06-875672
+                                             TEKTRONIX                              Salt Road                               PORTUGAL                                                   Karakoy. Istan bul
+  Cable: TEKANAOA                            z. I Courtaboeuf, BP 13                P.0 Box 463                              Equipamentos de                                           Phone· 44 15 46/44 76 51
+                                             91401 Orsay                            Amman                                                                                              Telex: 23353 MSE TR
+  FIELD OFFICES:                             Phone 907 76 27                        Phone: 36655 & 22855
+                                                                                                                               Laboratorio Lda.                                        Cable · INGMESUER. Istanbul
+  (Montreal)                                 Telex· TEKFRANS 690332                 Telex: 1611 ADER JO                       Estrada Lisboa - Smtra Amadora
+  900 Selkirk Street                         Cable TEKFRANS Orsay                   Cable· AOERORUG AMMAN                     P.O. Box 1100 (Casal de Garoto)                       TUNISIA
+  Poi nte Oalre, Quebec                                                                                                       Lisbon
+                                             Centre Regional de Lyon                                                          Phone 97 65 5 1                                         EL ESLEK
+  H9R 353
+                                             163, Boulevard des Etats·Un1s        KOREA
+  Phone: (514) 697-5340                                                                                                       Telex- 12702 EOUILAB                                    Societe lndustne11e et
+  Telex 05-821570
+                                             69006 Lyon                            M-C International (Korea) ltd.             Cable: EOUILAB, Lisboa                                     Commerc1ale d' Equ1pements
+                                             Phone: (78) 76.40.03                   Room 1407. Center Building
+  Cable: TEKANAOA                                                                                                                                                                        Bect rlques et Bectroniques
+                                             Telex. TEKL YON 300150                 9 t · t Sokon9-dong Chung·ku            REPUBLIC OF SOUTH AFRICA
+  825 - I 2 th Avenue S.W.                                                                                                                                                            3 Rue de Vesoul
+                                             Centre Regional de Nancy               (C.P 0 . Box I 355)                                                                               Tunfa
+  ca1gary, Alberta
+                                             16. rue de ta Cote                     Seoul
+                                                                                                                              Protea Physical & Nuclear                               Phone: 244372
+  T2R OJ2                                                                           Phone· 23·4101 /5                           Instrumentation (Pty.) Ltd.
+  Phone: (403) 269·3138                      54000 Nancy                                                                                                                              Telex: 13664 ESLEK TN
+                                             Phone: (2B) 96.24.98                   Telex· K24228                             P.O. Box 39 I 27
+  Telex: 038·21730                                                                  Cable EMCEE. Seoul                                                                              UNITED ARAB EMIRATES
+                                             Telex: TEKNANCY 850672                                                           Bramley 2018
+  6025 103 A Street                          Centre Regional d' Alx-en-Provence                                               746 Sixth Street                                         Contact TAREO Company, Kuwait
+  Edmont on, Alberta                         Rue Le Corbusier
+                                                                                  KUWAIT                                      Wynberg, Standton
+  T6H 2J7                                                                          TAREQ Company                              Tranaveal                                             UNITED KINGDOM
+  Phone: (403) 434·9466
+                                             13100 Alx·en·Provence                                                            Phone: (27 11) 786-3647
+  Telex: 037·2795
+                                             Phone: (42) 59 24 66                   P.O. Box Safa! 20506
+                                                                                                                              Telex: 8·4689                                          Tektronix UK Limited
+                                             Telex- TEKAIX 440045                   Phone· 436100 & 436045                                                                            Beaverton House
+  (Toronto)                                                                         Telex: 2315 ZUAITER KT                    P.O. Box 14 I                                           36·38. Coldharbour Lane
+                                             Centre Regional de Rennes
+  PO Box 6500                                l03A. avenue de Crimee                 Cable: ZUAITER KUWAIT                     Paardeneiland 7420                                      (P 0 Box 69)
+  Barrie, Ontario                                                                                                             30 Auckland Street
+                                             35000 ·Rennes                                                                                                                            Harpenden. Herts
+  L4M 4 V3
+                                             Phone: (99) 51 2116
+                                                                                  LEBANON                                     Paardenelland (Cape Town Branch)                        Phone; Harpenden 63141 , 61251
+  Phone (705) 737-2700                       Telex· TEKREN 740629                   Projects S.AL                             Phone· 5 t ·324 7                                       Telex· 25559
+  Telex· 06·875672                                                                                                            Telex: 5·77551
+                                             Centre Regional de Strasbourg          (P 0 . Box 5281)                                                                                  Cable: TEKTRONIX Harpenden
+  Cable: TEKANAOA
+                                             1 Rue du Marechal Lefebvre             Beirut                                    PO Box 47031                                             181 A. Mauldeth Road
+  1792 Court wood Crescent                                                          Phone· 251680                             Grevville 4025                                           Burnage
+  Ottawa, Ontario                            67100 Straabou rg
+                                             Phone: (66) 39 49 35                   Telex: 20466LE                            116 Stamford Hiii Road                                   Manchester 19
+  K2C 2B5                                                                           Gable· PROJECTS Beirut                    Durban                                                   Phone 061-224-0446
+                                             Telex: TEKSTBG 890470
+  Phone (613) 225-2850                                                                                                        Phone: 39·1100                                           Telex· 668409
+  Telex· 053·4119                            Centre Regional de Toulouse          MALAYSIA                                    Telex 6-2775
+                                             284, route Samt·Simon                                                                                                                     7 Shiel House. Shiel Walk
+  (Vancouver)
+                                             31300 Toul ouse                       Mecomb Malaysia Sdn. Bhd.                SAUDI ARABIA                                               Scotland
+  4519 Canada Way                                                                   No 2, Lorong 13/6A
+  Burnaby, B.C                               Phone: (61) 40 24 so                                                            Electronic Equipment Marketing                            Livingston, west Lothian
+                                             Telex: TEKTOULS 530243                 (P.O. Box 24)                                                                                      Phone: Livingston 32766/7
+  V5G 1K1                                                                           Petallng Jaya, Selangor                    Establishment
+  Phone. (604) 438-4321                    GREECE                                   Phone. 773455                                                                                   URUGUAY
+  Telex : 043·54602                                                                                                           P.O. Box 3750
+                                                                                    Telex: 37605
+  (Halif ax)
+                                            Marios Dalleggio                        Cable: MECOMB Petallng Jaya
+                                                                                                                              Riyadh                                                  Coasin Uruguaya S.R.L
+                                                                                                                              Phone: 32700. 32761                                      Casilla de Correo No 1400
+  Burnside Commercial Centre                  Representations                                                                 Telex- 20120
+  10 Akerley Blvd                            2. Alopekis Street                   MEXICO                                                                                               Correo Central
+                                                                                                                                                                                       Montevideo
+  Dart mouth, Nova Scotia                    Athens 139                            Tecnicos Argostal, S.A.                  SINGAPORE                                                  Phone: 91-79·76
+  B3B 1J4                                    Phone: 710.669. Telex. 2 16435
+  Phone: (902) 469-9476                      Telex Answer Code: DALM GR
+                                                                                    Oepto Control de Calidad                  Mechanical & Combustion                                  Cable: COAUR. Montevideo
+                                                                                    Av. Jalisco 180
+  Telex: 019·22656                           Cable: OALMAR Athens                   (Apdo Postal M-2511 , Mexico 1. D.F )      Engineering Co. Pte. ltd.                            VENEZUELA
+                                                                                    Mexico 16. O.F                            10-12. Jalan Kilang
+CHILE                                      HONG KONG                                Phone: 515·85·80                          (P 0 Box 46. Alexandra Post Office)                     Equilab, C.A
+ Equipos lndustriales SAC.I.                Gilman & Co. Ltd.                       Telex: 017-74208                          Singap ore 3                                             Torre KLM 6° P1so
+                                                                                    Cable: ARGOSTAL. Mexico                   Phone: 647151                                            Avda Romulo Gallegos
+  Moneda812-0f. 912                           Electrical/Bectronic Dept.                                                      Telex. RS-23176                                          Santa Eduvigts
+  (Casilla t 3550)                                                                  Av. Universidad 3335 Norte
+                                             280 Gloucester Road                                                              Cable: MECOMB. Singapore                                 (Apartado 60497)
+  Santiago                                   World Trade Centre. 24/F               Mont errey, N.L                                                                                    caracas 106
+  Phone: 716-662, 382·942                                                           Phone: 51·13-60
+  Telex 352024 1 FLOBRA
+                                             causeway Bay                                                                   SPAIN                                                      Phone: 263. 1 166 (5 lines)
+                                             (G.P.0 . Box 56)                       Telex: 038865                                                                                      Telex: 21860 EOUIX
+  Cable: FLO BRA. Santia90                   Phone: 5·794266                                                                  C.R. Mares, SA                                           Cable: EOUILAB. Caracas
+                                                                                    Calz J. Jesus Glz Gallo 383
+                                             Telex: 83667 GILMN HX                                                            Valencia 333
+COLOMBIA                                                                            Guadalajara. Jal.
+                                             Cable· GILMAN, Hon9 Kong               Phone: 17· 26-46. 17·78· 12               Barcelona (9)                                         WEST BERLIN
+ Selectronica Lida.                                                                 Telex: 068·2710
+                                                                                                                              Phone: 257 62.00
+                                                                                                                                                                                     Rohde & Schwarz
+  K 71 No 55·96                            INDIA                                                                              Telex: 27332
+  Apartado Aereo 251 24                      Hinditron Services Private Ltd.      MOROCCO                                     Cable MARES Barcelona                                    Handels-GmbH
+  Bogota, O.E.                               69·A. L Jagmohandas Marg.             SCRM                                       Gaztambide, 60-1°                                        Ernsl·Reuter·Plalz 10
+  Phone 632874, 422376                       Bombay-400 006                                                                   Madrid (15)                                              1000 Berlin 10
+                                                                                    29 BO Girardot                            Phone. 449·33·00                                         Phone (030) 3 41 40 36
+DENMARK                                      Phone: 365344                          caaablanca
+                                             Telex: 953·0112326                                                               Tel ex. 7332                                             Telex 0 181 636
+                                                                                    Phone: 27 69 11                                                                                    Cable: ROHOESCHWARZ Berli n
+ Tektronix A/S                               Cable: TEKHINO, Bombay                 Telex: 2 1815
+                                                                                                                              Cable: MARES Madrid
+  Herlev Hovedgade 119                                                              Cable: SCAM CASA (21815)                                                                        ZAMBIA
+  Post Box 575
+                                             412 Ra1 Mahal Vilas Extension                                                  SRI LANKA
+                                             Bangalore·560 006                                                                                                                        Baird and Tatlock (Zambia) Ltd.
+  OK-2730 Herlev                             Phone: 33139                         NEW ZEALAND                                 Maurice Roche Limited
+  Phone (02) 64 56 22                                                                                                         GPO Box61                                                Chandwe Musonda Road
+  Telex 35239 Tekas dk
+                                             Telex: 953-043-741                    W. & K Mclean Ltd.                         Colombo                                                  (P.O Box 1038)
+                                             Cable: TEKHINO. Ban9alore              103·105 Felton Mathew Avenue
+                                                                                                                              Phone: 25846, 25847, 25848                               Lusaka
+EAST AFRICA (Kenya, Tanzania               INDONESIA                                Glen Innes                                Cable: LAXAPANA. Colombo                                 Phone: 75315/6
+                                                                                    (C.P.0 . Box 3097)                                                                                 Telex· 4277
+and Uganda)                                  P.T. Owi Tunggal Jaya Sakti            A uckland 6                                                                                        Cable· PIPETIE. Lusaka
+  Engineering & Sales Co .. Ltd.             JI Pmt u Air No 9                      Phone. 587-037
+                                                                                                                                                                                       Brunell Road
+  Bankhouse, Government Road                 Jakarta                                Telex: NZ 2763 KOSFY
+                                             Phone 366369                           Cable: KOSFY. Auckland                                                                             (P.O Box 1097)
+  (P.O. Box 466581                                                                                                                                                                     Ndola
+  Nairobi , Kenya                            Gable CVDWITOJAJA                      5th Floor. Westbrook House                                                                         Phone: 3522 & 2253/4/6
+  Phone: 2681 5                                                                     181 Willis Street                                                                                  Telex: 3441
+  Gable: ENGSALES Nairobi                                                           (C P.O Box 496)                                                                                    Cable: PIPETIE. Ndola
+                                                                                    Wellington 1
+                                                                                    Phone. 851 ·450                                                      Customers in the following countries ·
+                                                                                    Telex: NZ 3053 KOSFY
+                                                                                                                                                  Bulgaria, Czechoslovakia, Hungary, Poland,
+                                                                                                                                                       Romania, USSR and Yugoslavia
+                                                                                                                                                 Contact Rohde & Schwarz·Tektronix Ges m b H & Co KG
+                                                                                                                                   Sonn1e1thnergasse 20. A-1100 Wien. Austria Phone Vienna 62 61 41, Telex Vienna 13933
+                                                                                                                                      Customers in o t her Europe, Middle East and African countries contact ·
+                                                                                                                                     Tektronix Limiled. P.O. Box 36. St. Peter Port. Guernsey. Channel Islands.
+                                                                                                                                     Phone Guernsey 35781. Telex 4 1193. -:-elegraph TEKTRONIX GUERNSEY
+                                                                                                                                                  Customers mall other countries should contact :
+                                                                                                                                                         Tektronix, Inc., Export Market ing
+                                                                                                                                                  P.O. Box 500, Beaverton, Oregon 97077. U.S.A.
+
+
+
+
+                                                                                                                                                                                                                           271
+United States Field Offices
+
+
+                                                                     Tektronix, Inc.
+                                        P.O . Box 500, Beaverton, Oregon 97077
+               Telephone : (503) 644-0161    TWX: 910-467-8708 TEKTRONIX BEAV.                                      Cable : TEKTRONIX
+
+                                                         FIELD ENGINEERING OFFICES
+ ALABAMA                               GEORGIA                                MINNESOTA                                 OKLAHOMA
+ *Huntsville 35801                     *(Atlanta)                             *St. Paul 551 12                           Oklahoma City 7 3105
+  Suite 8 , 3322 S. Memorial Parkway    3320 Holcomb Bridge Road               3563 N. Lexington Ave.                    Suite201
+  Phone : (205) 881 -29 12              at Peac htree Industri al Blvd.        Phone(612)484 -8571                       800 N. E. 63rd
+                                        Norcross 30092                                                                   Phone : (405) 848-3361
+ ARIZONA                                Phone: (404) 449-4770                 MISSOURI
+ •Phoenix 85034                                                               *(St. Louis)                              OREGON
+  2643 E. University Drive             HAWAII                                  422 Ang lum Rd .                         • (Portland)
+  Su ite 113                            Honolulu 96819                         Hazelwood 6304 2                           7000 S.W . Hampton St.
+  Phone (602) 244 -9795                 2979 Ualena Street                     Phone : (3 14) 731-4696                    Suite 1 21
+  Tu cson Area : ENterprise 383         Phone : (808) 845-4531                                                            Tigard 97223
+                                       tHonolulu Service Center               NEW JERSEY                                  Phone: (503) 620 -9100
+CALIFORNIA                              EMC Cor pora t ion                    *Woodbridge 07095                          tFactory Service Center
+ *Concord 94520                         2979 Ualena St reet                    40 Gil l Lane                              Tektronix Industri al Park
+  2345 Stanwell Circle                  Phone : (808) 847 -1138                Phone (20 1) 636-8616                      Beaverton 97077
+  Phone (4 15) 689- 2710                                                                                                  Phone: (503) 644 -0161
+  From Oakland : (4 15) 254 -5353      ILLINOIS                               NEW MEXICO                                  TWX: 910-467 -8708
+ •1rvine 92714                         *(Chicago)                             • Albuquerque 8 71 08
+  16601 Hale Ave.                       5350 Keystone Ct .                      1258 Ortiz Drive, S.E.                   PENNSYLVANIA
+  Phone : (7 14) 556-8080·89            Rolling Meadows 60008                   Phone : (505) 265-5541                  *(Philadelphia)
+          (213) 778 -5 225, 26          Phone : (312) 259-7580                  Southern N.M. Area : EN terprise 678     1720 Wal ton Road
+                                                                               Southern Nevada Area : ENterpri se 678    Blue Bell 19422
+ *(Los Angeles)
+  2 1300 Erwin Street                  INDIANA                                                                           Phone (2 15) 825-6400
+                                       *Indianapolis 462 19                   NEW YORK                                   From Ha rr isbu rg, Lancas t er, and
+  Woodland 1-iills 9 1367                                                     *(Albany)
+  Phone (213) 999-1711                  612 1 East 30th Street                                                             York Area: ENter prise 1-0631
+                                        Phone : (317) 545-235 1                678 Troy Road
+• • Los Gatos 95030                                                            Latham 12 110                            • (Pittsburgh)
+   985 Uni ve rsitv Av en ue                                                   Phone : (518) 785-3353                     3834 Nort hern Pike
+                                       KANSAS                                                                             Monroeville 151 4 6
+    Su1to. 22                          * (Kansas City)                        *(Long Island)
+    Phone (408 1358-3491                                                                                                  Phone : (412) 373-3250
+                                         10580 Barkley                         100 Crossways Park West
+ •san Diego 92111                       Suite 62                               Woodbury, L.I. 11 797                    TEXAS
+  7827 Convoy Court                      Overland Park 662 1 2                 Phone : (5 16) 364 -9060                 *Dallas 7 5240
+  Suite 401                              Phone : (913) 341 -3344                       (212) 895-9215                    44 55 Sigma Road
+  Phone : (714) 292-7330                                                      Poughkeepsie 12603                         Phone : (214) 233-7791
+ *Santa Clara 95051
+                                       LOUISIANA                              31 Haig ht Ave nue
+                                       *(New O rleans)                                                                  *Houston 77036
+  3200 Coronado Drive                                                         Phone : (914) 4 54-7540                    5755 Bonhomme
+  Phone (408) 249-5500                  3004 34th St.
+                                        Metairie 70001                         Rochester 14623                           Sui te 420
+                                        Pho n e : (504) 837-8454               1210 Jefferson Rd.                        Phone : (713) 783- 1910
+COLORADO                                                                       Phone : (716) 244 -2600
+ • (Denver)                                                                                                              San Antonio 78226
+  Suite 4A
+                                       MARYLAND                               * (Syracuse)                               33 11 Roselawn
+   14 Inverness Dr. East               *(Baltimore)                             1 Nort hern Concourse                    Phone : (5 12) 434 -4334
+   Englewood 80 110                     1526 York Road                          North Syracuse 132 12
+   Phone: (303) 773- 1011               Lutherville 21 093                      Phone : (3 15) 455-666 1                UTAH
+  Telex : (lnfocom) 45-4455             Phone : (301) 321 -7000                 From New Yor k : (800) 962 -1095        *Salt Lake City 84115
+                                       * Rockville 20850                                                                 65 West 2950 South
+CONNECTICUT                              2 Research Court                     NORTH CAROLINA                             Phone : (801) 484 -850 1
+ Milford 064 60                          Pho n e : (301) 948-7151             *Raleigh 27612
+ 20 Commerce Park Road                                                         Suite 104                                VIRGINIA
+ Phone : (203) 877-1494                MASSACHUSETTS                           3725 National Dr.                         Hampton 23666
+                                       * (Boston)                              Phone : (919) 782-5624                    1929 C Coliseum Dr.
+FLORIDA                                 482 Bedford Street                                                               Phone : (804) 826-4020
+•Fort Lauderdale 3331 1                  Lexington 02173                      OHIO
+ 1871 Wes t Oa k land Park Blvd.         Phone : (617) 861-6800               *Cleveland 441 29                         WASHINGTON
+ Phone : (305) 731-1220                                                         5689 Pearl Road                         *Seattle 98188
+ Also serves Puerto Rico and           MICHIGAN                                 Phone : (216) 884-6558                   64 1 Industry Drive
+   U.S. Virgin Islands                 *(Detroit)                             • Dayton 45449                             Phone : (206) 575-0180
+ From Miami : 947 -6053                 25882 Orchard Lake Rd.                  50 1 Progress Rd.
+                                        Farmington Hills 48018                  Phone : (513) 859-3681                    *Field Office/Service Center
+• orlando 32803                                                                                                         **Regional Office
+  Suite 109. 1040 Wood coc k Rd.        Phone : (3 13) 478-5200
+                                                                                                                         tService Center
+  Phone : (305) 894 -391 1
+  From the Cape Kenne dy Area :
+    636-034 3
+ Pensacola 32503
+ Suite 130, 4900 Bayou Blvd.
+ Phone: (904 ) 4 76-1897
+
+
+
+
+272
+Technological innovation. Since the introduction of its first
+pioneering laboratory oscilloscope in 1947, Tektronix has been
+committed to advancing the state of technology. The 7834 was
+chosen by Industrial Research magazine as one of the top 100
+technological innovations in 1977. It's the world's fastest storage
+oscilloscope. And the only scope that can retain waveforms of
+very fast, single-shot events (up to 1.4 nsec rise time) typical of
+nuclear research, laser fusion, and glitches in digital logic cir-
+cuitry. The scope's biggest users are nuclear-energy researchers
+and computer people. See pages 56 and 57.
+
+
+
+
+Our 1500-Series Cable Testers are valued by users including
+airlines and telephone companies. The 1500s provide mainte-
+nance people with a fast, accurate, portable tool for checking the
+internal condition of cables and pinpointing problems. Mainte-
+nance people can identify and locate opens and metallic shorts,
+as well as crimps, frays, and poor connections in coax. In tele-
+phone cables, they can also see splices, sheath damage, water,
+splits and resplits, load coils, bridged taps and other kinds of
+trouble. The 1500-Series Cable Testers are simple to operate and
+can be used on everything from coax to lamp cord. See pages 170
+and 171.
+
+
+
+
+The TV broadcasting industry around the world knows
+Tektronix for a wide range of instruments that help maintain the
+quality of television transmission from the camera to the home
+receiver. Applications of these instruments beyond the television
+broadcast industry are as varied as NASA Control's elaborate
+system that enabled us to see man take his first step on the moon
+to the production of video tapes that record what a physician sees
+through a bronchoscope. The Grass Valley Group subsidiary of
+Tektronix is also well known for television broadcast products -
+especially its production and routing switchers, which are used in
+program editing and for special effects. See pages 173 and 174.
+
+
+
+
+The broadest line of portable scopes in the industry means
+you can pick and choose from 22 high-performance models. They
+can be found servicing computers, helping teach basic elec-
+tronics to students, repairing business systems, and checking
+completed products on the production line. In integrated circuit
+manufacturing, TEKTRONIX Portable Oscilloscopes are used to
+maintain the ion implanters used in making ICs. Our business is
+supplying the model you need to go where you go. See pages 97
+through 128.
+IPklron~
+  COMMITTED TO EXCELLENCE
+
+
+
+
+                      Portable scopes meet on-the-spot servicing needs
+

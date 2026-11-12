@@ -1,0 +1,75 @@
+Jun 1983
+
+8002A USERS DOCUMENTATION
+
+TEKDOS Systerm Users Manual												070-2701-02
+Supplement for 6800/6802 Emulator Processor								070-2714-00
+Supplement for 8048/etc. Emulator Processor						 		070-2856-00
+Supplement for 6500/1 Emulator Processor								070-3433-00
+8002A System Reference Booklet (TEKDOS Version 3)						070-2706-01
+8002A TEKDOS Editor Version 3.X Reference Card							070-3442-00
+80D2A TEKDOS Editor Version 3.X											070-3441-00
+8002A MDL/u Compiler Users Manual										070-2584-01
+8002A MDL/u Compiler Reference Booklet									070-2629-01
+8002A Pascal Compiler Users Manual										061-2417-00
+Simplifying Microproc-Based Product Design (8000 Ser)					062-3771-00
+8002A 8086 Prototype Debug Users Manual									070-3455-00
+8002A 8086 Prototype Debug Reference Card								070-3504-00
+8002A 28000 Prototype Debug Users Manual								070-3507-00
+8002A 28000 Prototype Debug Reference Card								070-3508-00
+8002A 68000 Prototype Debug Users Manual								070-3511-00
+8002A 68000 Prototype Debug Reference Card								070-3512-00
+8002A F8/3870/3872 Assembler & Emulator Users Manual					070-2615-00
+8002A F8/3870/3872 Assembler & Emulator Reference Crd					070-2616-00
+8002A 280 Assembler & Emulator Users Manual								070-2705-01
+8002A Z80 Assembler & Emulator Reference Card							070-2710-01
+8002A 1802 Assembler & Emulator Users Manual							070-2627-00
+8002A 1802 Assembler & Emulator Reference Card							070-2628-00
+8002A 6800/6802 Assembler & Emulator Users Manual						070-2703-02
+8002A 6800/6802 Assembler & Emulator Reference Card						070-2708-02
+8002A 8048/8021/8041A/8022 Assembler & Emulator Users Manual			070-2611-00
+8002A 8048/8021/8041A/8022 Assembler Reference Card 					070-2612-01
+8002A 8080A/8085A Assembler & Emulator Users Manual 					070-2702-01
+8002A 8080A/8085A Assembler & Emulator Reference Card					070-2707-01
+8002A 9900 Assembler & Emulator Users Manual 							070-2704-01
+8002A 9900 Assembler & Emulator Reference Card 							070-2709-01
+8002A Assembler Users Manual											070-3454-00
+Supplement for 6500/1 Assembler											070-2790-00
+8002A 6500/1 Assembler Reference Card									070-2784-00
+Supplement for 8086 Assembler											070-3505-00
+8086 Assembler Reference Card											070-3506-00
+Supplement for Z8000 Assembler											070-3509-00
+Z8000 Assembler Reference Card											070-3510-00
+Supplement for 68000 Assembler											070-3513-00
+68000 Assembler Reference Card											070-3514-00
+
+8001 USERS DOCUMENTATION
+
+8001 System Users Manual												070-2464-00
+Supplement for F8/3870/3872 Emulator Processor							070-2822-00
+Supplement for 1802 Emulator Processor									070-2854-00
+Supplement for 6800/6802 Emulator Processor								070-2713-00
+Supplement for 8048/etc. Emulator Processor								070-2855-00
+Supplement for 6500/1 Emulator Processor								070-3432-00
+8001 System Reference Card (TEKOPS version 2)							070-2471-01
+
+8001/8002A SERVICE MANUALS
+
+8001/8002A Microprocessor Lab Service Manual							070-2711-00
+8001/8002/8002A Microprocessor Lab Installation Guide					070-2717-01
+Supplement for 8080A Emulator Processor									070-3380-00
+Supplement for 6800/6802 Emulator Processor								070-2951-00
+Supplement for Z80 Emulator Processor									070-3382-00
+Supplement for 9900 Emulator Processor									070-3381-01
+Supplement for 8085 Emulator Processor									070-2871-01
+Supplement for F8/3870/3872 Emulator Processor							070-2872-01
+Supplement for 1802 Emulator Processor									070-2882-01
+Supplement for 8048/etc. Emulator Processor								070-2473-00
+Supplement for 6500/1 Emulator Processor								070-3475-00
+1702A PROM Programmer Service Manual									070-2722-00
+2704/2708 PROM Programmer Service Manual								070-2723-00
+Maintenance Front Panel Service Manual									070-2725-00
+Flexible Disc Unit Service Manual										070-2587-00
+118-0195-00 Flexible Disc Drive Service Manual							070-2786-00
+
+

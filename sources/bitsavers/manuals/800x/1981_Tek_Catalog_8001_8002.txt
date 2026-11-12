@@ -1,0 +1,1120 @@
+                             Tektronix Microcomputer Development Labs of-
+     MDL Now Supports        fer the broadest range of quality multiple micro-
+                             processor support available today. Tektronix
+     8088         6802       won't lock you into one microprocessor family
+     8086         6803       or vendor. Plus, every Tektronix MDL is backed
+                             with over 30 years of design experience. We test
+     8085A        6808       our Development Labs thoroughly to ensure per-
+     8080A        F8         formance and reliability. Each one provides com-
+                             plete development capability and the Tektronix
+     8048         3870       committment that guarantees you'll keep abreast
+     8049         3872       of the fast paced microprocessor technology.
+     8035         3874       Call your local specialist today to find out more
+                             about the new Tektron ix 8550 MDL. Tektronix
+     8039         3876       can also offer you high level language sup-
+     8039-6       Z-80A      port with our Modular Development Language
+                             MDL/µ..
+     8021         z9000
+     8022         TMS9900
+     8041A        SBP9900
+     68000        1802
+     6800         6500/1
+     6801
+     ... with more to come
+18
+8001
+Multiple Microprocessor Support
+In-Circuit Emulation
+Real-Time Prototype Analysis
+
+
+The 8001 Microprocessor Lab is a total
+hardware debugging system for the design
+of microprocessor-based products. A key
+feature is its ability to support many micro-
+processor chips, including the 8086, 8041 A,
+8022, 8085A, 8080A, 8048, 8049, 8039, 8039-
+6, 8035 and 8021, 6800 and 6802, TMS9900,
+Z-80A, and Z8000, F8, 1802 and the 3870
+and 3872, 3874, 3876 and 6500/1.
+In addition to multiple microprocessor sup-
+port, the 8001 offers three emulation modes
+for software debugging, partial and full emu-     The 8001 Microprocessor Lab consists of the 8001 Mainframe with 16K of Program Memory.
+lation, as well as a real-time prototype an-      Microprocessor Support Packages for microprocessors are optional. A Microprocessor Sup-
+alyzer option offering all the capabilities of
+                                                  port Package includes an emulator ROM, an emulator processor, and a prototype control
+a microprocessor analyzer with eight chan-
+                                                  probe. The 402414025 Computer Display Terminals, or the LP8200 Line Printer are recom-
+nels of external input.
+                                                  mended optional peripherals.
+           Three Emulation Modes
+                                                  memory has been mapped over to the proto-                        8001 CHARACTERISTICS
+In a typical design sequence, software is
+first developed independently using time-         type ; and only the prototype control probe       The 8001 Microprocessor Lab is a modular system
+                                                                                                    whose mainframe houses up to 20 plug-in circuit
+sharing , a minicomputer, another develop-        is still in place, emulating the target micro-    boards. Emulator processor modules for the micro-
+ment system, or some other means. It is then      processor. Although the prototype is effec-       processor of choice, its associated prototype control
+downloaded to the 8001 using the Tektronix        tively free-standing, the user may still direct   probe, and a ROM-based software module are op-
+                                                  program activity through the prototype con-       tional. A terminal is necessary for system operation,
+Hexadecimal Fi le Format to insure accurate                                                         and may be ordered as an optional peripheral.
+transfer of the program. At this point the in-    trol probe.
+                                                                                                    The Real-Time Prototype Analyzer module. additional
+prototype emulation and software/hardware                                                           16K byte Program Memory modules, and PROM
+integration capabilities of the 8001 come                       PROM Programmer                     Programmer modules for the 1702 or 2704/2708 are
+into play.                                        The 1702 and 2704/ 2708 PROM Program-             avai lable as system options.
+
+                                                  mer, Options 47 and 48 for the 8002A and          In addition to the standard system console 1/0 port,
+Afte r the developed software is downloaded                                                         the 8001 provides a system communication module
+to the 8001 , the resulting object code may       8001 Microprocessor Labs, provide the abil-       with three RS-232-C compatible ports f or use with
+be executed in system emulation mode O on         ity to program either 1702 or 2704/ 2708          such peripherals as paper tape reader/ punchers, line
+                                                  erasable PROM chips. When the module is           printers (LP8200), printing terminals, modems and
+the optional emulator processor. The emul-                                                          other peripherals. One port is designated a general
+ator processor is identical to the micro-         installed in an 8002A or 8001 Mainframe, the      purpose RS-232-C compatible input/output port with
+processor that will finally be installed in the   PROM Programmer software enables com-             independent input and output baud rate selection.
+user's prototype. Execution is performed          munication between 8002A or 8001 program          Another port is an RS-232-C compatible output only
+                                                  memory and the PROM installed in the front-       port for use with line printers . The third port is a
+under control of the debug system; during                                                           modem compatible port for use with half duplex mo-
+execution, program steps can be traced ,          panel PROM programming porch.                     dems. All ports have strap selectable baud rates of
+software breakpoints can be set, and mem-                                                           110, 300, 600, 1200, or 2400.
+ory can be examined and changed as re-            1702 or 2704/ 2708 PROM Programmer soft-
+quired. Should an error be discovered, that       ware transfers one data byte at a time, and
+                                                                                                               8001 PHYSICAL CHARACTERISTICS
+portion of the program can be corrected at        actual addresses are assigned. Data may be
+                                                                                                    Dimensions                 in               cm
+the source level using the editing, assem-        written from 8002A or 8001 program memory
+                                                                                                      Height                   9.6              24.7
+bling and linking feature of the host com-        (WPROM) ; read from PROM into program
+                                                  memory (RPROM); or compared on the                  Width                   18.8              48.3
+puter. This continues until the program is
+correct.                                          system terminal (CPROM).                            Length                  22.3              57.3
+                                                                                                    Weight                     lb                kg
+Partial emulation mode 1 lets the user re-        The RPROM command allows the program-               Net                      66                30
+lease control in methodical steps from the        med PROM to be read into program memory
+8001 to the prototype. The developmental          and dumped to the system console. The                  8001 ENVIRONMENTAL CHARACTERISTICS
+software runs using 8001 memory space,            CPROM compare function performs an ad-
+                                                                                                    Temperature
+and the prototype's I/ 0 and clock. The 8001      dress-by-address comparison between the
+                                                                                                      Operating
+memory mapping feature allows memory to           PROM and the program under development.
+                                                  When an inequality between PROM bytes             Humidity             To 90° re lative noncondensing .
+be gradually mapped over to the prototype
+                                                  and memory bytes occurs, the memory ad-           Altitude
+in address blocks as small as 128 bytes.
+Throughout partial emulation, the user has        dress, memory byte content, and PROM byte           Operating          To 15,000 feet max.
+access to prototype circuitry via the power-      content are displayed on the system con-
+ful 8001 debugging system, which enables          sole. A successful comparison between des-                   8001 ELECTRICAL CHARACTERISTICS
+him to trace, set breakpoints, examine and        ignated PROM and memory bytes is indi-            Ac Input Voltages        115 V ac ±10% or
+change memory and register contents.              cated by an End of Job message on the                                      230 V ac ±10% .
+                                                  console.                                          Frequency Range          60 Hz (50 Hz special order)
+Full emulation mode 2 lets the user exercise
+the program on the prototype while still
+maintaining complete control through the
+Microprocessor Lab. All 1/0 and timing
+functions are directed by the prototype; all
+
+                                                                                                                                                       19
+Microcomputer Development Lab System
+
+8550
+Multiple Microprocessor Support
+In-Circuit Emulation
+Real-Time Prototype Analysis
+
+
+The Tektronix 8550 Microcomputer Develop-
+ment Lab is a versatile software develop-
+ment and hardware/software integration
+system for microcomputer-based product
+design. The system supports many 8- and
+16-bit microprocessors, allowing the user
+to configure the 8550 for a wide variety of
+design types.
+The 8550 Development Lab offers resources
+for editing facilities to support both assem-
+bly-level and high-level languages, as well
+as linking capabilities. The optional advan-
+ced CRT-oriented editor eases the task of
+program entry and editing. With the appro-
+priate assembler and emulator options for
+the target microprocessor, the user can exe-
+cute software in the 8550 for full program de-     DOS/50 supervises the following tasks:             bly is completed, the assembled object code
+bugging.                                           • General input and output.                        is stored on disc in a newly created binary
+                                                                                                      format file.
+The Lab also offers complete in-circuit emu-       • File creation and maintenance.
+lation and hardware testing capabilities.          • Program assembly and compilation.                Three Emulation Modes
+With the appropriate prototype control probe                                                          After an error-free assembly listing has been
+                                                   • Program execution , monitoring, and de-
+for the target microprocessor, the user can                                                           obtained, the resulting object code may be
+                                                     bugging.
+transfer control from the 8550 to the proto-                                                          executed in system emulation mode 0 on
+type block by block, dedugging at every                                                               the optional emulator processor. The emula-
+stage. The real-time prototype analyzer op-        Program entry and editing is accomplished          tor processor is identical to the micro-
+tion provides an invaluable tool for verifying     via the standard line-oriented editor or the       processor that will finally be installed in
+and correcting execution of the program in         optional advanced screen-oriented editor,          the user's prototype. Execution is performed
+real time.                                         which allows both line-and screen-oriented         under control of the debug system ; during
+The basic 8550 system consists of two major        editing.                                           execution , program steps can be traced,
+components, the 8301 Microprocessor De-            Data management is simplified through a            software breakpoints can be set, and mem-
+velopment Unit and 8501 Data Management            tree-like structure format, which allows the       ory can be examined and changed as re-
+Unit. The Microprocessor Development Unit          user to specify one main system directory,         quired. Should an error be discovered, that
+houses the operating system software, DOS/         one root directory for each disc, and any          portion of the program can be corrected at
+50; 32K bytes of program memory; language          number of sub-directories under the root           the source level using the text editor. It
+processor; emulator controller; and hard-          directory. Data files may be created and en-       can then be reassembled and executed
+ware options such as emulator processors           tered directly into the root directory. As files   again . This procedure continues until the
+and prototype control probes for selected          are accumulated, the user may organize             program is correct.
+microprocessors, an additional 32K of static       them into specific groups, each under its          After the software has been debugged, it
+RAM, the real-time prototype analyzer, and         own specific directory. This allows the user       may be exercised on the prototype circuitry
+the PROM programmer. Optional system               to create directories within directories to        in the partial emulation mode (mode 1). Dur-
+software includes assemblers for all sup-          any level of nesting needed .                      ing partial emulation , control may be re-
+ported microprocessors, Pascal and MDL/u           The assembler processor, with the appro-           leased from the 8550 to the prototype in
+compilers for several supported micro-             priate disc inserted in the flexible disc drive,   stages. The developmental software runs
+processors, and the advanced CRT-oriented          performs program assembly functions for            using 8550 memory space and prototype
+editor.                                            each microprocessor supported by the               1/ 0 and clock. The 8550 memory mapping
+The Data Management Unit handles files and         8550.                                              feature allows memory to be gradually map-
+auxiliary 1/0 for DOS/50 and manages the           The powerful macro capability allows the           ped over to the prototype in 128-byte ad-
+movement of user files between its dual-           designer to access frequently used sets of         dress blocks. Throughout partial emulation,
+sided, double-density flexible discs and the       code by referencing the macro by name.             the user has access to prototype circuitry
+Microprocessor Development Unit. Disc              The linker, working with the relocating fea-       through the debugging system, which en-
+memory capacity is 2 megabytes.                    tures of the Assembler, links and locates          ables him, as before, to trace, set break-
+                                                   multiple code segments into a complete             points, examine and change memory and
+Multiple Microprocessor Support                                                                       register contents.
+A key feature of the 8550 is its ability to sup-   executable program. Additionally, the con-
+port many microprocessor chips, including          ditional assembler capability of the 8550          In full emulation (mode 2) the program is
+the 8086, 8085A, 8080A, 8048, 8049, 8035,          allows the designer to customize the final         run on the prototype, but program execution
+8039, 8039-6, 8021, 8041A, 8022, 6800, 6802,       program by testing conditions to determine         is still under the complete control of the
+6808, F8, 3870, 3872, 3874, 3876, Z8000,           which of certain code segments are to be           debug system. All 1/ 0 and timing functions
+Z80A, TMS9900, 1802 and 6500/1.                    assembled into the final program. Code             are directed by the prototype; all memory
+                                                   management is further enhanced by the              has been mapped over to the prototype;
+Program Development                                Assembler's versatile string handling ca-          and only the prototype control probe is still
+Under the supervision of the operating sys-        pability. Extension English language diag-         in place, emulating the target microproces-
+tem software, the Microcomputer Develop-           nostics of the 8550 provide easy to under-         sor. Although the prototype is effectively
+ment Lab aids the designer in all phases of        stand error messages and locate the line in        free-standing, then, the user may still direct
+program development and debugging.                 which the error has occurred. When assem-          program activity from the 8550.
+
+
+20
+                                                                8550
+                                                                Parts
+                                                                and
+                                                                Functions
+
+                                                                                                                 System
+                                                                                                                 Terminal
+
+
+
+
+                                                                                                                             J104
+Real-Time Prototype Analyzer
+                                                                                       J101                                                   HSI
+The real-time prototype analyzer option is
+                                                                      Host                                     8301                                        8501
+useful for resolving timing problems in the                                                               Microprocessor
+prototype. This hardware trace function                          Interface                                                                                 Data
+                                                                                                           Development                                  Management
+captures bus information from the program                                                                      Unit
+as it executes. It can store this information                                                                                                              Unit
+and display it later in trace format, or it can
+use the information to trigger a break in exe-
+cution, time a program segment, or signal an                                                          PROM                  Program
+external device usch as a logic analyzer.                                                         Programmer                Memory
+
+8550 Parts and Functions                                                                            Real-Time
+Refer to Figure 1 for the functional block                                                                                  Emulator
+diagram of the complete 8550 Microcom-
+puter Development Lab system.
+                                                                                                    ~                      Processor
+
+
+
+                                                                                                                                                               Line
+                                                                                              RTPA
+                                                                                              Probe                                 ~                         Printer
+                                                                                                                                      Probe
+
+
+                                                                                                                   u....
+                                                                                                                 Prototype
+
+
+
+
+                                                          Figure 1 shows the components of a complete 8550
+                                                          Microcomputer Development Lab system.
+
+
+              8550 CHARACTERISTICS                                     8501 DATA MANAGEMENT UNIT                           Output Ripple
+                                                          Physical                                                         24 V de             100 mV (p-p)
+   8301 MICROPROCESSOR DEVELOPMENT UNIT                   Height                    10.5 in          (267 mm)                                  120 mV (p-p)
+                                                                                                                           ±12 V de
+Physical                                                  Width                     16.8 in          (424 mm)              15 V de              50 mV (p-p)
+Height               11 in     (280 mm)                   Length                    23.5 in          (597 mm)              15 V de             100 mV (p-p)
+Width                17 in     (430 mm)                   Net Weight                 55 lb            (25 kg)
+Length               23 in     (585 mm)                                                                                Overload Protection
+Net Weight          60 lbs      (27 kg)                                                                                Automatic current limit foldback.
+                                                                              ENVIRONMENTAL
+                                                          Operating                                                                FLEX DISC CHARACTERISTICS
+                  ENVIRONMENTAL                           Temperature        50° F to 104° F (10oc to 400C)            Encoding - IBM compatible single or double density.
+Operati ng                                                Humidity           20% to 80% relative noncondensing         Format must qualify as follows: MFM sectors-256
+Temperature      32° F to 122° F (0° C to 500C)           Altitude                                                     bytes . FM sectors-128 bytes.
+Humidity         90% @ 86° F to 140° F (30° C to 60° C)     Operating        O to 8,000 ft (2500 m) Derate max         Diskette Type -     Single or double sided , soft sec-
+                                                                             operating temp. by 1° c for               tored.
+Altitude                                                                     each 300 m above 2400 m.
+  Operating      Oto 15,000 ft (4,500 m)                                                                               Capacity-
+                                                            Storage          Oto 50,000 ft (15,000 m)
+  Storage        Oto 50,000 ft (15,000 m)                                                                              Double sided, double density 1,021,696 bytes.
+                                                                         POWER REQUIREMENTS                            Single sided , double density 509,184 bytes.
+               POWER REQUIREMENTS                         115 V ac (90-127 V RMS) @ 50 Hz ± 1 % or 60 Hz ± 1 % .       Single sided , single density 256,256 bytes .
+115 V ac (90 V ac-132 V ac) @ 48 to 66 Hz.                230 V ac (180-250 V RMS) @ 50 Hz ± 1 % or 60 Hz
+                                                          ±1%.
+230 V ac (180 V ac-250 V) @ 48 to 66 Hz.
+
+Outputs                                                   Outputs
+5.2 V de + 1 %/-2% @ 35.0A                                24 V de ±5%@ 2A
++12 v de +ot-5%@ 1.7A                                     12 V de ±3% @ 4A
+-12 v de +ot-5%@ 1.7A                                     -12 V de ±5%@ 540 mA
+                                                          5 V de ±5% @ 20 A
+                                                          15Vde ± 10% @ 20 mA
+
+
+                                                                                                                                                                         21
+Microprocessor Development Lab and Software Support
+                                                 cable is supplied as part of the package.          the linker will combine the separate files into
+16-Bit Assembler                                 With the download complete, debug com-             a single load file.
+and                                              mands are entered through the 8550 system          Prototype Debug
+                                                 console and executed by interaction be-
+Prototype Debug Support                          tween two software components, one resi-
+                                                                                                    The Debug package supports hardware/
+                                                                                                    software integration on the iSBC 86/12A
+                                                 dent in the 8550 and the other on board the
+The 8086 and Z8000 Assemblers and 8086           SBC. Both of these components are supplied         through two operations. First, it allows as-
+Prototype Debug package are software prod-                                                          sembled absolute object code or a linked
+                                                 as part of the debug package.
+ucts intended for use with the Tektronix                                                            load file from the 8550 to be serially down-
+8550 Microcomputer Development Lab. The          The Assembler                                      loaded to the SBC memory for execution by
+Assemblers support any software develop-         The Assembler supports software develop-           its 8086 processor. Second, it permits a wide
+ment effort targeted for the Intel 8086 or       ment by converting source code into execu-         range of debugging operations to occur
+8088 microprocessor or Zilog Z8002, while        table object code, using a source file that        while exercising the downloaded software
+the Debug package will support the Intel         has been created through the editing soft-         on the SBC.
+iSBC 86/12An-4.                                  ware. It will assemble code within an ad-
+                                                 dress range of O to 64K bytes, which allows        Program execution can take place in real-
+In a typical design situation, the Assembler     full use of the memory space on the iSBC           time with predetermined breakpoints, or in
+and Debug software is used in the following      86/12A.                                            single instruction steps. During debugging,
+manner: First, an absolute object code file       Included with the assembler are a powerful        the user can examine and modify the con-
+is generated by the Assembler or modules          set of macro features which allow the ex-         tents of both the SBC memory and the
+are linked to form a load file. Next, the file    pansion of in-line code. Among these are          processor registers. In addition, blocks of
+is downloaded to the SBC under control of        the ability to call macros through easily iden-    data can be moved from one set of memory
+the debug software, which supplies the pro-      tificable names, and the inclusion of an           locations to another. The memory can also
+tocol necessary for the serial transfer. This     indefinite number of arguments. Assembly          be filled with a specified hex or ASCII string,
+hardware link is accomplished through an          time string manipulation is allowed, includ-      or searched for the occurrence of a spe-
+RS-232 interface between the 8550's sys-          ing the use of variable length strings both       cified data pattern. The results of debugging
+tems communication module and the SBC's           inside and outside of macros. There is also       can be saved by uploading the SBC memory
+serial data port. The 180 cm (6 ft) interface     a group of commands which allow condition-        contents to the 8550 for file storage.
+                                                  al assembly based on an IF/ ELSE structure.
+                                                  If more than one object code module is used,
+
+8002A
+Multiple Microprocessor Support
+
+In-Circuit Emulation
+
+Real-Time Prototype Analysis
+
+The 8002A Microprocessor Lab is a com-
+plete software development system for the
+design of microprocessor-based products.
+A key feature is its ability to support many
+microprocessor chips, including the Intel
+8085A, 8080A, 8048, 8049, 8039, 8039-6,
+8035 and 8021 , Motorola 6800 and 6802,
+Texas Instruments TMS9900, Zilog Z-80A,          Program entry and editing may be accom-                     8002A CHARACTERISTICS
+Fairchild F8, RCA 1802, Mostek 3870/72, and      plished module by module. The line-orient-         The 8002A Microprocessor Lab is a modular
+the Rockwell 6500/1. The 8002A also sup-         ed text editor offers several convenience          system whose mainframe houses up to 20
+ports the new 16-bit processors including the    features for preparing, correcting, and modi-      plug-in circuit boards. A terminal is neces-
+ Intel 8086/88, Zilog Z8000, and the Motor-      fying the program quickly and easily.              sary for system operation , and may be or-
+ola 68000.
+In addition to multiple microprocessor sup-      The assembler processor, with the appro-           dered as an optional peripheral.
+port, the 8002A offers a superior operating      priate disc inserted in the flexible disc drive,
+                                                 performs program assembly functions for            The Real-Time Prototype Analyzer module,
+system and powerful text editor, assembler,                                                         additional 16K byte Program Memory mod-
+and debugging programs; three optional           each microprocessor supported by the
+                                                                                                    ules (Standard Program Memory consists of
+levels of emulation for software debugging ,     8002A.
+                                                                                                    32k bytes of RAM), and PROM Programmer
+partial and full emulation; and a real-time      After an error-free assembly listing has been      modules for the 1702 or 2704/2708 are avail-
+prototype analyzer option offering all the       obtained, the resulting object code may be         able as system options.
+capabilities of a microprocessor analyzer        executed in system emulation mode 0 on
+with eight channels of external input.           the optional emulator processor.                   In addition to the standard system console
+                                                  Partial and Full Emulation                        1/ 0 port, the 8002A provides a system com-
+Software Development and Debugging                                                                  munication module with three RS-232-C
+                                                  After the software has been debugged, it          compatible ports for use with such peri-
+In a typical design sequence, software is
+                                                  may be exercised on the prototype circuitry
+developed using all the resources of TEK-                                                           pherals as paper tape reader/punchers, line
+DOS, the disc-operating system software for       in the partial emulation mode (mode 1). Dur-      printers (LP8200), printing terminals (CT
+                                                  ing partial emulation, control may be re-         8101) modems and other peripherals. One
+the 8002A Microprocessor Lab. TEKDOS
+                                                  leased from the 8002A to the prototype in         port is designated a general purpose RS-
+performs flexible disc and file utility func-
+                                                  stages.                                           232-C compatible-input/ output port with in-
+tions, data transfer functions, and system/
+peripheral device control functions. In ad-      In full emulation (mode 2) the program is          dependent input and output baud rate selec-
+dition to relieving the user of these house-     run on the prototype, but program execution        tion. Another port is an RS-232-C compat-
+keeping chores, TEKDOS also supervises           is stil l under the complete control of the        able-output-only port for use with line print-
+the text editor, assembler, and linker pro-      debug system. All 1/ 0 and timing functions        ers. The third port is a modem-compatible
+grams and the optional emulation support,        are directed by the prototype; all memory          port for use with half duplex modems. All
+debugging system, and PROM programming           has been mapped over to the prototype;             ports have strap selectable baud rates of
+routines.                                        and only the prototype control probe is sti II      110,300,600, 1200,or2400.
+                                                 in place, emulating the target microproces-
+                                                 sor.
+22
+                          Emulator Processor and Prototype Control Probe Support Packages
+
+The 8550, 8002A, and 8001 Microcomputer
+Development Labs support a wide variety of
+different microprocessors and microco m-
+puters.
+Emulators are currently available for il te
+Intel 8080A, 8085A, 8048, 8049, 8039, 8039-
+6, 8035 and 8021, Motorola 6800 and 6802,
+Texas Instruments TMS9900, Zilog Z-80A,
+Fairchild F8, RCA 1802, the Mostek 3870 and
+3872, and Rockwell 6500/ 1.
+
+Emulator packages for the 8002A and 8001
+may be ordered as system options. These
+options provide the capabilities necessary
+to fu lly emulate the target microprocessor
+in a user's prototype system.
+The emulator processor, which resides on
+a plug-in circuit module along with control-
+ling logic circuitry, enables the user to exe-
+cute and debug the program on a micro-
+processor identical to the one w hich will
+be used in the prototype, while giving him
+access to the full 64K bytes of Micropro-
+cessor Lab program memory.
+
+The prototype control probe, which links
+the emulator processor to the prototype
+system, allows partial and full in-circuit                      (TYPICAL WORST CASE) EMULATION INTERFACE                          Symbol         Parameter            Min       Max      Units
+emulation .                                                        DELAYS FOR THE 8048 (8021 IF DIFFERENT)
+                                                                                                                                  tACC       DACK to WR or RD          54                  ns
+All emulation operations are controlled by                                                     tPLH (ns) tPHL (ns)
+                                                                                               Typ. Worst Typ. Worst              tCAC       RD or WR to DACK          71                  ns
+the powerful Microprocessor Lab system                                                           Case       Case                  tACD       DACK to data val id                225        ns
+software. The user is able to monitor pro-                 ALE                                       14,20              14,20     tCRQ       RD or WR to
+gram execution, set software breakpoints,                  PSEN                                  22,32                  22,32                DRQ cleared                        200        ns
+examine and change memory and reg ister                    RD ,WR                                18,26                  15,22     tAW        CS,AO Setup to WR         0                   ns
+contents. Debug trace information is dis-                                                                                         tWA        CS,AO Hold
+                                                           PROG                                      14,20              14,20
+played in a format unique to the micropro-                                                                                                   after WR                  24                  ns
+                                                           080-087* ** t i-fetch cycle                 ,90                ,90
+cessor, with instructi on fetches disassem-                (POO-P07)   ti-execu te cycle             26,38              26,38     tWW        WR Pulse Width           250                  ns
+bled into mn emonics for easy interpretation.              User to CPU                                                            !OW        Data Setup to WR         150                  ns
+                                                           080-087     h-Add ress Out            26,38                  26,38     !WO        Data Ho ld
+                                                           (POO-P07)   t4-EXt Data Out           26,38                  26,38                after WR                  70                  ns
+    8049,8035, 8039,8039-6, 8022, 8041A,                   CPU to User ts-OUTL, AN L,            14,20                  14,20
+      8048/8021 EMULATOR SUPPORT                                           ORL,
+                                                                           data out                                                          8022 PROTOTYPE CONTROL PROBE
+       PACKAGE CHARACTERISTICS
+                                                           P10-P17                                    2,2                2,2
+8048, 8049, 8039, 8039-6 , 8035 , 8022, 8041A and 8021     P24-P27
+                                                                                                                                              8022 Timing Characteristics With
+are trademarks of Intel Corporation , T ektronix, In c.,                                                                                         Emulation Interface Delays
+does not g uarantee th at other vendor's ve rsions of      P20-P23
+                                                                                                                                                      tPLH (ns)                tPHL (ns)
+th ese mi crocomputers wi ll be compatibl e with T ek-     TO **                  out/in             11 , 15            11 ,15                     typ. worst case          typ. worst case
+troni x Microprocessor La bs.                                                                                       102,82
+                                                           T1                                                                     ALE                      24,34                 32,46
+                                                           INT                                   21,32                  21,32     POO-P07                  54,87                 57,91
+            PHYSICAL CHARACTERISTICS
+                                                           AST                 8048 (8021 )    ( 120,212)               69,1 22   POO-P07                  1.3 µ s               1.3 µ s
+Length 6 ft. (1.8 m) of cable from th e emulator proces-
+       sor to th e interface assembly. 1.5 ft. (45 c m)    SS                                    22,32                  22,32                   t1-CPU to USER }
+       of cable from the inte rface assembly to th e                                                                              P10-P17       t2-USER to CPU 2 •2               2,2
+                                                           CLK                                   29 ,47             31 ,52
+       ~ ·:i pin plug (or 28-pin plug for 8021) .
+                                                                                                                                                for OUTL inst : data
+                                                                * INTEL 8099 chip specifications .                                              valid be fo re ALE after
+Cable c - nfiguration
+6 ft. (1.8 m)                                               **for c lock in to 8039   >  6 MHz and memory mapped                  P20-P23       the next instructio n fetch .
+                                                                                                                                                t3-MOVD P2, A 13, 18             17,24
+                                                              to 8550, tO ou t is divi ded by 2.
+         Two 40 conductor ribbon cables with alterna-                                                                                           t4-MOVD A, P2} 13 18
+         ting g round and signal paths .                   * * *tRD * = t 1.2 + t user mem access.                                                   IN A , P2         I
+                                                                                                                                                                                 17,24
+
+1.5 ft. (45 cm)                                                                                                                   PROG                     13, 18                17,24
+         Two l aminated 40 conducto r cables made up                  8041A PROTOTYPE CONTROL PROBE                               TO                       17,24                 17,24
+         of si gnal-ground pairs.                                             (Typical, worst case)
+                                                                                                                                  T1                      102, 182              102, 182
+                                                                            Emulation Interface Delays
+                                                                                                                                  ANO ,AN1                336, 444              336, 444
+                                                                                   tPLH (ns)                   tPHL (ns)
+                                                                                   (typ. WC)                   (typ. WC)          XTAL1                    21 ,33                29,45
+                                                           SYNC                      14,20                       14,20            1
+                                                                                                                                  lnputs must be prese nt until read by an input instruc-
+                                                           PROG                      14,20                       14,20            tion (Intel Specification).
+
+                                                           T1                                                    27,39
+                                                           P10-P17                    2,2                         2,2
+                                                           TO                        29,45                       22,34
+
+
+
+
+                                                                                                                                                                                            23
+Emulator Processor and Prototype Control Probe Support Packages
+
+   8080A EMULATOR SUPPORT PACKAGE                                           AC CHARACTERISTICS                           ZSOA EMULATOR SUPPORT PACKAGE
+           CHARACTERISTICS                                  Emulation Clock                                                     CHARACTERISTICS
+                                                            Mode 1 or Mode 2          6.25 MHz max*; crystal ,        Z80 and Z80A refer to microprocessors manufactured
+8080 and 8080A refer to microprocessors manufac-
+                                                            (user's clock), with      RC tim ing network or
+tured by Intel Corporation . Tektronix, Inc., does not                                                                by Zilog Corporation. Tektroni x, Inc., does not guar-
+                                                            8085A Prototype Con-      TTL Input to X1.
+guarantee that other vendors' versions of the 8080          trol Probe.                                               antee that other vendor's versions of the Z80 will be
+will be compatible with the Tektronix Microprocessor                                                                  compatible with the Tektronix Microprocessor Labs.
+Labs.                                                       Mode O (system clock)        6.25 MHz ±0.01 %
+                                                                                                                                  PHYSICAL CHARACTERISTICS
+                                                                                                                      Length 6 ft (1 .8 m) of cable from the emulator proces-
+            PHYSICAt CHARACTERISTICS
+                                                                  6800/6802 EMULATOR SUPPORT                                  sort to the interface assembly.
+Length 6 ft (1 .8 m) of cable from the emulator proces-
+       sor to the interface assembly.                              PACKAGE CHARACTERISTICS                                   1 ft (30 cm) of cable from the interface assem-
+                                                            6800 and 6802 refer to microprocessors manufactured              bly to the 40 pin plug.
+         1.5 ft. (45.8 cm) of cable from the interface
+         assembly to the 40 pin plug.                       by Motorola Corporation . Tektronix, Inc., does not       Cable Configuration
+                                                            guarantee that other vendors' versions of the 6800 or           6 ft. (1.8) - 2 40-conductor ribbon cables with
+Cable Configuration                                         6802 will be compatible with the Tektronix Micro-               chassis ground plane and signal paths.
+6 ft (1 .8 m) - 2 40-conductor ribbon cables with al-       processor Labs.
+          ternating ground and signal paths.                                                                                1 ft (30 cm) - 2 40-conductor twi sted pair
+                                                                                                                            cables.
+1.5 ft (45.8 cm) -    2 twisted pair 40 conductor cables.               PHYSICAL CHARACTERISTICS                      Termination
+Termination                                                 Length 6 ft (1 .8 m) of cable from the emulator proces-
+                                                                                                                            6 ft (1 .8 m) -The interface assembly contains
+6 ft (1 .8 m) - The interface assembly contains resis-             sor to the interface assembly.
+                                                                                                                            receivers for data, address, and control from
+          tive termination and receivers for data , ad-            1 ft (30 cm) of cable from the interface assem-          the Z80 Emulator Processor module .
+          dress, and control from the emulator proces-             bly to the 40 pin plug .
+          sor module .                                                                                                       1 ft (30 cm) - Not terminated .
+1.5 ft (45.8 cm) -   Not terminated.                        Cable Configuration
+                                                                                                                                   TIMING CHARACTERISTICS
+40 pin plug-40 pin spring plate protected plug. When               6 ft (1.8 m) - 2 40-conductor ribbon cables        The Z80A Emulator Processor was designed to match
+        used with a zero insertion force socket, an                with alternating ground and signal paths.          the ac characteristics of the Z80A and Z80 Micro-
+        included 40 pin low profi le DIP socket must               1 ft (30 cm) - 2 twisted pair 40 conductor         processors .
+        be used between the zero insertion force                   cables made up of signal/ground pairs.
+        socket and the 40 pin probe plug.
+                                                                   6800 PROTOTYPE CONTROL PROBE                       TMS9900 EMULATOR SUPPORT PACKAGE
+             TIMING CHARACTERISTICS                                     Read/Write Timing (In ns)                              CHARACTERISTICS
+              Emulation Interface Delays*                       Characteristic      Symbol Min    Typ         Max     TMS9900 refers to microprocessors manufactured by
+   To 8080A from                                                                                                      Texas Instruments Corporation. Tektronix, Inc., does
+Interface Assembly Typ                Max (inns)            Peripheral Read
+                                                              Access Time               DTACC                         not guarantee that other vendor's versions of the
+                                                                                                              506
+01                    44                   60                                                                         TMS9900 will be compatible with the TE KT RON IX
+                                                            Address Setup Time           DTAD                 350     Mi cropr ocess or Labs .
+02                    44                   6Q_
+                                                            A/W Setup Time              0 R/WSU               375
+HOLD                  44                   67
+                                                                                        DEVMA                                      PHYSICAL CHARACTERISTICS
+RESET                 44                   67               VMA Setup Time                                    365
+                                                                                                                      Length 6 ft (1.8 m) of cable from the emulator proces-
+ADY**                 35                   40               Data Setup Time (Read)      DTDDA     119                         sor to the interface assembly.
+INT                   63                  104               Data Delay Time (Write)
+                                                                                         roow                                 9.5 in (24 .2 cm) of cable from the Interface as-
+DATA                  44                   53                 (relative to 01 ~)                              513
+                                                                                                                              sembly to the 64 pin plug.
+                                                            Delay for DBE Rising
+                                                              Edge (relative to 01 ~)   DD BEA                444     Cable Configuration
+  From 8080A to                                                                                                              6 ft (1 .8 m) - 2 40-conductor ribbon cables
+Interface Assembly Typ                    Max (in ns)       Input Data Hold Time         DHAD     29                         with chassis ground plane and signal paths.
+HOLDA* * *         39                         55            Output Data Hold Time                                            9.5 in (24.2 cm) - 2 32-conductor twisted pair
+SYNC                37                        45              (after 01 ~)              DTDWH     40**   10
+                                                                                                                             cables .
+WAIT               37                         45            Output Data Hold Time
+                                                                                        DTDWH                         Termination
+WR                  37                        45              (after DBE•)                        20
+                                                                                                                             6 ft (1 .8 m) - The interface assembly contains
+OB IN              37                         45            Address Hold Time            DADH     65                         receivers for data, address, and control from
+INTE                39                        55            VMA Hold Time               DVMAH     68                         the TMS9900 emulator processor module.
+ADDRESS             27                        35            A/W Hold Time               DR / WH   61                         9.5 in (24.2 m) - Not terminated .
+DATA                50                        63
+                                                                   6802 PROTOTYPE CONTROL PROBE                                    TIMING CHARACTERISTICS
+   * Assumes 6 ft of cable at 1.5 ns/ft.
+                                                                        Read/Write Timing (In ns)                       To TMS9900 from     Emulation Interface Delays*
+  **ROY is ignored unless user memory or I I 0 is ac-                                                                  Interface Assembly   Typical    Maximum (In ns)
+     cessed in control mode 2 or special mode.                  Characteristic      Symbol Min    Typ         Max
+                                                                                                                            01                41              59
+* "" The equation for HOLDA to tristate timing is as        Peripheral Read
+     follows : HOLDA• OBIN = FLOAT. Tristate of data                                                                        02                41              59
+                                                              Access Time               DTACC                 480
+     and address follows the trailing edges of OBIN or                                                                      03                41              59
+     WR by approximately 20 ns.                             Address Setup Time           DTAD                 367           04                41              59
+                                                            VMA Setup Time              DEVMA                 373           CRUIN             12              23
+                                                            R/W Setup Time              DR/WSU                392           INTREQ            12              18
+   8085A EMULATOR SUPPORT PACKAGE                                                                                           1CO               12              23
+                                                            Data Setup Time (Read)       DTDDA 127                          IC1               12              23
+           CHARACTERISTICS                                  Data Delay Time (Write)      TDDW                 527           IC2               12              23
+8085 and 8085A refer to microprocessors manufac-            Input Data Hold Time         DHAD   40**     10                 IC3               12              23
+tured by Intel Corporation . Tektron ix, Inc ., does not                                                                    HOLD              12              18
+guarantee that other vendor's versions of the 8085          Output Data Hold Time       DTDWH   39                          READY             12              18
+will be compatible with the Tektronix Microprocessor        Address Hold Time            DADH   63                          LOAD              12              18
+Labs .                                                      VMA Hold Time               DVMAH   66                          RESET             68              98
+                                                                                                                            DATA              14              21
+                                                            R/W Hold Time               DR/WH   70
+              PHYSICAL CHARACTERISTICS
+                                                            **Although data should remain valid at least 40 ns
+Length 6 ft (1 .8 m) of cable from the emulator proces-       after Enable, typically 10 ns will be sufficient.
+       sor to the interface assembly.
+         1 ft (30 cm) of cable from the interface assem-
+         bly to the 40 pin plug.
+Cable Configuration
+6 ft (1 .8 m) - 2 40-conductor ribbon cables with chas-
+          sis ground plane and signal paths .
+1 ft (30 c m) -   2 40-conductor twisted pair cables .
+Termination
+6 ft (1 .8 m) - The interface assembly contains re-
+         ceivers for data, address, and control from the
+         8085 emulator processor module.
+1 ft (30 cm) -    Not terminated.
+
+
+
+
+24
+                                                                                                             Real-Time Prototype Analyzer
+
+  From TMS9900 to                                                   1802 EMULATOR SUPPORT                             As the user program executes on the emula-
+ Interface Assembly      Typical        Maximum (in ns)
+                                                                   PACKAGE CHARACTERISTICS                            tor processor, 48 bit data words are se-
+      OBIN                  24                41
+      MEMEN                 12                18                       PHYSICAL CHARACTERISTICS
+                                                                                                                      quentially acquired from the prototype and
+     WE                     12                18           Length - 6 ft (1 .8 m) of cable from the emulator proc-
+                                                                                                                      loaded into the real-time trace buffer. Each
+     CRUCK                  12                23           essor to the interface assembly. 1.5 ft (45 cm) of cable   data word contains 16 bit data from the ad-
+     CRUOUT                 12                23           from the interface assembly to the 40-p in plug.           dress bus; 8 bit or 16 bit data from the data
+     HOLDA                  12                23
+     WAIT                   12                23           Cable Configuration                                        bus; 8 bit data from the test probe; 3 bit
+     IAQ                    12                23           6 ft (1.8 m) - Two 40-conductor ri bbon cables with        data identifying cycle type (read, write, 1/0,
+     ADDRESS                14                21             alternating ground and signal paths.                     memory, or instruction fetch); and 5 bit
+     DATA                   14                21
+*Assumes 1.5 ft of cable at 1.5 f!S/ft.                    1.5 ft (45 cm) - Two laminated 40-conductor cables         data used internally to identify last start/
+Note: All inputs and outputs of the 64 pin plug at
+                                                              made up of signal-ground pairs.                         stop of the emulator processor. The analy-
+      the end of the prototype control probe are                                                                      zer will continue to acquire these sequential
+      buffered by 74LSXXX type devices. In all                          TIMING CHARACTERISTICS                        cycles of logic input until the processor is
+      cases, data and control should not change            The 1802 Prototype Control Probe is designed to meet       stopped or the real-ti me trace buffer is
+      during clock e1.                                     all the ac characteristics of the 1802 Microprocessor
+                                                           -Vee > 4.0 V.
+                                                                                                                      frozen by a specified trigger occurrence.
+                                                                                                                      The real-time trace buffer can retain up to
+  6500/1 EMULATOR SUPPORT PACKAGE
+                                                                         AC CHARACTERISTICS                           128 data words in pre-, variable center, or
+           CHARACTERISTICS
+6500/1 is a trademark of Rockwell International            Emulation Clock                                            post-trigger modes; thus enabling the stor-
+Corporation. Tektronix, Inc. does not guarantee that       Mode 1 or Mode 2        5.0 MHz max at 10 Vee.             age of pertinent program bus transactions.
+other vendor's versions of these microcomputers will        (user clock) with 1802   25° C, this can be
+be compatible with Tektronix Microprocessor Labs.           Prototype Control        crystal , or external input      The Real-Time Prototype Analyzer offers ex-
+                                                            Probe.                   to clock (pin 1).
+                                                                                                                      panded breakpoints to aid in efficient loca-
+            PHYSICAL CHARACTERISTICS                         Tracking power supply       2.5 MHz                      tion of prototype problems. Two event com-
+                                                             to monitor user voltage
+Length - 1.8 m (6 ft) of cable from the emulator proc-       (Vee) and run the probe                                  parators located within the analyzer module
+essor to the interface assembly. 45 cm (1.5 ft) of cable     at the same voltage
+from the interface assembly to the 40-pin plug.              (4 V to 12 V).
+                                                                                                                      can be utilized to halt program execution
+                                                                                                                      and stop real-time trace. A trigger may be
+Cable Configuration
+                                                                                                                      generated on any specific data occurrence
+1.8 m (6 ft) - Two 40 conductor ribbon cables with
+  alternating ground and signal paths.
+                                                                                                                      in the address bus, data bus, test probe in-
+45 cm (1 .5 ft) - Two laminated 40 conductor cables                                                                   put, and instruction cycle type. Triggering
+  made up of signal-ground pairs.                                                                                     may be immediate; delayed by counting the
+      TYP Delays Inns added to 6500/IE by
+                                                                                                                      number of passes; or delayed by counting
+       Emulator with 6.8K Pull Up Resistors                                                                           the number of clock select outputs (clock
+                                Output      Input                                                                     select may be by microseconds, mil lisec-
+                               Drlvil!.9_ Receiving                                                                   onds, emulator clocks, etc.). In addition, an
+                                1 CLK
+            RISING EDGE        CYCLE         100
+                                                                                                                      output pulse may be generated, via the
+PAO-PA7
+                                +300                                                                                  data acquisition interface, to trigger a logic
+                                1 CLK                                                                                 analyzer or an oscil loscope.
+          FALLING EDGE         CYCLE         100
+                                +300                                                                                  The two event comparators (triggers) may
+PBO-PB7,    RISING EDGE          300          *                                                                       be set to designate a break or halt in the
+PCO-PC7,
+PDO-PD-7   FALLING   EDGE          30         *                                                                       program execution. These comparators
+                                                                REAL-TIME PROTOTYPE ANALYZER
+            RISING EDGE           100        100                                                                      may be used as independent breakpoints;
+CNTR
+                                              20
+                                                           The Real-Time Prototype Analyzer, Option
+           FALLING EDGE            20                                                                                 or they may be used together to enable a
+                                                           46 for the 8001 and 8002A Microprocessor
+*Gated in only during a read instruction from 81 , 82,                                                                breakpoint on a specific event combination .
+ 83.                                                       Labs, and Option 01 for the 8550 Microcom-
+                                                                                                                      The program execution can be halted when
+                                                           puter Development Lab, is comprised of a
+      F8, 3870, 3872 EMULATOR                                                                                         two trigger events occur simultaneously;
+                                                           real-time trace module, a data acquisition
+ SUPPORT PACKAGE CHARACTERISTICS                                                                                      when one trigger event precedes another;
+                                                           interface, and an 8 channel general logic
+F8 refers to microprocessors manufactured by Fair-                                                                    or when either trigger event occurs. When
+                                                           probe. This option provides a real-time trace
+child's Corporation; the 3870 and 3872 refer to micro-                                                                a break in the program execution takes
+computers manufactured by M'ostek Corporation.             of the user program executing on the emu-
+                                                                                                                      place, program transactions stored in the
+Tektronix, Inc., does not guarantee that other ven-        lator processor, with 43 channels of data ac-
+dor's versions of the F8, 3870 , or 3872 will be com-                                                                 real-time trace buffer may be displayed or
+                                                           quired simultaneously. The prototype ad-
+patible with the Tektronix Microprocessor Labs.                                                                       printed.
+                                                            dress bus, data bus, control bus, and any
+            PHYSICAL CHARACTERISTICS                        eight external locations on the prototype                 Data stored in the real-time trace buffer is
+Length 6 ft (1.8 m) of cable from emulator processor        circuit may be monitored without slowing up               displayed sequential ly in the order it was
+       to the interface assembly , 1 ft (30 cm) of cable    the operational speed of the processor. The               acquired from the prototype. Buffer con-
+       from the interface to 40 pin plug.
+                                                            Real-Time Prototype Analyzer is indispensa-               tent may be displayed in whole or in part.
+Cable Configuration
+                                                            ble when isolating critical timing errors and             Optional command parameters are avail-
+6 ft (1 .8 m) - Two 40-conductor ribbon cables with
+   ·     chassis ground plane and signal paths.             hardware/software sequence discrepancies                  able to Ii mit the storing of data to any spe-
+1 ft (30 cm) -   Two 40-conductor twisted pair cables.      during the final integration phases of proto-             cific transaction type, such as memory reads
+                                                             type development.                                        only. If the total buffer contents are dis-
+Termination
+6 ft (1.8 m) - The interface assembly contains re-                                                                    played, a blank line will separate the data
+                                                           The analyzer module is a separate plug-in
+        ceivers for data, address, and control from the                                                               sequence associated with each program
+                                                           circuit card that may be inserted into either
+        F8/3870/3872 Emulator Processor module.                                                                       starting point.
+                                                           the 8550 or 8001 system mainframe. The
+1 ft (30 cm)-Not terminated.
+                                                           P6451 Probe connects to the prototype cir-                 The Real-Time Prototype Analyzer features
+            TIMING CHARACTERISTICS                         cuitry and permits data transference from                  a convenient and easy-to-understand dis-
+3870/3872-The 3870/3872 Prototype Control Probe                                                                       play format. With this format, the address
+      was designed to meet all the ac character-
+                                                           the prototype to the analyzer. Data from the
+      istics of the 3870 and 3872 Microcomputers.          prototype is buffered and driven by the                    location, data, probe input, and control bus
+F8 (3850)-The F8 Prototype Control Probe meets             probe to the data acquisition interface, and               data of each acquired transaction are dis-
+      all of the F8 ac characteristics with the fol-       then loaded into the analyzer module's real-               played. If the transaction was an instruc-
+      lowing exceptions: (1) the worst-case delay          time trace buffer.                                         tion fetch, the instruction is also disassem-
+      from the falling edges of WRITE to the ROMC                                                                     bled into the appropriate mnemonic read-
+      lines being valid Is 650 ns (compared to 550
+      ns for the F8 CPU); (2) the worst-case skew                                                                     out unique to the emulator type being used.
+      between an external clock Input Is 0 to 90
+      ns longer than that specified for the F8.
+
+
+                                                                                                                                                                25
+Prototype Analyzer, High Level Language
+
+The Real-Ti me Prototype Analyzer functions                  Variable names and strings have been con-                    Standard Pascal Features
+in all emulation modes and operates w ith                    siderably expanded w ith MDL/µ. Variable           Pascal is a bloc k-structured language that
+all commercial microprocessors supported                     names can contain up to six characters, the        allows the program to be divided into sub-
+by the 8550, 8002A and 8001 Microcomputer                    first alphabetic and the others alphanum-          programs called procedures and functions .
+Labs.                                                        eric, for easy identification during program       Thi s block structure encourages program-
+         REAL-TIME PROTOTYPE ANALYZER                        d evelopment. Strings can vary in length from      mers to logically plan and construct pro-
+                CHARACTERISTICS                              1 to 255 ch aracters instead of the unalter-       grams, so debugging time is greatly reduced .
+      OPERATIONAL SPEED CHARACTERISTICS                      able 18 used in minimal BASIC. Substrina           The block structure also requires that all
+Processor        Maximum Processor Clock Rate*               replacement is also enhanced to assist in          variable declarations occur prior to execut-
+8085A            3. 125 MHz (internal cl ock)                character manipulation.                            able code.
+8080A            2.08 MHz                                    1/ 0 features include access to ports and          Pascal's six control structures correspond
+6800/ 6802       1.00 MHz                                                                                       c losely with flowchart elements and make
+                                                             absolute addressing of memory, which al-
+Z80              4.00 MHz
+                                                             lows variables to be assign ed a specific ad-      algorithm coding very natural. All control
+TMS9900               3.33 MHz
+                                                             dress. Both ASCII and general purpose bi-          structures have a single entrance and exit
+3870/3872             4.00 MHz                                                                                  unless GOTO's are used , so program modi-
+                                                             nary file manipulations are possible through
+F8                    2.00 MHz
+                                                             a series of 110 statements including OPEN,         fications are unlikely to introduce errors into
+6500/1                1.00 MH z                                                                                 the program.
+                                                             CLOSE, RESTORE, READ, WRITE, PRINT
+1802                  6.4 MHz
+                                                             and INPUT.                                         Pascal allows programmers to use many flex-
+* Maximum processor cl ock rate f or Real-Time Proto-
+  type Analyzer operation.                                   Among many other MDL /µ enhancements               ible forms of data representation s and to de-
+                                                             to BASIC are logical operators (AND, OR,           fine data types that accurately ex press their
+         INPUT/OUTPUT CHARACTERISTICS                        XOR, NOT) plus shift and rotate op erations        particul ar problem s. Pascal also has strong
+Variable Threshold                                           for bit manipulation, DISABLE and ENABLE           data typing, which means th at each vari abl e
+Ra nge                 > + 10 V de to < - 10 V de            to turn the interrupt off and on and a bui It in   must be defined as a single data type prior
+Preset TTL Volta ge     + 1.4 V de ±200 mV                   code optimization .                                to its use and used consistently with its defi-
+                                                                                                                nitions.
+Event Trigger Out     High leve l voltage ou t (when         The conversion of MDL/µ source code to
+                        Vcc = M in, Vi = 0.5,                actual machine code is a three-step process.       Pascal programs are easy to read , and thus
+                        Ro= 50 n to GND) is > 2 V de.
+                                                             The first step converts MDL/µ source code          to maintain. Pasc al differs from most line-
+Adjustments-Variable Threshold may be adj usted
+                                                             into assembly language source code which           oriented languages by allowing extra spaces,
+fro m > + 10 V de to < - 10 V de wi th a screwdrive r
+adjustment access ibl e at th e rea r panel of the Micro-    is stored on a file or device. The assembly        tabs, and carriage returns almost anywhere.
+compute r Lab. This vol tage must be mon itored with         source code contain s the original MDL/µ           Variable, procedure, and function names can
+a voltmeter havin g an input impedance of at least                                                              be meaningful and easily understood be-
+10 MD.                                                       statements as comments preceding each
+                                                             block of assembly source code. At this             cause they are not restricted in length. How-
+Jumpers-With t he intern al jum pe r in position '0-3'
+                                                             st age, the assembly language can be further       ever, identifiers used by TEKDOS must be
+th e cl oc k th resho ld is desi gnated to be th e same
+as ch anne ls 0-3. In posi ti o n '4-7' the j umper desig-   optimized by using the 8550's powerful edi~        unique in the first eight characters, other
+nates th e clock th resho ld to be t he same as chann els    tor. In the second step the assembler con-         identifiers, in the first 19.
+4-7.
+                                                             verts the assembly language source into
+Cable Length -    50 cm (19.5 in).                                                                                 Tektronix Pascal 8080/8085 Compiler
+                                                             obj ect code. The third step is to link the
+                                                                                                                             Major Extensions
+                                                             object code with t he run time support library
+                                                             and any other assembled object code mod-                            Input/Output
+   MODULAR DEVELOPMENT LANGUAGE                              ules.                                              Included with the Pascal 8080/ 8085 Com-
+                     MDL/µ                                                                                      piler are several predefined procedures and
+MDL/µ is a high level language designed                                                                         functions used for chip-level I/ 0 . A proce-
+                                                                PASCAL: HIGH-LEVEL PROGRAMMING                  dure to send data to a specified port and
+specifically for use in microprocessor-based                                   LANGUAGE
+design . Its parent language is ANSI Minimal                                                                    function to read data from a specified port
+                                                             Pascal, a high-level programming language,         are included . These procedures and func-
+BASIC, a widely used and well understood                     is receiving much attention in the electronics
+programming format. MDL/µ offers an ex-                                                                         tions are analogous to the standard Pascal
+                                                             industry. Features such as program struc-          WRITE, WRITELN, READ, READLN proce-
+tensive number of enhancements from                          ture, strong data typing , and readability         dures, which are available for 8002A mode
+BASIC that make th is new language an ex-                    greatly enhance programmer efficiency, and
+tremely effective design tool while retaining
+                                                                                                                0 operation when using TEKDOS 1/ 0 . All of
+                                                             thereby reduce software development and            the 8002A's 1/ 0 capability is available to a
+the advantages of simplicity and easy learn-                 maintenance costs. The Tektronix Pascal            Pascal program running in emulation mode
+ing found in BASIC.                                          8080/ 8085 Compiler is designed specifically       0 , so the Pascal program can access the
+One essential advantage of MDL/µ is that it                  for those who are writing programs for the         console term inal, discs, line printer, and
+uses a compiler instead of an interpreter.                   8080 or 8085 microprocessors. The Tek-             auxilliary 1/ 0 ports. The Pascal 8080 / 8085
+Each program statement is translated to                      tronix Pascal 8080/ 8085 Compi ler is a super-     Compiler also allows an ORIGIN attribute to
+machine code only once, instead of every                     set of the ISO draft standard Pascal. A true       be associated with variables. The OR IGIN
+time the statement is executed. The result                   compiler rather than a P-code interpreter, the     attribute assigns variables to specific mem-
+is faster, and often more compact code for                   Pascal 8080/ 8085 Compiler generates ob-           ory addresses and is very useful for memory
+final program execution.                                     ject code directly. Each program statement         mapped 1/ 0.
+                                                             is translated to machine code only once in-
+MDL/µ allows a module-oriented approach                                                                                        Interrupt Handling
+                                                             stead of every ti me the statement is execut-
+to software development. Two statements,                     ed, resulting in faster and often more com-        The Pascal 8080/ 8085 Compiler supports full
+USES and PROVIDES, allow variab les, func-                   pact code.                                         use of the 8080's and 8085's interrupts. The
+tions and procedures to be shared by pro-                                                                       interrupts are supported by writing the inter-
+grammers working on different modules of                                                                        rupt service routine as a separate procedure
+an overall program . The USES statement                                                                         having the INTERRUPT attribute. Separate
+also allows direct access to absolute mem-                                                                      routines are required to connect a specific
+ory locations, 1/0 ports and interrupts-all                                                                     interrupt vector to the appropriate interrupt
+essential for proper control of hardware /                                                                      service routine. The interrupt service rou-
+software integration.                                                                                           tines are included as convenience routines
+                                                                                                                with the compiler. Procedures are also sup-
+                                                                                                                plied to set (SIM) and read (RIM), the 8085's
+                                                                                                                interrupt mask.
+
+
+26
+                                                                                               System Peripherals and Workshops
+
+        Linkage to Assembly Routines                               4024 Computer Display Terminal                                    MDL WORKSHOP
+Speed-critical or timing-critical applications              The 4024 Computer Display Terminal is an                   Tektronix offers four Microcomputer Devel-
+are likely to require some program segments                 optional peripheral recommended for use                    opment Lab Workshops in a number of loca-
+to be written in assembly language. Because                 with the 8001 or 8002A Microcomputer Labs.                 tions throughout the year. The courses on
+the code generated by the Pascal 8080 /                                                                                intensive, hands-on workshops designed to
+8085 Compiler is compatible with the 8002A                  The 4024 Computer Display Terminal is seri-                help the attendee meet the demanding chal-
+linker, assembly code can be linked to                      ally interfaced to either Microprocessor De-               lenges of the growing microcomputer devel-
+Pascal code.                                                velopment Lab through an EIA standard                      opment market.
+                                                            RS-232-C port on the systems commun ica-
+           Separate Compilations                            tions module. The 12 inch (30 cm) diagonal                    Introduction to Microprocessor Software
+Separate compilations are supported by the                  crt displays up to 34 lines of 80 characters                              Design Workshop
+Pascal 8080/8085 Compiler. The main pro-                    each, and the keyboard contains a full ASCII               The Introduction to Microprocessor Software
+gram module's first word is the keyword                     set of characters in upper and lower case.                 Design Workshop is a comprehensive look at
+" PROGRAM." Submodules to be separately                     Option 20 (8K bytes Program Memory) is                     microcomputer software development, from
+compiled begin with the keyword "MOD-                       required for proper 8001 and 8002A opera-                  flowcharting through hardware /software in-
+ULE" . Global variables, procedures, and                    tion.                                                      tegration. It includes hands-on experience
+functions can be referenced between sepa-                                                                              with the 8550 Microprocessor Development
+                                                            4024 Computer Display Terminal
+rately compiled modules and the main pro-                                                                              Lab, a self-contained microcomputer design
+gram via PUBLIC and EXTERN attributes.                         with Option 20* . .. . ... . . . . .. .. . . $3450
+                                                                                                                       tool. The introduction to Microprocessor
+The PUBLIC and EXTERN attributes are as-                                                                               Software Design Workshop is a Five-day
+sociated with variables, procedures, and                               LP 8200 Line Printer                            course.
+functions and cause the compiler to generate                The LP 8200 Line Printer is an optional sys-                         8550 Operations Workshop
+the appropriate linker text.                                tem peripheral for the 8002A and 8001 Mic-                 The 8550 Operations Workship covers all as-
+                                                            roprocessor Labs.                                          pects of the 8550 Microprocessor Develop-
+            Non-Decimal Integers                                                                                        ment Lab, a design tool used for both soft-
+In many microcomputers applications, pro-                   The LP 8200 is serially interfaced to either
+                                                            Microprocessor Lab through an EIA stan-                    ware development and hardware/ software
+grammers want to use non-decimal integers.                                                                              integration. The 8550's features are explored
+The Pascal 8080 / 8085 Compiler supports                    dard RS-232-C port on the system communi-
+                                                            cations module. Baud rates of 300 to 9600                   in depth and applied to a typical microcom-
+binary, octal, and hexadecimal integers for                                                                             puter design cycle. Throughout the course,
+input and output.                                           are selectable.
+                                                                                                                       the attendee gets intensive, hands-on ex-
+                                                            The printout provides space for 132 charac-                 perience for an in-depth understanding of
+           ROM/RAM Applications
+                                                            ters/ line, 6 lines/vertical inch. The full                 all 8550 operations. The 8550 Operations
+ROM/RAM applications are facilitated by
+                                                            ASCII set of 96 upper/lower case charac-                    Workship is a Five-day course.
+control-section typing. Control-section typ-
+                                                            ters is provided.
+ing means that the compiler gives the user                                                                                  Microprocessor Hardware/Software
+the information he needs to allocate program                            ELECTRICAL CHARACTERISTICS                                Integration Techniques
+variables into a linker section separate from               Voltage       90 to 132 V ac standard*                     The Microprocessor Hardware/ Software In-
+literals, constants, and instructions, which                Frequency     60 Hz ± 1 Hz.                                tegration Techniques Workshop examines
+are put into a second linker section .                                                                                 various aspects of the microcomputer design
+                                                            Power         400 W max (printing) ;
+                                                                          200 W max (idle).                            cycle and the role of each in the overall de-
+            Structured Constants
+                                                                                                                       velopment scheme. Throughout the course,
+Standard Pascal allows only constants of
+                                                                         PHYSICAL CHARACTERISTICS                      the participant will work with a number of
+type, integer, real , boolean, and text char.
+                                                            Dimensions               in                 cm             design tools commonly used in developing
+The Pascal 8080 / 8085 Compiler also pro-
+                                                            Height                 33.5                85.09           microprocessor-based systems. Included are
+vides constants which are arrays, and rec-
+                                                            Width                  27.5                69.85           the 8550 MDL, logic analyzers, oscilloscopes
+ords. The most common application of struc-                                                                            and data communications testers. Extensive
+tured constants is to initialize structured                  Length                21 .7               55.12
+                                                                                                        kg
+                                                                                                                       hands-on experience is provided for each
+variables (arrays and records) that must re-                Weight                   lb
+                                                                                                                       tool. The Microprocessor Hardware / Software
+side in potentially volatile RAM.                           Net                     102                46.4
+                                                                                                                       Integration Techniques Workshop is a Five-
+               Metacommands                                                                                            day course.
+Metacommands are compiler directives that                   LP 8200 Line Printer ... .. ..... . .... $3765                Microprocessor Software Development
+cause the compiler to do such things as for-                *Alternate l ine voltages are available for the LP 8200.              with Pascal Workshop
+mat the listings or generate run-time debug-                Pl ease contact a Tektronix Sales Office in your area      The Microprocessor Software Development
+ging code.                                                  for more information.                                      With Pascal Workshop is an intensive exami-
+                                                                                                                       nation of Pascal and its relationship to
+                                                                  4025 Computer Display Terminal                       microcomputer software development. It em-
+                                                            The 4025 Computer Display Terminal is an                   phasizes how to " think" in Pascal program
+                                                            optional peripheral for use with the 8001 or               structure and looks at the philosophy behind
+                                                            8002A Microprocessor Development Labs.                     the language. In addition to defining the
+                                                                                                                       language in terms of the ISO Pascal stand-
+                                                            The 4025 Computer Display Terminal is seri-                ing, the course introduces Tektronix's spe-
+                                                            ally interfaced to either Microprocessor De-               cial extensions aimed specifically at devel-
+                                                            velopment Lab through an EIA standard                      oping code at the microprocessor level. Also
+                                                            RS-232-C port on the systems communica-                    considered are tradeoffs between using as-
+                                                            tions module. The 4025 Terminal provides                   sembly or high level language for micro soft-
+                                                            all the capabi Ii ties of the 4024 plus the abi 1-         ware development, and the process of link-
+                                                            ity to expand from basic alphanumerics, to                 ing Pascal modules with assembly-written
+                                                            forms ruling and then into graphics. Option                modules to form a complete program. The
+                                                            20 (8K bytes Program Memory) is required                   Microprocessor Software Development with
+Tektronix offers maintenance training classes on Micro·
+computer Development Labs and a variety of user             for proper 8001 and 8002A operation.                       Pascal Workshop is a Five-day course.
+workshops featuring microprocessor hardware and soft·
+ware design concepts. For further training information,
+                                                             4025 Computer Display Terminal                            For detailed information on Tektronix Micro-
+contact your local Field Office or request a copy of the       with Option 20* .............. .. . $4050               computer Development Workshops and
+Tektronix Customer Training Catalog on the return card at                                                              Workshop schedules, contact your local
+the back of this catalog.                                    *Option 20 (BK bytes Display Memory) is required for
+                                                              proper 8001 and 8002A operation.                         Tektronix Sales Engineer.
+
+
+                                                                                                                                                                  27
+Ordering Information and Matrix
+
+                                                                  8001 Microprocessor Lab                                 $5350
+                                                                                                      Factory
+                                                                                                    Configuration
+Field Number                                                 Emulator Support:                        Number              Price
+8001F01                  8080A Microprocessor Support Package                                        Option 01            $4100
+8001F02                  6800 Microprocessor Support Package                                         Option 02            $4100
+8001F2A                  6802 Prototype Control Probe                                                Option 2A            $ 990
+8001 F2B                 6802 Microprocessor Support Package                                         Option 28            $4100
+8001F03                  Z80A Microprocessor Support Package                                         Option 03            $4100
+8001F04                  TMS9900 Microprocessor Support Package                                      Option 04            $5100
+8001F05                  8085A Microprocessor Support Package                                        Option 05            $4100
+8001F06                  3870/ 3872 Microprocessor Support Package                                   Option 06            $4900
+8001F07                  F8 Microprocessor Support Package                                           Option 07            $4600
+8001F08                  1802 Microprocessor Support Package                                         Option 08            $4900
+8001F09                  8048/ 8021 Microprocessor Support Package                                   Option 09            $3710
+8001F10                  8048 Prototype Control Probe                                                Option 10            $1190
+8001 F11                 8021 Prototype Control Probe Adapter (requires 8001 F09 & 8001 F1 O)        Option 11            $ 350
+8001F12                  8041 A Prototype Control Probe (requires 8001 F09)                          Option 12            $1190
+8001F13                  8022 Prototype Control Probe (requires 8001 F09)                            Option 13            $1190
+8001F14                  6500/ 1 Microprocessor Support Package                                      Option 14            $4100
+                                                               System Options:
+                         32K Program Memory Modules                                                  Option 45             $3100
+8001F46                  Real-Ti me Prototype Analyzer                                               Option 46             $2700
+8001F48                  2704/ 2708 PROM Programmer                                                  Option 48             $ 650
+8001F49                  16K Program Memory Module                                                   Option 49             $1550
+                         220 Vat 50 Hz                                                               Option 4W- - - - -     NC
+                                                        8550 Microcomputer Development Lab                                $12750
+                                                                            Assemblers:
+8300A01                  8080A/ 8085A Assembler                                                      Option 1A            $ 850
+8300A02                  6800/ 6801 / 6802 Assembler                                                 Option 1 B           $ 850
+8300A04                  Z80A Assembler                                                              Option 1C            $ 850
+8300A05                  TMS9900 Assembler                                                           Option 1 D           $ 950
+8300007                  3870/3872/F8 Assembler                                                      Option 1 E           $ 850
+8300A09                  1802 Assembler                                                              Option 1 F           $ 850
+8300A10                  8048/ 8021 / 8041 A / 8022 Assembler                                        Option 1 G           $ 850
+8300A14                  6500/ 1 Assembler                                                           Option 1 H           $ 850
+8300A15                  8086/ 8088 Assembler                                                        Option 1J            $ 950
+8300A20                  Z8000 Assembler                                                             Option 1 K           $ 950
+8300A26                  68000 Assembler                                                             Option 1 L           $ 950
+                                                                   Emulators:
+8300E01                  8080A Emulator Processor and Emulator Control Software                      Option 2A            $2350
+8300E02                  6800/ 6802 Emulator Processor and Emulator Control Software                 Option 28            $2350
+8300E04                  Z80A Emulator Processor and Emulator Control Software                       Option 2C            $2350
+8300E05                  TMS9900 Emulator Processor and Emulator Control Software                    Option 2D            $3150
+8300E06                  8085A Emulator Processor and Emulator Control Software                      Option 2E            $2350
+8300E07                  3870/ 3872/ F8 Emulator Processor and Emulator Control Software             Option 2F            $3150
+8300E09                  1802 Emulator Processor and Emulator Control Software                       Option 2G            $3150
+8300E10                  8048/ 8021 / 8041 A / 8022 Emulator Processor and Emulator Control
+                            Software (requires 8300P10, 8300P12, or 8300P13)                         Option 2H            $2950
+8300E14                  6500/1 Emulator Processor, Prototype Control Probe, and
+                            Emulator Control Software                                                Option 2J            $3340
+                                                                    Probes:
+8300P01                  8080A Prototype Control Probe                                               Option 3A            $ 990
+8300P02                  6800 Prototype Control Probe                                                Option 38            $ 990
+8300P03                  6802 Prototype Control Probe                                                Option 3C            $ 990
+8300P04                  Z80A Prototype Control Probe                                                Option 3D            $ 990
+8300P05                  TMS9900 Prototype Control Probe                                             Option 3E            $1160
+8300P06                  8085A Prototype Control Probe                                               Option 3F            $ 990
+8300P07                  3870/3872 Prototype Control Probe                                           Option 3G            $ 990
+8300P08                  F8 Prototype Control Probe                                                  Option 3H            $ 990
+8300P09                  1802 Prototype Control Probe                                                Option 3J            $ 990
+8300P10                  8048 Prototype Control Probe                                                Option 3K            $1190
+8300P11                  8021 Adapter (requires 8300P10)                                             Option 3L            $ 350
+8300P12                  8041 A Prototype Control Probe                                              Option 3M            $1190
+8300P13                  8022 Prototype Control Probe                                                Option 3N            $1190
+                                                              Language Products:
+8300G01                  Pascal 8080/8085                                                            Option 1 P           $1950
+8300H01                  Modular Development Language ; 8080/ 8085/ 280                              Option 1Q            $1000
+8300H02                  Modular Development Language; 6800/ 6802                                    Option 1 R           $1000
+                                                           Prototype Debug Package:
+8300D15                  8086 Prototype Debug Support                                                Option 2S            $1650
+                                                                System Options:
+8550F01                  Real Time Prototype Analyzer                                                Option 01            $2700
+8550F02                  32K Static Memory Board                                                     Option 02            $3100
+8550                     Universal Euro 220V/ 16A Power                                              Option A1             NC
+8550                     U.K. 240V/13A Power                                                         Option A2             NC
+8550                     Australia 240V /10A Power                                                   Option A3             NC
+8550                     North American 240V/ 15A Power                                              Option A4             NC
+8550                     115V at 50 Hz                                                               Option 4X             NC
+8550                     230V at 50 Hz                                                               Option 4Y             NC
+                                                                  Peripherals
+LP8200                   Line Printer                                                                                     $3765
+                         Option 4W 220 Vat 50 Hz
+4024                     Computer Display Terminal with Option 20*                                                        $3450
+4025                     Computer Display Terminal with Option 20*                                                        $4050
+                         *Option 20 (SK bytes Display Memory) is required for proper
+                         8001 I 8002A operation
+                                                                  Accessories
+RS232                    Interconnecting cable 012-0757-00 (1 O feet - 300 cm)                                            $ 100
+Null-Modem               Interconnecting cable 012-0820-00 (5 feet - 150 cm)                                              $ 80
+*Orde r the produ cts as 8001 or 8550 opt ions to have the system factory configured and tested .
+
+
+
+
+28
+                                   8002A Microprocessor Lab (includes 32K Program Memory)~-=-~~~~---=--=----~~~~~~~~~~~
+                                                                                                                                        $10, 950
+                                                                                                      Factory
+                                                                                                    Configuration
+Field Number                                                                                         Number*                              Price
+8002F01             8080A Assembler Software Support                                                 Option 01                          +$ 850
+8002F1A             MDL/8080A/8085A Software Support (requires 64K Program Memory & Option 01 or 05) Option 1A                          +$1000
+8002F02             6800 Assembler Software Support                                                  Option 02                          +$ 850
+8002F2A             MDL/6800 Software Support (requires 64K Program Memory & Option 02)              Option 2A                          +$1000
+8002F03             Z80A Assembler Software Support                                                  Option 03                          +$ 850
+8002F3A             MDL/8080A/Z80A Software Support (requires 64K Program Memory & Option 03)        Option 3A                          +$1000
+8002F04             TMS9900 Assembler Software Support                                               Option 04                          +$ 850
+8002F05             8085A Assembler Software Support                                                 Option 05                          +$ 850
+8002F06             F8 / 3870/ 3872 Assembler Software Support                                       Option 06                          + $ 850
+8002F07             1802 Assembler Software Support                                                  Option 07                          +$ 850
+8002F08             8048/ 8021 Assembler Software Support                                            Option 08                          +$ 850
+8002F09             6500/ 1 Assembler                                                                Option 09                          +$ 850
+8002F13             8086/8088 Assembler                                                              Option 13                          +$ 950
+8002F14             Z8000 Assembler                                                                  Option 14                          +$ 950
+8002F15             68000 Assembler                                                                  Option 15                          +$ 950
+8002F16             8080A Emulator Support                                                           Option 16                          +$2350
+8002F17             6800 Emulator Support                                                            Option 17                          +$2350
+8002F18             Z80A Emulator Support                                                            Option 18                          +$2350
+8002F19             TMS9900 Emulator Support                                                         Option 19                          + $2600
+8002F20             8085A Emulator Support                                                           Option 20                          +$2350
+8002F21             F8 /3870/3872 Emulator Support                                                   Option 21                          +$2850
+8002F22             1802 Emulator Support                                                            Option 22                          +$2850
+8002F23             8048/8021 Emulator Support                                                       Option 23                          +$2350
+8002F24             6500/1 Emulator Support (Includes Probe)                                         Option 24                          +$3340
+8002F28             8086 Prototype Debug Support                                                     Option 28                          +$1650
+8002F29             Z8000 Prototype Debug Support                                                    Option 29                          +$1650
+8002F30             68000 Prototype Debug Support                                                    Option 30                          +$1650
+8002F31             8080A Prototype Control Probe                                                    Option 31                          +$ 990
+8002F32             6800 Prototype Control Probe                                                     Option 32                          +$ 990
+8002F33             Z80A Prototype Control Probe                                                     Option 33                          +$ 990
+8002F34             TMS9900 Prototype Control Probe                                                  Option 34                          +$1160
+8002F35             8085A Prototype Control Probe                                                    Option 35                          +$ 990
+8002F36             3870/3872 Prototype Control Probe                                                Option 36                          +$ 990
+8002F37             F8 Prototype Control Probe                                                       Option 37                          +$ 990
+8002F38             1802 Prototype Control Probe                                                     Option 38                          +$ 990
+8002F39             6802 Prototype Control Probe                                                     Option 39                          +$ 990
+8002F40             8048 Prototype Control Probe                                                     Option 40                          +$1190
+8002F41             8021 Prototype Control Probe Adapter (requires Option 40)                        Option 41                          +$ 350
+8002F42             8041 A Prototype Control Probe                                                   Option 42                          +$1 190
+8002F43             8022 Prototype Control Probe                                                     Option 43                          +$1190
+                    32K Program Memory Modules                                                       Option 45                          +$3100
+8002F46             Real-Time Prototype Analyzer                                                     Option 46                          +$2700
+8002F48             2704/2708 PROM Programmer                                                        Option 48                          +$ 650
+8002F49             16K Program Memory Module                                                        Option 49                          +$1550
+
+                                                              ORDER MATRIX
+                                                                        8002A
+                                                                                                                                    Prototype
+Processor                         Assembler                Emulator                   Probe                        HLL               Debug
+8080                              Option 01                Option 16                 Option 31                   Option 1A
+8085                              Option 05                Option 20                 Option 35                   Option 1A
+Z80                               Option 03                Option 18                 Option 33                   Option 3A
+6800                              Option 02                Option 17                 Option 32                   Option 2A
+6802/08                           Option 02                Option 17                 Option 39                   Option 2A
+TMS9900                           Option 04                Option 19                 Option 34
+3870/72/74/76                     Option 06                Option 21                 Option 36
+F8                                Option 06                Option 21                 Option 37
+1802                              Option 07                Option 22                 Option 38
+8048/ 8035 / 8039-6               Option 08                Option 23                 Option 40
+8021                              Option 08                Option 23                 Option 41 •
+8041A                             Option 08                Option 23                 Option 42
+8022                              Option 08                Option 23                 Option 43
+6500/1                            Option 09                Option 24 • •
+8086                              Option 13                                                                                         Option 28
+ZBOOO                             Option 14                                                                                         Option 29
+68000                             Option 15                                                                                         Option 30
+ •Requi res Option 40                               .. Includes Probe
+
+                                                              ORDER MATRIX
+To use the matrix below:
+  A) Identify the mainframe (8001 or 8550).
+  8) Select a processor (8080, 8085, Z80, 6800, etc.) .
+  C) Select a level of support (assembler, emu lator, probe, HLL, Prototype Debug).
+  D) Order mainframe and options for deemed level of support.•
+                          8001                                                   8550
+                        Emulator                                                                                                    Prototype
+     Processor           Probe              Assembler          Emulator            Probe                                 HLL         Debug
+8080                  Option 01             Option 1A          Option 2A        Option 3A                              Option 1 P
+8085                  Option 05             Option 1A          Option 2E        Option 3F                              Option 10
+Z80                   Option 03             Option 1C          Option 2C        Option 3D                              Option 1 P
+6800                  Option 02             Option 18          Option 28        Option 38                              Option 10
+6802/08               Option 28             Option 18          Option 28        Option 3C                              Option 1 P
+TMS9900               Option 04             Option 10          Option 2D        Option 3E                              Option 10
+3870/72/74/76         Option 06             Option 1 E         Option 2F        Option 3G                              Ootion 1 R
+F8                    Option 07             Option 1E          Option 2F        Qntinn 3H                              Option 1 R
+1802                  Option 08             Option 1 F         Option 2G        Option 3J
+8048/8035/ 8039-6     Option 09             Option 1G          Option 2H        Option 3K
+8021                  Option 11 1           Option 1G          Option 2H        Option 3L1
+8041A                 Option 122            Option 1G          Option 2H        Option 3M
+8022                  Option 132            Option 1G          Option 2H        Option 3N
+6500/1                Option 14             Option 1H          Opti on 2J'
+8086                  Not Available         Option 1J                                                                               Option 2S
+Z8000                 Not Available         Option 1 K
+68000                 Not Available         Option 1L
+1Requires Option   09 and 10        2Requ1res Option 10            JRequ1res Option 3K             • Includes Pro be
+*NOTE: If this support is to be added to a previously purchased mainframe, use the equivalent product nomenclature, i.e., FIELD
+ NUMBER (NOT the factory configuration option number) when placing your order.
+
+
+
+
+                                                                                                                                                29
+

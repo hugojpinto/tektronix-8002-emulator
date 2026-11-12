@@ -1,0 +1,57 @@
+0080: 07 00        lodi,3 $00
+0082: 75 ff        cpsl   all
+0084: 05 00        lodi,1 $00
+0086: 3b 2a        bstr,a $00b2
+0088: 06 06        lodi,2 $06
+008a: 87 04        addi,3 $04
+008c: 1b 07        bctr,a $0095
+008e: 0f 40 a9     loda,0 $00a9,r3-
+0091: d4 eb        wrte,0 $eb
+0093: 06 04        lodi,2 $04
+0095: 3b 24        bstr,a $00bb
+0097: 3b 19        bstr,a $00b2
+0099: e7 05        comi,3 $05
+009b: 18 02        bctr,z $009f
+009d: 5b 6f        brnr,3 $008e
+009f: 3b 21        bstr,a $00c2
+00a1: 18 24        bctr,z $00c7
+00a3: d9 63        birr,1 $0088
+00a5: 27 05        eori,3 $05
+00a7: 1b 5b        bctr,a $0084
+00b2: 04 07        lodi,0 $07
+00b4: d4 ea        wrte,0 $ea
+00b6: 54 ea        rede,0 $ea
+00b8: 1a 7c        bctr,m $00b6
+00ba: 17           retc   a
+00bb: d6 ea        wrte,2 $ea
+00bd: 54 ea        rede,0 $ea
+00bf: 9a 7c        bcfr,m $00bd
+00c1: 17           retc   a
+00c2: 54 eb        rede,0 $eb
+00c4: 44 36        andi,0 $36
+00c6: 17           retc   a
+00c7: 20           eorz,0
+00c8: c3           strz,3
+00c9: cc 10 01     stra,0 $1001
+00cc: cc 10 00     stra,0 $1000
+00cf: 06 00        lodi,2 $00
+00d1: 3b 68        bstr,a $00bb
+00d3: 54 eb        rede,0 $eb
+00d5: cf f0 00     stra,0 *$1000,r3
+00d8: 3b 58        bstr,a $00b2
+00da: e7 7f        comi,3 $7f
+00dc: 98 05        bcfr,z $00e3
+00de: 3b 62        bstr,a $00c2
+00e0: 9c 00 80     bcfa,z $0080
+00e3: db 6c        birr,3 $00d1
+00e5: 0c 10 00     loda,0 $1000
+00e8: 84 01        addi,0 $01
+00ea: cc 10 00     stra,0 $1000
+00ed: e4 40        comi,0 $40
+00ef: 18 07        bctr,z $00f8
+00f1: 3b 4f        bstr,a $00c2
+00f3: 9c 00 80     bcfa,z $0080
+00f6: 1b 59        bctr,a $00d1
+00f8: 04 10        lodi,0 $10
+00fa: cc 10 00     stra,0 $1000
+00fd: 1f 01 00     bcta,a $0100
