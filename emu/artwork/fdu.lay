@@ -1111,12 +1111,12 @@
 <element ref="t_1_eaeae0"><bounds x="412" y="392" width="13.75" height="22"/></element>
 <element ref="t_POWER_eaeae0"><bounds x="745.62" y="98" width="50.75" height="14"/></element>
 <element ref="rocker" name="fdu:power" inputtag="fdu:power"><bounds x="741" y="114" width="60" height="54"/></element>
-<element ref="c_939691"><bounds x="741" y="213.5" width="166" height="37"/></element>
-<element ref="c_c1c4bf"><bounds x="742" y="214.5" width="164" height="34.5"/></element>
-<element ref="c_389999"><bounds x="750.96" y="216.83" width="36.52" height="28.86"/></element>
-<element ref="t_FLEXIBLE_DISC_0c0f14"><bounds x="800.76" y="217.2" width="65.45" height="6.8"/></element>
-<element ref="t_UNIT_0c0f14"><bounds x="800.76" y="225" width="19.55" height="6.8"/></element>
-<element ref="t_TEKTRONIX_0c0f14"><bounds x="754.28" y="229.76" width="112.88" height="17.04"/></element>
-<element ref="t_TEKTRONIX_0c0f14"><bounds x="755.34" y="229.76" width="112.88" height="17.04"/></element>
+<element ref="c_939691"><bounds x="741" y="210" width="160" height="44"/></element>
+<element ref="c_c1c4bf"><bounds x="742" y="211" width="158" height="41.5"/></element>
+<element ref="c_389999"><bounds x="750.6" y="213.96" width="35.2" height="34.32"/></element>
+<element ref="t_FLEXIBLE_DISC_0c0f14"><bounds x="798.6" y="214.4" width="73.15" height="7.6"/></element>
+<element ref="t_UNIT_0c0f14"><bounds x="798.6" y="223" width="21.85" height="7.6"/></element>
+<element ref="t_TEKTRONIX_0c0f14"><bounds x="753.8" y="233.18" width="108.8" height="16.42"/></element>
+<element ref="t_TEKTRONIX_0c0f14"><bounds x="754.83" y="233.18" width="108.8" height="16.42"/></element>
 </view>
 </mamelayout>

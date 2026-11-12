@@ -361,8 +361,8 @@ def disc_unit():
     # POWER, left-aligned with the sticker below it
     a.legend('POWER', 741 + 30, 98)
     a.put(rocker(a), 741, 114, 60, 54, ' name="fdu:power" inputtag="fdu:power"')
-    # the sticker, centred on the panel's height (its size measured on the flat-on photo)
-    nameplate(a, 741, (20 + H - 36) / 2 - 18.5, 166, 37, [('FLEXIBLE DISC', 0.85), ('UNIT', 0.85)])
+    # the sticker: the same size as the mainframe's, centred on the panel's height
+    nameplate(a, 741, (20 + H - 36) / 2 - 22, 160, 44, [('FLEXIBLE DISC', 0.95), ('UNIT', 0.95)])
     write('fdu.lay', 'Tektronix 8002A Flexible Disc Unit, front panel (photos in sources/photos; 070-2701 Fig. 2-1).',
           a, 'Tektronix 8002A Flexible Disc Unit', W, H)
 
