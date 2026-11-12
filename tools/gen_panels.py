@@ -156,17 +156,27 @@ class Outline:
 
 
 def band(a, c, o, y0, y1, inset=0, step=2):
-    # the outline's interior between y0 and y1, inset horizontally, as rows of colour c. Each
-    # row reaches to the wide end of its leg of the V (the knee), where the rows below or above
-    # it are wider: rows never leave a seam between them at any scale
+    # the outline's interior between y0 and y1, inset horizontally, in colour c: per leg of
+    # the V, one rectangle where the leg is narrowest, plus a sliver per row at each side. A
+    # sliver reaches 2 units toward the leg's wide end, where the outline is wider, so the rows
+    # leave no seam at any scale (and little overdraw)
     k = o.knee
-    y = y0
-    while y < y1:
-        h = min(step, y1 - y, k - y) if y < k else min(step, y1 - y)
-        xl, xr = o.left(y + h / 2, inset), o.right(y + h / 2, inset)
-        top, bottom = (y, min(y1, k)) if y < k else (max(y0, k), y + h)
-        a.rect(c, xl, top, xr - xl, bottom - top)
-        y += h
+    for s0, s1 in ((y0, min(y1, k)), (max(y0, k), y1)):
+        if s1 <= s0:
+            continue
+        upper = s1 <= k                            # the upper leg widens downward, the lower narrows
+        narrow = s0 if upper else s1
+        il, ir = o.left(narrow, inset), o.right(narrow, inset)
+        a.rect(c, il, s0, ir - il, s1 - s0)
+        y = s0
+        while y < s1:
+            h = min(step, s1 - y)
+            xl, xr = o.left(y + h / 2, inset), o.right(y + h / 2, inset)
+            top, bottom = (y, min(s1, y + h + 2)) if upper else (max(s0, y - 2), y + h)
+            if il - xl > 0.01:
+                a.rect(c, xl, top, il - xl + 1, bottom - top)
+                a.rect(c, ir - 1, top, xr - ir + 1, bottom - top)
+            y += h
 
 
 def side_lines(a, c, o, y0, y1, inset, t, step=1.5):
@@ -249,16 +259,23 @@ def mu(a, x, y, px, c):
 
 def nameplate(a, x, y, w, h, lines):
     """A Tektronix nameplate sticker, as on both units: brushed metal, the teal logo block at
-    the left, the product name small beside it, TEKTRONIX across the lower half overlapping
-    the logo. Proportions measured on the flat-on photo. lines = [(text, px)], top down."""
+    the left, TEKTRONIX across the lower half overlapping the logo, and the product name small
+    above it, centred between the logo's right edge and the end of TEKTRONIX (at 52% of the
+    plate on the flat-on photo). Proportions measured on that photo. lines = [(text, px)]."""
     a.rect(NAMEPLATE_EDGE, x, y, w, h)
     a.rect(NAMEPLATE, x + 1, y + 1, w - 2, h - 2.5)
     a.rect(TEAL, x + 0.06 * w, y + 0.09 * h, 0.22 * w, 0.78 * h)
     tpx = 0.68 * w / 53                            # TEKTRONIX: 68% of the plate's width
-    ty = y + h * 0.9 - 8 * tpx
-    ly = y + 0.1 * h
+    tx, ty = x + 0.08 * w, y + h * 0.9 - 8 * tpx
+    # the small lines stop 1.5 units above TEKTRONIX; smaller if they would not fit
+    top = y + 0.07 * h
+    need = sum(8 * px + 1 for _, px in lines) - 1
+    k = min(1.0, (ty - 1.5 - top) / need)
+    cx = (x + 0.06 * w + 0.22 * w + tx + 53 * tpx) / 2
+    ly = top
     for t, px in lines:
-        lx = x + 0.36 * w
+        px *= k
+        lx = cx - (len(t) * 6 * px - px) / 2
         if t.startswith('µ'):
             mu(a, lx, ly, px, NAME_INK)
             lx += 6 * px
@@ -266,7 +283,7 @@ def nameplate(a, x, y, w, h, lines):
         a.label_left(t, lx, ly, px, NAME_INK)
         ly += 8 * px + 1
     for dx in (0, 0.5 * tpx):                     # bold, as printed: drawn twice, half a dot apart
-        a.label_left('TEKTRONIX', x + 0.08 * w + dx, ty, tpx, NAME_INK)
+        a.label_left('TEKTRONIX', tx + dx, ty, tpx, NAME_INK)
 
 
 def write(name, comment, a, view, w, h):
