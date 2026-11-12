@@ -12,7 +12,7 @@ photo is underexposed). Proportions follow the real fronts: the mainframe about 
 unit about 2.1:1.
 
 What the photos show, and is drawn: warm light-grey cabinets; a mid-grey front panel with
-chamfered lower corners and a thin light line inset around it; copper screw heads in the
+sides in a lateral V (the knee at 3/4 of the height) and a thin light line inset around it; copper screw heads in the
 corners; a vent grille under each panel (both units, in the stacked photo). Mainframe: POWER
 over a black rocker marked OFF; the raised black PROM bezel with its lighter plate, two green
 ZIF sockets (PROM 1, PROM 2) and the yellow caution text; the outlined PROM POWER box (dark
@@ -21,16 +21,16 @@ outlined control box with the black display strip (backlit SYS RUN PWR) and the 
 and SYSTEM RESTART toggles. Disc unit: two light drive door assemblies with black latches,
 DRIVE 0 / DRIVE 1 at their lower left, POWER over a black rocker, and the nameplate.
 
-Emulator aids that are not on the real units: the disc unit's "fdu:pwr" lamp (a small green
-dot beside its rocker) and the drive-busy lamps "fdu:driveN" (tiny dots in the door caps).
+An emulator aid that is not on the real units: the drive-busy lamps "fdu:driveN" (tiny dots
+in the door caps). The disc unit has no power lamp (its rocker alone shows the state).
 The PROM sockets and the PROM POWER toggle are drawn only; the programmer is not emulated.
 
-Bindings (tek8002_system): outputs "8002:sys", "8002:run", "8002:pwr", "fdu:pwr",
+Bindings (tek8002_system): outputs "8002:sys", "8002:run", "8002:pwr",
 "fdu:driveN"; switches "8002:power", "8002:restart", "8002:diag", "fdu:power"; drive bays
 drive="N" (drop a disc image to insert it, click to eject: input "driveN:eject").
 
-Text is the terminal's 5x8 dot font fitted to its box: small legends are boxed at least
-18 units high where the panel allows (the caution text is genuinely tiny on the unit).
+Text is the terminal's 5x8 dot font. The control legends share one dot size (LEGEND); the
+caution text is smaller, in two lines, as on the unit.
 
   tools/gen_panels.py emu/artwork
 """
@@ -72,12 +72,14 @@ CAUTION = (0.98, 0.86, 0.16)
 NAMEPLATE = (0.76, 0.77, 0.75)    # brushed metal
 NAMEPLATE_EDGE = (0.58, 0.59, 0.57)
 TEAL = (0.22, 0.60, 0.60)
-NAME_INK = (0.10, 0.15, 0.20)
+NAME_INK = (0.05, 0.06, 0.08)
 DOOR = (0.77, 0.76, 0.71)
 DOOR_LIGHT = (0.86, 0.85, 0.80)
 DOOR_SHADE = (0.58, 0.57, 0.53)
 COPPER = (0.55, 0.37, 0.24)
 COPPER_DARK = (0.30, 0.20, 0.13)
+
+LEGEND = 1.75                     # dot size of the control legends (POWER, DIAG INTRPT ...)
 
 HEAD = '''<?xml version="1.0"?>
 <!-- SPDX-License-Identifier: GPL-2.0-or-later
@@ -120,56 +122,90 @@ class Art:
         # a left-aligned legend with dots px units square: the box is exactly the text's size
         self.put(self.text(s, c), x, y, len(s) * 6 * px - px, 8 * px)
 
+    def legend(self, s, cx, y, px=None, c=INK):
+        # a legend centred on cx, dots px units square: every control legend is the same size
+        px = px or LEGEND
+        w = len(s) * 6 * px - px
+        self.put(self.text(s, c), cx - w / 2, y, w, 8 * px)
+
     def frame(self, c, x, y, w, h, t):
         self.rect(c, x, y, w, t); self.rect(c, x, y + h - t, w, t)
         self.rect(c, x, y, t, h); self.rect(c, x + w - t, y, t, h)
 
 
-def chamfer(a, c, x, y, size, step, right):
-    # a 45-degree cut across a lower corner (x, y = the corner), as stairs of colour c
-    n = int(size / step)
-    for i in range(n):
-        w = size - i * step
-        a.rect(c, x - w if right else x, y - (i + 1) * step, w, step)
+class Outline:
+    """The case seen from the front: its sides are a lateral V. The upper leg (3/4 of the
+    height) leans out slightly down to the knee, where the side's small tab is, and the lower
+    leg (1/4) runs in to the bottom lip. Measured on the stacked photo: the knee at 75-78% of
+    the case's height, the lower leg about 5% of the width inward."""
+
+    def __init__(self, W, H, m=4, lean=0.015, low=0.05, knee=0.75):
+        self.W, self.H, self.m = W, H, m
+        self.lean, self.low, self.knee = lean * W, low * W, knee * H
+
+    def left(self, y, inset=0):
+        if y <= self.knee:
+            return self.m + inset + self.lean * (self.knee - y) / self.knee
+        return self.m + inset + self.low * (y - self.knee) / (self.H - self.knee)
+
+    def right(self, y, inset=0):
+        return self.W - self.left(y, inset)
+
+    def slope(self, y):
+        return self.low / (self.H - self.knee) if y > self.knee else self.lean / self.knee
 
 
-def chamfer_line(a, c, x, y, size, t, right):
-    # the inset line's diagonal across a chamfered corner: small squares along it
-    n = int(size / (t * 0.6))
-    for i in range(n + 1):
-        d = size * i / n
-        a.rect(c, (x - d if right else x + d) - t / 2, y - size + d - t / 2, t, t)
+def band(a, c, o, y0, y1, inset=0, step=2):
+    # the outline's interior between y0 and y1, inset horizontally, as rows of colour c. Each
+    # row reaches to the wide end of its leg of the V (the knee), where the rows below or above
+    # it are wider: rows never leave a seam between them at any scale
+    k = o.knee
+    y = y0
+    while y < y1:
+        h = min(step, y1 - y, k - y) if y < k else min(step, y1 - y)
+        xl, xr = o.left(y + h / 2, inset), o.right(y + h / 2, inset)
+        top, bottom = (y, min(y1, k)) if y < k else (max(y0, k), y + h)
+        a.rect(c, xl, top, xr - xl, bottom - top)
+        y += h
 
 
-def cabinet(a, W, H, ph, vent):
-    """The case, the panel (with chamfered lower corners), its inset line, screws and grille."""
-    P0, C = 18, 36                                # panel inset from the case sides; chamfer
-    px0, py0, px1, py1 = P0, 20, W - P0, 20 + ph
-    a.rect(CABINET, 0, 0, W, H)
-    a.rect(CAB_SHADE, 8, py1 + 4, W - 16, H - py1 - 10)
-    a.rect(PANEL, px0, py0, px1 - px0, py1 - py0)
-    a.rect(PANEL_SHADOW, px0, py0, px1 - px0, 4)
-    chamfer(a, CABINET, px0, py1, C, 2, False)
-    chamfer(a, CABINET, px1, py1, C, 2, True)
-    # the inset line, 9 units inside the edge, following the chamfers
-    t, o = 2.5, 9
-    ix0, iy0, ix1, iy1 = px0 + o, py0 + o, px1 - o, py1 - o
-    cl = C - o * 0.6
-    a.rect(INSET, ix0, iy0, ix1 - ix0, t)                        # top
-    a.rect(INSET, ix0, iy0, t, iy1 - iy0 - cl)                   # left
-    a.rect(INSET, ix1 - t, iy0, t, iy1 - iy0 - cl)               # right
-    a.rect(INSET, ix0 + cl, iy1 - t, ix1 - ix0 - 2 * cl, t)      # bottom
-    chamfer_line(a, INSET, ix0 + t / 2, iy1 - t / 2, cl - t / 2, t, False)
-    chamfer_line(a, INSET, ix1 - t / 2, iy1 - t / 2, cl - t / 2, t, True)
+def side_lines(a, c, o, y0, y1, inset, t, step=1.5):
+    # a line of thickness t along both sides of the outline, inset horizontally
+    y = y0
+    while y < y1:
+        h = min(step, y1 - y)
+        w = t + o.slope(y + h / 2) * h
+        xl = o.left(y + h / 2, inset)
+        a.rect(c, xl - w / 2 + t / 2, y, w, h + 1)
+        a.rect(c, o.W - xl - w / 2 - t / 2, y, w, h + 1)
+        y += h
+
+
+def cabinet(a, W, H, vent):
+    """The case, the panel inside it (the same lateral V), the inset line, screws and grille."""
+    o = Outline(W, H)
+    B, PT, PB = 16, 20, H - 36                    # panel: inset from the case sides, top, bottom
+    band(a, CABINET, o, 0, PB + 3)
+    band(a, CAB_SHADE, o, PB + 3, H - 5)          # the lip under the panel, behind the grille
+    band(a, CABINET, o, H - 5, H)
+    band(a, PANEL, o, PT, PB, B)
+    a.rect(PANEL_SHADOW, o.left(PT, B), PT, o.right(PT, B) - o.left(PT, B), 4)   # under the top overhang
+    # the inset line, 9 units inside the panel's edge
+    t, i = 2.5, 9
+    yt, yb = PT + i, PB - i
+    a.rect(INSET, o.left(yt, B + i), yt, o.right(yt, B + i) - o.left(yt, B + i), t)
+    a.rect(INSET, o.left(yb, B + i), yb - t, o.right(yb, B + i) - o.left(yb, B + i), t)
+    side_lines(a, INSET, o, yt, yb, B + i, t)
     # the grille under the panel: vertical slots in the case's lip
     gx0, gx1, gy = vent
-    a.rect(CAB_SHADE, gx0 - 6, gy - 2, gx1 - gx0 + 12, 22)
     x = gx0
     while x < gx1:
         a.rect(SLOT, x, gy, 3.5, 18)
         x += 10
     screw = a.element('screw', '<disk>%s%s</disk><disk>%s%s</disk>' % (col(COPPER_DARK), bnd(0, 0, 10, 10), col(COPPER), bnd(1.5, 1, 7, 7)))
-    for sx, sy in ((ix0 + 10, iy0 + 10), (ix1 - 20, iy0 + 10), (ix0 + 20, iy1 - 44), (ix1 - 31, iy1 - 44)):
+    ys, yl = yt + 10, o.knee - 24                 # the lower screws sit just above the knee
+    for sx, sy in ((o.left(ys, B + i) + 10, ys), (o.right(ys, B + i) - 21, ys),
+                   (o.left(yl, B + i) + 10, yl), (o.right(yl, B + i) - 21, yl)):
         a.put(screw, sx, sy, 11, 11)
 
 
@@ -205,32 +241,32 @@ def lamp_legend(a, name, s):
 
 
 def mu(a, x, y, px, c):
-    # the font has no µ: drawn dot by dot, a 'u' with a descender on its left stem
-    rows = ['00000', '00000', '10001', '10001', '10001', '10011', '11101', '10000']
-    body = '<rect>%s%s</rect>' % (col(c, 0), bnd(0, 0, 5, 8))
-    for r, bits in enumerate(rows):
-        for k, b in enumerate(bits):
-            if b == '1':
-                body += '<rect>%s%s</rect>' % (col(c), bnd(k, r, 1, 1))
-    a.put(a.element('mu', body), x, y, 5 * px, 8 * px)
+    # the font has no µ: its lowercase u (text, so its dots stay visible small) with a
+    # descender on the left stem
+    a.label_left('u', x, y, px, c)
+    a.rect(c, x, y + 6 * px, max(px, 1.4), 2.5 * px)
 
 
 def nameplate(a, x, y, w, h, lines):
-    """A metal nameplate: the teal logo square at the left, small product lines beside it,
-    TEKTRONIX large below. lines = [(text, px)], left-aligned, drawn top down."""
+    """A Tektronix nameplate sticker, as on both units: brushed metal, the teal logo block at
+    the left, the product name small beside it, TEKTRONIX across the lower half overlapping
+    the logo. Proportions measured on the flat-on photo. lines = [(text, px)], top down."""
     a.rect(NAMEPLATE_EDGE, x, y, w, h)
-    a.rect(NAMEPLATE, x + 1.5, y + 1.5, w - 3, h - 4)
-    a.rect(TEAL, x + 6, y + 6, 34, h * 0.52)
-    ly = y + 6
-    for s, px in lines:
-        lx = x + 46
-        if s.startswith('µ'):
+    a.rect(NAMEPLATE, x + 1, y + 1, w - 2, h - 2.5)
+    a.rect(TEAL, x + 0.06 * w, y + 0.09 * h, 0.22 * w, 0.78 * h)
+    tpx = 0.68 * w / 53                            # TEKTRONIX: 68% of the plate's width
+    ty = y + h * 0.9 - 8 * tpx
+    ly = y + 0.1 * h
+    for t, px in lines:
+        lx = x + 0.36 * w
+        if t.startswith('µ'):
             mu(a, lx, ly, px, NAME_INK)
             lx += 6 * px
-            s = s[1:]
-        a.label_left(s, lx, ly, px, NAME_INK)
-        ly += 8 * px + 2
-    a.label_left('TEKTRONIX', x + 6, y + h - 30, 3, NAME_INK)
+            t = t[1:]
+        a.label_left(t, lx, ly, px, NAME_INK)
+        ly += 8 * px + 1
+    for dx in (0, 0.5 * tpx):                     # bold, as printed: drawn twice, half a dot apart
+        a.label_left('TEKTRONIX', x + 0.08 * w + dx, ty, tpx, NAME_INK)
 
 
 def write(name, comment, a, view, w, h):
@@ -247,17 +283,20 @@ def write(name, comment, a, view, w, h):
 def mainframe():
     W, H = 1000, 400
     a = Art()
-    cabinet(a, W, H, 340, (150, 850, 368))
+    cabinet(a, W, H, (150, 850, 370))
     # POWER rocker, top left
-    a.label('POWER', 66, 36, 80, 18)
-    a.put(rocker(a), 76, 58, 60, 54, ' name="8002:power" inputtag="8002:power"')
+    a.legend('POWER', 104, 41)                  # clear of the inset line above and the bezel below
+    a.put(rocker(a), 78, 58, 52, 47, ' name="8002:power" inputtag="8002:power"')
+    # the three boxes below share their top and bottom (BT, BB) and are each laid out about
+    # their own middle, as on the unit
+    BT, BB = 118, 334
     # the PROM programmer (drawn only: not emulated): a raised black bezel holding a lighter
     # plate with two ZIF sockets and the caution text
-    a.rect(BEZEL_SHADOW, 110, 122, 282, 198)
-    a.rect(BEZEL, 102, 116, 282, 198)
-    a.rect(BEZEL_EDGE, 102, 116, 282, 3); a.rect(BEZEL_EDGE, 102, 116, 3, 198)
-    a.rect(PLATE, 116, 130, 254, 170)
-    a.frame(INSET, 122, 136, 242, 158, 1.5)
+    a.rect(BEZEL_SHADOW, 108, BT + 6, 292, BB - BT)
+    a.rect(BEZEL, 102, BT, 292, BB - BT)
+    a.rect(BEZEL_EDGE, 102, BT, 292, 3); a.rect(BEZEL_EDGE, 102, BT, 3, BB - BT)
+    a.rect(PLATE, 116, BT + 14, 264, BB - BT - 28)
+    a.frame(INSET, 122, BT + 20, 252, BB - BT - 40, 1.5)
     socket = a.element('socket', ''.join(
         ['<rect>%s%s</rect>' % (col(SOCKET), bnd(12, 6, 52, 84)),
          '<rect>%s%s</rect>' % (col(SOCKET_DARK), bnd(34, 10, 8, 76)),
@@ -265,31 +304,30 @@ def mainframe():
          '<rect>%s%s</rect>' % (col(SOCKET_DARK), bnd(0, 0, 12, 7))] +     # its handle
         ['<rect>%s%s</rect><rect>%s%s</rect>' % (col(SOCKET_DARK), bnd(18, 12 + 6.5 * i, 7, 3.5), col(SOCKET_DARK), bnd(51, 12 + 6.5 * i, 7, 3.5))
          for i in range(12)]))
-    for n, sx in ((1, 146), (2, 258)):
-        a.label('PROM %d' % n, sx + 2, 142, 80, 18)
-        a.put(socket, sx, 162, 66, 88)
-    for i, s in enumerate(('CAUTION: PULSES UP TO 50V', 'APPEAR ON SOCKET DURING', 'PROGRAMMING')):
-        a.label(s, 128, 254 + 13 * i, 230, 12, CAUTION)
+    cy = (BT + BB) / 2                             # 226: the plate's contents, 146 high, about it
+    for n, sx in ((1, 151), (2, 263)):
+        a.legend('PROM %d' % n, sx + 35, cy - 73)
+        a.put(socket, sx, cy - 55, 66, 88)
+    for i, s in enumerate(('CAUTION: PULSES UP TO 50V APPEAR', 'ON SOCKET DURING PROGRAMMING')):
+        a.legend(s, 248, cy + 47 + 15 * i, 1.3, CAUTION)
     # PROM POWER: a narrow outlined box with a dark window, the legend and a toggle
-    a.frame(INSET, 398, 116, 80, 184, 2.5)
-    a.rect(BLACK, 424, 134, 28, 18)
-    a.label('PROM', 404, 176, 68, 18)
-    a.label('POWER', 404, 194, 68, 18)
-    a.put(toggle(a, 'toggle_fixed', False), 423, 222, 30, 46)
-    # nameplate, upper middle-right
-    nameplate(a, 690, 52, 244, 80, [('8002A', 2.5), ('µPROCESSOR LAB', 2.25)])
+    a.frame(INSET, 410, BT, 80, BB - BT, 2.5)
+    a.rect(BLACK, 436, cy - 76, 28, 18)
+    a.legend('PROM', 450, cy - 34)
+    a.legend('POWER', 450, cy - 18)
+    a.put(toggle(a, 'toggle_fixed', False), 435, cy + 12, 30, 46)
+    # nameplate, above the control box (the sticker's size measured on the flat-on photo)
+    nameplate(a, 752, 56, 160, 44, [('8002A', 1.3), ('µPROCESSOR LAB', 0.95)])
     # the control box: the display strip with its backlit legends, DIAG INTRPT, SYSTEM RESTART
-    a.frame(INSET, 622, 146, 280, 190, 2.5)
-    a.rect(BLACK, 640, 172, 244, 32)
+    a.frame(INSET, 622, BT, 280, BB - BT, 2.5)
+    a.rect(BLACK, 640, cy - 72, 244, 32)
     for s, lx in (('sys', 652), ('run', 732), ('pwr', 812)):
-        a.put(lamp_legend(a, 'l_' + s, s.upper()), lx, 177, 60, 22, ' name="8002:%s"' % s)
+        a.put(lamp_legend(a, 'l_' + s, s.upper()), lx, cy - 67, 60, 22, ' name="8002:%s"' % s)
     t = toggle(a)
-    a.label('DIAG', 634, 222, 84, 18)
-    a.label('INTRPT', 634, 240, 84, 18)
-    a.put(t, 661, 262, 30, 46, ' name="8002:diag" inputtag="8002:diag"')
-    a.label('SYSTEM', 792, 236, 98, 18)
-    a.label('RESTART', 792, 254, 98, 18)
-    a.put(t, 826, 276, 30, 46, ' name="8002:restart" inputtag="8002:restart"')
+    for cx, l1, l2, name in ((676, 'DIAG', 'INTRPT', 'diag'), (846, 'SYSTEM', 'RESTART', 'restart')):
+        a.legend(l1, cx, cy - 12)                   # both on one line, as their toggles
+        a.legend(l2, cx, cy + 4)
+        a.put(t, cx - 15, cy + 26, 30, 46, ' name="8002:%s" inputtag="8002:%s"' % (name, name))
     write('8002a.lay', 'Tektronix 8002A µProcessor Lab, front panel (photos in sources/photos; 070-2701 Fig. 2-6).',
           a, 'Tektronix 8002A Microprocessor Lab', W, H)
 
@@ -297,7 +335,7 @@ def mainframe():
 def disc_unit():
     W, H = 1000, 480
     a = Art()
-    cabinet(a, W, H, 420, (150, 850, 448))
+    cabinet(a, W, H, (150, 850, 450))
     # a drive door assembly: the light outer channel, the raised inner bar, the black latch
     door = a.element('door', ''.join('<rect>%s%s</rect>' % (col(c), bnd(*b)) for c, b in (
         (DOOR_SHADE, (0, 0, 100, 370)),
@@ -315,17 +353,16 @@ def disc_unit():
     busy = a.element('busy', '<disk state="0">%s</disk><disk state="1">%s</disk>' % (col((0.62, 0.58, 0.54)), col((1, 0.28, 0.12))))
     for d, x in ((0, 166), (1, 438)):
         a.rect(SLOT, x + 98, 64, 56, 3)              # the disc slot's edges, right of the door
-        a.rect(SLOT, x + 98, 410, 36, 3)
+        a.rect(SLOT, x + 98, 410, 56, 3)           # the two slit edges are the same length
         a.put(door, x, 54, 100, 370, ' drive="%d" inputtag="drive%d:eject"' % (d, d))
         a.put(busy, x + 80, 58, 8, 8, ' name="fdu:drive%d"' % d)
-        a.label_left('DRIVE', x - 94, 398, 2.25)
-        a.label_left(str(d), x - 22, 390, 3.5)
-    a.label('POWER', 780, 92, 80, 18)
-    a.put(rocker(a), 790, 114, 60, 54, ' name="fdu:power" inputtag="fdu:power"')
-    # power lamp: an emulator aid, not on the real unit (070-2701 shows only the rocker)
-    a.put(a.element('led_green', '<disk state="0">%s</disk><disk state="1">%s</disk>' % (col((0.30, 0.34, 0.30)), col((0.35, 1, 0.45)))),
-          858, 116, 8, 8, ' name="fdu:pwr"')
-    nameplate(a, 748, 228, 210, 82, [('FLEXIBLE DISC', 2), ('UNIT', 2)])
+        a.label_left('DRIVE', x - 84, 400, LEGEND)
+        a.label_left(str(d), x - 26, 392, 2.75)
+    # POWER, left-aligned with the sticker below it
+    a.legend('POWER', 741 + 30, 98)
+    a.put(rocker(a), 741, 114, 60, 54, ' name="fdu:power" inputtag="fdu:power"')
+    # the sticker, centred on the panel's height (its size measured on the flat-on photo)
+    nameplate(a, 741, (20 + H - 36) / 2 - 18.5, 166, 37, [('FLEXIBLE DISC', 0.85), ('UNIT', 0.85)])
     write('fdu.lay', 'Tektronix 8002A Flexible Disc Unit, front panel (photos in sources/photos; 070-2701 Fig. 2-1).',
           a, 'Tektronix 8002A Flexible Disc Unit', W, H)
 
