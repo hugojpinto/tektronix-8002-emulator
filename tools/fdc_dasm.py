@@ -56,10 +56,10 @@ def decode(a, w, bank=None):
     spc = ',' + SPECIAL[sp] if sp else ''
     if top == 0:
         return CMDS.get(w & 0x0FFF, 'S?%03X' % (w & 0xFFF)), ''
-    if top == 1:
-        return 'LDL', ''
-    if s == 1 and d == 3:                      # through-register jump: register number complemented
-        return JMP[f4], 'SR,M,R%d' % (15 - reg)
+    if top == 1:                               # the latches (the last TB result) to a register
+        return 'LDL', 'R%d' % reg
+    if s == 1 and d == 3:                      # through-register jump: the register number, as elsewhere
+        return JMP[f4], 'SR,M,R%d' % reg
     if s == 2 and d == 3:                      # direct jump: 1s complement of the target, in the current bank
         return JMP[f4], 'I,M,%03X' % ((bank << 8) | (~w & 0xFF))
     if s == 2:
@@ -125,6 +125,11 @@ def main():
             if op not in toks[:2] and not any((op, x) in ALIASES for x in toks[:2]):
                 mism += 1
                 print('op  %03X %04X %-4s %-18s | %s' % (a, words[a], op, opr, ' '.join(toks[:4])))
+            if op in JMP.values() and opr.startswith('SR,M,'):
+                jumps += 1
+                if not any(t.replace('O', '0').endswith(opr[5:]) and t.startswith('SR') for t in toks[1:3]):
+                    jbad += 1
+                    print('jmp %03X %04X %s %s, listing says %s' % (a, words[a], op, opr, ' '.join(toks[1:3])))
             if op in JMP.values() and opr.startswith('I,M,'):
                 target = int(opr[4:], 16)
                 i = toks.index(op) if op in toks else 1

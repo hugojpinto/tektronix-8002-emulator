@@ -31,7 +31,11 @@ controller drops FLAG. Commands: 00 read diagnostic registers (R1–R15, then R0
 5 illegal operation.
 
 ## What the model adds to the manual (inferred from the software)
-1. **Completion FLAG.** After the track byte of a read (and after the 128th data byte of
+Since stage C (`notes/fdc.md`) the real microcode settles these. Points 2 and 3 are confirmed.
+Points 1 and 4 were one wrong guess: the controller holds FLAG from the last byte to the end of
+the operation, and the disc interrupt is clocked by FLAG going low. The model now does that.
+
+1. **Completion FLAG** (superseded: FLAG stays up and drops at the end). After the track byte of a read (and after the 128th data byte of
    a write), the controller raises FLAG by itself once the seek and transfer are done.
    TekDOS 3.3 sends the address bytes, writes EA ← 37 (disc interrupt on, RST) and waits
    for interrupt 11 (handler 25AF). The bootstrap PROM polls instead, so it works either
@@ -46,7 +50,7 @@ controller drops FLAG. Commands: 00 read diagnostic registers (R1–R15, then R0
    increases system performance during multiple sector record transfers", but not
    confirmed.
 
-4. **RST drops a completion FLAG.** The completion FLAG rises while the host's control code
+4. **RST drops a completion FLAG** (superseded with point 1; the rule is gone). The completion FLAG rises while the host's control code
    is already RST (111). TEKDOS's handler writes RST again (25B4), which is no strobe edge,
    and its next operation starts with RST and waits for FLAG low (26BE–26C6, with a
    timeout). So an RST written while FLAG is up drops it. A pending completion is not

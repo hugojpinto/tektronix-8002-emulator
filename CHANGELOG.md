@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-12 — Step 5 stage C: reads through the disc controller's microcode
+- `tek8002_fdd`: the drives, with hard-sectored tracks of FM bit cells built from the images and decoded back (sync FB, track, sector, data, CCITT CRC; sector k holds logical sector (k+1)·INL mod 32).
+- `-fdc lle` runs the real controller: TEKDOS boots, including the boot PROM's 16K read from one command, and LDIR gives the same listing as the high-level model on all 33 discs. Discs are write protected in this mode until stage D.
+- Found: the controller holds FLAG through an operation, so the disc interrupt is clocked by FLAG going low. The high-level model now does the same; its inferred completion pulse and RST-drops-FLAG rule are gone, and every write test still passes.
+- Fixed in the microcode decoding: through-register jumps name the register directly, and LDL loads a register from the latches. Before, reads returned without checking the CRC.
+
 ## 2026-11-12 — Step 5 stage B: the disc controller's processor
 - `tek8002_fdc` runs the real 512-word microprogram: the 74181 ALU in its active-low convention, the jump conditions, the command latches, UBANK (delayed one fetch), the Sector Buffer, and the host port.
 - `emu/tests/fdc_test.cpp` (in `make test`) checks the power-on delay, the autoload's error recovery on a blank disc, the SIO/OTD handshake into R6/R4/R9/R11, and the seek to track 16.

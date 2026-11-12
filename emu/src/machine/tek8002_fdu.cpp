@@ -23,14 +23,36 @@ bool tek8002_fdu::mount(int d, const std::string &path, bool writable, std::stri
 	}
 	drive_t &dr = m_drive[d];
 	dr.image = std::move(img); dr.path = path; dr.writable = writable; dr.dirty = false;
+	if (m_low_level) m_fdd.load(d, dr.image, false, m_fdc.interleave_step());   // write protected until stage D
 	return true;
 }
 
-void tek8002_fdu::eject(int d) { if (d >= 0 && d < DRIVES) m_drive[d] = drive_t(); }
+void tek8002_fdu::eject(int d) { if (d >= 0 && d < DRIVES) { m_drive[d] = drive_t(); m_fdd.remove(d); } }
+
+bool tek8002_fdu::use_controller(const std::string &rom_dir, std::string &err)
+{
+	if (!m_fdc.load_rom(rom_dir, err)) return false;
+	m_fdc.drive = &m_fdd;
+	m_low_level = true;
+	for (int d = 0; d < DRIVES; d++) if (mounted(d)) m_fdd.load(d, m_drive[d].image, false, m_fdc.interleave_step());
+	reset();
+	return true;
+}
+
+void tek8002_fdu::reset()
+{
+	if (m_low_level) { m_fdc.reset(); m_fdc.host_control(m_code); }
+}
 
 bool tek8002_fdu::save(int d, std::string &err)
 {
 	drive_t &dr = m_drive[d];
+	if (m_low_level && mounted(d)) {
+		// what the controller left on the tracks
+		std::vector<u8> img; std::string problems;
+		if (!m_fdd.unload(d, img, problems)) { err = dr.path + ": not saved; the tracks do not decode:\n" + problems; return !dr.writable; }
+		if (img != dr.image) { dr.image = std::move(img); dr.dirty = true; }
+	}
 	if (!dr.dirty || !dr.writable) return true;
 	FILE *f = fopen(dr.path.c_str(), "wb");
 	if (!f || fwrite(dr.image.data(), 1, dr.image.size(), f) != dr.image.size()) { if (f) fclose(f); err = dr.path + ": write failed"; return false; }
@@ -108,7 +130,7 @@ void tek8002_fdu::start_transfer()
 		break;
 	}
 	m_in = m_status;
-	m_op_done = true;                      // FLAG rises when the seek and transfer are done
+	m_op_done = true;                      // FLAG stays up until the seek and transfer are done
 }
 
 void tek8002_fdu::request(int code)
@@ -169,28 +191,32 @@ void tek8002_fdu::request(int code)
 void tek8002_fdu::control(u8 c)
 {
 	c &= 7;
+	if (m_low_level) {
+		static const char *const name[4] = { "IND", "?", "OTD", "SIO" };
+		if (trace && c != m_code && !(c & 1)) fprintf(stderr, "[FDC %s %02x, FLAG %d]\n", name[c >> 1], m_out, int(m_fdc.host_flag()));
+		m_code = c;
+		m_fdc.host_control(c);
+		return;
+	}
 	const bool strobe_was = !(m_code & 1), strobe = !(c & 1);
 	m_code = c;
 	if (strobe && !strobe_was) {
 		request(c >> 1);
 		flag_after(flag_delay);
 	} else if (!strobe && strobe_was) {
-		// end of the strobe: FLAG drops; at the end of a sector the status byte is presented
-		m_flag = false; m_flag_timer = 0;
+		// end of the strobe: FLAG drops, except after the byte that starts an operation (the
+		// track byte, the 128th data byte): the controller holds it until the operation is
+		// done, as the microcode does (notes/fdc.md "Stage C"); at the end of a sector the
+		// status byte is presented
 		if (m_phase == phase::data_in && m_index == SECTOR_BYTES) m_in = m_status;
-		if (m_op_done) { m_op_done = false; flag_after(op_delay); }
-	} else if (c == 7 && m_flag && !m_flag_timer) {
-		// RST while a completion FLAG is up (the host was not strobing): the controller takes
-		// it as the reset request and drops FLAG. TEKDOS's disc handler writes RST on the
-		// completion interrupt; its next operation starts with RST and waits for FLAG low
-		// (TEKDOS 3.3, 25B4 and 26BE-26C6). Without this a write is never followed by another
-		// operation: DELETE, FORMAT and the directory write-back of LDIR stopped there.
-		m_flag = false;
-		m_in = m_status;
+		if (m_op_done) { m_op_done = false; m_flag = true; m_flag_timer = 0; m_drop_timer = op_delay; }
+		else { m_flag = false; m_flag_timer = 0; }
 	}
 }
 
 void tek8002_fdu::tick(int cycles)
 {
+	if (m_low_level) { m_fdc.run(u64(cycles) * u64(cycle_ns)); return; }
 	if (m_flag_timer > 0 && (m_flag_timer -= cycles) <= 0) { m_flag_timer = 0; m_flag = true; }
+	if (m_drop_timer > 0 && (m_drop_timer -= cycles) <= 0) { m_drop_timer = 0; m_flag = false; m_in = m_status; }
 }

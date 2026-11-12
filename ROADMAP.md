@@ -9,7 +9,8 @@ Following FEASIBILITY.md §5.
 5. **The disc controller at low level** from its microprogram (070-2587 Appendix C, two 512×8 ROMs), with a hard-sectored FM track model; this also yields FM sector streams for writing real discs.
    - ~~Stage A~~ (2026-11-12): the microcode as ROM images, triple-checked, and a disassembler matching the manual's listing (`notes/fdc.md`, `tools/fdc_dasm.py`).
    - ~~Stage B~~ (2026-11-12): the processor runs the real microprogram: power-on delay, autoload with error recovery, SIO/OTD handshake, seek (`emu/src/machine/tek8002_fdc.*`, `emu/tests/fdc_test.cpp`).
-   - Stages C–D: the track model and reads, then writes and FORMAT (`notes/fdc.md` "Still to establish").
+   - ~~Stage C~~ (2026-11-12): bit-cell tracks (`tek8002_fdd`) and reads through the microcode: TEKDOS boots and LDIRs under `-fdc lle`, identical to the high-level model on all 33 discs; CRC errors and the error recovery work.
+   - Stage D: writes and FORMAT through the microcode (the write flip-flop's FM timing), then `-fdc lle` as the default (`notes/fdc.md` "Still to establish").
 6. **6800 emulator board** (high level: its PROMs are lost), debug features (breakpoints, single cycle, TRACE).
 7. Options: PROM programmers (2704/2708, 1702A), Real Time Trace / RTPA, front panel in a GUI.
 

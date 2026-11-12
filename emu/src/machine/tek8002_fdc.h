@@ -47,7 +47,7 @@ public:
 	// outputs
 	virtual void select(int drive) = 0;
 	virtual void step(bool in) = 0;           // a STEP pulse (leading edge), direction in = towards track 76
-	virtual void head_load(bool on) = 0;
+	virtual void head_load(bool on) = 0;      // FILE INOP pulse: load the selected drive's head; RAISE HEADS: unload
 	virtual void write_gate(bool on) = 0;
 	virtual void write_data(bool v) = 0;      // the write flip-flop as PULL loads it
 	virtual void elapse(u64 ns) = 0;          // controller time advances (the disc turns)
@@ -72,6 +72,7 @@ public:
 	fdc_drive_bus *drive = nullptr;
 	u8 interleave = 0x07;                      // S4104 switches 5-1 (bit 4 = switch 5), On = 1: Off Off On On On (070-2587 §1)
 	bool trace = false;
+	int interleave_step() { return input(7) & 31; }   // what the sector count adds per SECTOR pulse (03F-041)
 
 	// state, for tests and the debugger
 	u16 pc() const { return u16((m_ubank << 8) | m_rar); }

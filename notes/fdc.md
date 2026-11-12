@@ -29,9 +29,9 @@ Bits 15–14 select the WR bus source, bits 13–12 the destination:
 | 15–12 | Format | Decoding |
 |---|---|---|
 | 0000 | Type S command | bits 11–0 name the command (Fig. B-4: RST, CDA, set/reset BUSY, ILLEGAL OP, ERROR RECOVERY, UNIT CHECK, FILE INOP, WRITE GATE, PRINT STB, HOST FLAG, RAISE HEADS, DIRECTION, STEP, EN STACK, EN DISPLAY, SELECT CARRY, >TRK43, UBANK) |
-| 0001 | LDL | load latches |
+| 0001 | LDL | a register from the latches, the last TB result (`LOD IN,L,BYT` "to LTCHS", then `LDL R15`) |
 | 01dd | Type A, registers | ALU function bits 11–6 (S3 S2 S1 S0 M CI, Table 3-2), register bits 5–2, special bits 1–0 (SPSH 01, PULL 10, EPSH 11); dd = L / DR / A |
-| 0111 | jump through a register | condition bits 11–8, register = 15 − bits 5–2 |
+| 0111 | jump through a register | condition bits 11–8, register bits 5–2 (the listing's R12, R13, R5; not complemented, whatever Fig. 3-15 says) |
 | 10dd | Type L immediate | logic function bits 11–8, data byte 7–0; dd = L / A |
 | 1011 | direct jump | condition bits 11–8; target = ~bits 7–0, in the bank UBANK selects |
 | 11dd | Type A, inputs | ALU function bits 11–6, input bits 5–2 (TST, CSW, SBH, SBL, DBT, BYT, INL), special 1–0 |
@@ -48,7 +48,7 @@ Bits 15–14 select the WR bus source, bits 13–12 the destination:
   So the instruction after SH8/SL8 still comes from the old bank, and it is the jump that lands
   in the new one (`054 SH8; 055 JMP WRT` reaches 1AA, while the word at 155 is unrelated read code).
 - **Established:** `tools/fdc_dasm.py --check` against the listing's OCR text. All 512 op codes
-  match the listing's (OCR spellings like LOO for LOD mapped). 154 of the 155 jump targets
+  match the listing's (OCR spellings like LOO for LOD mapped). 154 of the 155 direct jump targets
   whose label the symbol table gives match its decimal column; the exception is E9B, where
   that column is garbled and the hex column agrees with the decode.
 
@@ -89,7 +89,7 @@ The microprogram now runs on a model of the processor. Facts settled while doing
   Its 0s are logical 1s: INL bit 0 = 1, and INL = switches 5–1 on bits 5–1. Reading the figure
   the other way gives an even INL, and the sector arithmetic then misses every other sector.
 - **Interleave switch S4104:** the factory setting is Off Off On On On (switches 5–1, §1), so
-  INL = 0x0F. How that maps to the "0, 16, 1, 17" sector order is left for FORMAT in stage D.
+  INL = 0x0F (see stage C for what it does).
 - **The ALU** is a 74181 used in active-low convention, with S0/S1 inverted on the way (Table 3-2
   footnote). Arithmetic is the chip's P + G + carry on the physical levels, and the true carry
   (C7) is the physical carry inverted. Logic functions are the active-high table on the inverted
@@ -107,8 +107,63 @@ The microprogram now runs on a model of the processor. Facts settled while doing
   - SIO and four OTD bytes (88, 00, 05, 10) land in R6/R4/R9/R11, and the drive is selected.
   - The seek steps the head to track 16. The read there fails the same way, and FLAG drops once.
 
+## Stage C: tracks, and reads through the microcode (`emu/src/machine/tek8002_fdd.*`, `-fdc lle`)
+The drives hold hard-sectored tracks of FM bit cells, built from the images. TEKDOS boots
+through the real microcode, including the boot PROM's 16K read from one command, and LDIR gives
+the same listing as the high-level model on all 33 discs in the collection. Established:
+- **Sector layout (Fig. 1-5 and the read routine):** the sector pulse starts the sector. Then come
+  128 cells of 0, the sync byte FB (RD1 at 14B finds it by its bit pattern, within 256 bits),
+  track, sector, 128 data bytes, and CRC high and low. The rest is 0s up to the next pulse. Bits
+  go MSB first (RD1–RD3 shift them in at the LSB), one Data Ready per 4 µs cell.
+- **CRC:** CCITT (x^16 + x^12 + x^5 + 1, §3 "CRC Generation"). The read routine seeds R14/R15
+  with the track and sector bytes (173–176), then shifts data and CRC through them (CRC2 at 182).
+  That is the standard CRC from 0 over track, sector and data, with a zero remainder over the CRC
+  bytes too. MSK1/MSK2 = 10/21 are the polynomial.
+- **Where the sectors are:** the executive zeroes its sector count R7 at INDEX (02B) and adds INL
+  at every SECTOR pulse (03F–042). It reads or writes when R7 equals the sector asked for (04F),
+  and the header's sector byte must match (16B). So physical sector k after the index holds
+  logical sector ((k + 1) × INL) mod 32. With INL = 15, consecutive logical sectors are 17 holes
+  (≈ 88 ms) apart, about half a turn. The manual's "sector 00, sector 16, sector 01, sector 17"
+  (§1 "Sector Interleaving") describes this half-turn pattern only loosely: no constant step
+  mod 32 gives that exact order. The other reading of the switch polarity (INL = 17) gives the
+  mirror pattern. Data and timings agree with either; only a real disc's flux could tell.
+- **Head load:** FILE INOP pulsed (SFI, RFI at 018; Fig. B-4 "Reset FILE INOP RST/LD HD") loads
+  the selected drive's head. RAISE HEADS pulsed (031–032) unloads it.
+- **FLAG through an operation:** after the track byte of a read (count R13 = 128, 08E–098) the
+  executive skips RFG (020–026), so FLAG stays up through the seek and the read. It drops when
+  the sector is in the buffer. The boot PROM's "RST, wait FLAG 0" after each byte is this wait.
+  **The System Processor's disc interrupt is therefore clocked by FLAG going low:** TEKDOS sends
+  the track byte, waits for FLAG 1 (26B1), and only then enables the interrupt (EA ← 37 at 2620),
+  with FLAG already up. The high-level model's rising "completion FLAG" and its RST-drops-FLAG
+  rule (`notes/fdu.md` points 1 and 4) were two halves of that one wrong edge. Both are now
+  replaced by this behaviour, and every TEKDOS write test still passes.
+- **IND data is read during the strobe:** EB shows the accumulator only while C0 is active. The
+  boot PROM reads EB before its RST (00D3).
+- **Multi-sector reads are real:** after a sector, X3 (10F) advances the target sector, and the
+  track at sector 31. The boot PROM's 128-sector read and its 16K come from one command, as the
+  high-level model had inferred (`notes/fdu.md` point 3).
+- **Error recovery (§3, X at 100):** after a CRC error the controller retries. Then it wipes:
+  seek out to track 00 (X1 sets track X to 0), in to 76 (`LOD l,L,76; LDL R11` at 128), and back
+  to the target (`LOD SR,L,R14; LDL R11`). It reads once more, and then gives up: FLAG drops with
+  UNIT CHECK and the sense byte (CRC 20, ID 10, SYNC 08). The sector as read stays in the buffer.
+  The drive byte's bit 6 skips the recovery (ERTN at 19C, J6N on R4).
+- **Two decoding errors from stage A, found here:**
+  - Through-register jumps name the register directly. The listing's 7A30 is `JLB SR,M,R12`, the
+    return vector 172 stores. Fig. 3-15's "1s complement of register number" does not describe
+    the field. With the complement, the read routine returned through R3, landed on X2 (success)
+    and never checked the CRC. `tools/fdc_dasm.py --check` now compares these operands: all 3
+    match.
+  - LDL (0001) loads the register from the latches, the last TB result (0A8 "INPUT HOST BYTE TO
+    LTCHS", 0A9 "LTCHS TO R15"). It is not a no-op.
+- **Checked by `fdc_test <roms> <image>`:**
+  - The tracks decode back to the image.
+  - The autoload succeeds.
+  - Sectors across the disc read back equal to the image, with a zero CRC remainder.
+  - A flipped cell gives CRC ERROR after the full recovery, and the sector as read.
+- **Not modelled:** sector and index pulse widths are not in the manual (0.5 ms here; any width
+  under a sector's trailer behaves the same). The drive's write path is stage D: under
+  `-fdc lle` the discs are write protected until then.
+
 ## Still to establish
-- Stage C: a bit-level, hard-sectored FM track (sector and index pulses, separated clock/data,
-  32 sectors at 360 rpm = 5.2 ms each) and reads through the real microcode.
 - Stage D: writes and FORMAT (write flip-flop timing), then replacing `tek8002_fdu`'s high-level
   path, keeping it as an option (`-fdc hle`, as in the 8550 emulator).

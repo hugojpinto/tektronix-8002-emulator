@@ -85,7 +85,7 @@ static std::string unescape(const std::string &t)
 int main(int argc, char **argv)
 {
 	std::string prom, tracefile, logfile, img[tek8002_fdu::DRIVES];
-	long long max_cycles = -1; bool io = false, rw = false, fdu_trace = false;
+	long long max_cycles = -1; bool io = false, rw = false, fdu_trace = false; std::string fdc_mode = "hle";
 	std::string link_spec[tek8002_syscomm::PORTS];
 	struct typed { double t; std::string s; }; std::vector<typed> types;
 	for (int i = 1; i < argc; i++) {
@@ -103,7 +103,8 @@ int main(int argc, char **argv)
 		else if (a == "-lpt") link_spec[tek8002_syscomm::PRINTER] = next();
 		else if (a == "-ppt") link_spec[tek8002_syscomm::TAPE] = next();
 		else if (a == "-fdutrace") fdu_trace = true;
-		else { fprintf(stderr, "usage: %s [-prom FILE] [-0..-3 IMG] [-rw] [-cycles N] [-type SEC TEXT] [-rem SPEC] [-lpt SPEC] [-ppt SPEC] [-trace FILE] [-io] [-fdutrace] [-log FILE]\n", argv[0]); return 1; }
+		else if (a == "-fdc" && i + 1 < argc && (std::string(argv[i + 1]) == "hle" || std::string(argv[i + 1]) == "lle")) fdc_mode = next();
+		else { fprintf(stderr, "usage: %s [-prom FILE] [-0..-3 IMG] [-rw] [-fdc hle|lle] [-cycles N] [-type SEC TEXT] [-rem SPEC] [-lpt SPEC] [-ppt SPEC] [-trace FILE] [-io] [-fdutrace] [-log FILE]\n", argv[0]); return 1; }
 	}
 	auto m = std::make_unique<tek8002>();
 	std::string err;
@@ -112,6 +113,13 @@ int main(int argc, char **argv)
 			if (FILE *f = fopen(p, "rb")) { fclose(f); prom = p; break; }
 	if (prom.empty()) { fprintf(stderr, "bootstrap PROM not found: give -prom FILE (roms/tekdos_boot.bin)\n"); return 1; }
 	if (!m->load_boot_prom(prom, err)) { fprintf(stderr, "%s\n", err.c_str()); return 1; }
+	if (fdc_mode == "lle") {
+		// the disc controller's microprogram sits next to the bootstrap PROM (roms/fdc)
+		const size_t slash = prom.find_last_of("/\\");
+		const std::string dir = (slash == std::string::npos ? std::string(".") : prom.substr(0, slash)) + "/fdc";
+		if (!m->fdu.use_controller(dir, err)) { fprintf(stderr, "%s\n", err.c_str()); return 1; }
+		if (rw) fprintf(stderr, "[-fdc lle: discs are write protected until the controller's write path is modelled]\n");
+	}
 	for (int d = 0; d < tek8002_fdu::DRIVES; d++)
 		if (!img[d].empty() && !m->fdu.mount(d, img[d], rw, err)) { fprintf(stderr, "%s\n", err.c_str()); return 1; }
 	m->trace_io = io || getenv("TEK_IOTRACE"); m->fdu.trace = fdu_trace || getenv("TEK_FDCTRACE"); m->debug.trace = getenv("TEK_EPTRACE");

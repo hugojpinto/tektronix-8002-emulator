@@ -28,7 +28,7 @@ BUILD ?= build
 
 DASM_OBJ := $(BUILD)/cpu/s2650/2650dasm.o $(BUILD)/cpu/z80/z80dasm.o
 HOST     := $(BUILD)/host/serial_link.o $(BUILD)/host/net.o
-M8002    := $(BUILD)/machine/tek8002.o $(BUILD)/machine/tek8002_fdu.o $(BUILD)/machine/tek8002_debug.o $(BUILD)/machine/tek8002_asmproc.o $(BUILD)/machine/tek8002_syscomm.o $(BUILD)/cpu/z80/superzazu/z80.o $(BUILD)/cpu/s2650/s2650.o
+M8002    := $(BUILD)/machine/tek8002.o $(BUILD)/machine/tek8002_fdu.o $(BUILD)/machine/tek8002_fdc.o $(BUILD)/machine/tek8002_fdd.o $(BUILD)/machine/tek8002_debug.o $(BUILD)/machine/tek8002_asmproc.o $(BUILD)/machine/tek8002_syscomm.o $(BUILD)/cpu/z80/superzazu/z80.o $(BUILD)/cpu/s2650/s2650.o
 
 all: $(BUILD)/dasm$(EXE) $(BUILD)/tek8002$(EXE)
 
@@ -49,7 +49,7 @@ $(BUILD)/tools/%.o: tools/%.cpp
 
 $(BUILD)/debug_test$(EXE): $(BUILD)/tests/debug_test.o $(BUILD)/machine/tek8002_debug.o
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-$(BUILD)/fdc_test$(EXE): $(BUILD)/tests/fdc_test.o $(BUILD)/machine/tek8002_fdc.o
+$(BUILD)/fdc_test$(EXE): $(BUILD)/tests/fdc_test.o $(BUILD)/machine/tek8002_fdc.o $(BUILD)/machine/tek8002_fdd.o
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 $(BUILD)/tests/%.o: tests/%.cpp
 	@mkdir -p $(dir $@)
@@ -59,6 +59,7 @@ $(BUILD)/tests/%.o: tests/%.cpp
 test: all $(BUILD)/debug_test$(EXE) $(BUILD)/fdc_test$(EXE)
 	$(BUILD)/debug_test$(EXE)
 	$(BUILD)/fdc_test$(EXE) ../roms/fdc
+	$(BUILD)/fdc_test$(EXE) ../roms/fdc ../disks/TekDOS_3.3_6800_cpy1.img
 	cd .. && tests/boot_ldir.sh && tests/asm_link.sh
 
 clean:

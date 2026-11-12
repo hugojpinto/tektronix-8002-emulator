@@ -14,7 +14,7 @@ A sibling of the [Tektronix 8550 MDL emulator](https://github.com/hugojpinto/tek
 cd emu && make
 build/tek8002 -0 ../disks/TekDOS_3.3_6800_cpy1.img
 ```
-The console is your terminal. Ctrl-] opens the monitor (`q` quits). `-1`…`-3` mount more drives, `-rw` makes them writable. `tests/boot_ldir.sh` is the regression test.
+The console is your terminal. Ctrl-] opens the monitor (`q` quits). `-1`…`-3` mount more drives, `-rw` makes them writable. `-fdc lle` runs the disc controller's real microprogram against bit-cell tracks (reads only so far; the default `-fdc hle` is the high-level model). `tests/boot_ldir.sh` is the regression test.
 
 ```
  TEKDOS  6800    VERSION 3.3

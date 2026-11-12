@@ -135,13 +135,19 @@ void tek8002_fdc::command(u16 w)
 		return;                                                    // NOP
 	}
 	if (type == 3) { m_group1 = 0; }                               // RST
-	else if (type == 1) { if (val) m_group1 |= u8(1 << addr); else m_group1 &= u8(~(1 << addr)); }
+	else if (type == 1) {
+		const bool was = m_group1 & (1 << addr);
+		if (val) m_group1 |= u8(1 << addr); else m_group1 &= u8(~(1 << addr));
+		// "Reset FILE INOP RST/LD HD" (Fig. B-4): the end of a FILE INOP pulse loads the selected
+		// drive's head (EX2 at 018: SFI, RFI "PULSE THE FILE INOP/LOWER THE HEAD")
+		if (addr == 4 && was && !val && drive) drive->head_load(true);
+	}
 	else {
 		const bool was = m_group2 & (1 << addr);
 		if (val) m_group2 |= u8(1 << addr); else m_group2 &= u8(~(1 << addr));
 		if (drive) {
 			if (addr == 2 && val && !was) drive->step(m_group2 & 2);   // a STEP pulse, DIRECTION (IN) as set
-			if (addr == 0) drive->head_load(!val);                     // RAISE HEADS
+			if (addr == 0 && val) drive->head_load(false);             // RAISE HEADS (pulsed: SHD, RHD at 031)
 		}
 		if (addr == 7) m_ubank_next = val;   // takes effect after the next fetch (see step())
 	}
@@ -182,10 +188,15 @@ void tek8002_fdc::step()
 	const int src = w >> 14, dst = (w >> 12) & 3, fn = (w >> 6) & 63, sel = (w >> 2) & 15, sp = w & 3;
 	if (src == 0) {
 		if (dst == 0) command(w);          // Type S
-		// LDL (0001): loading the latches from the accumulator is how the latches showed it; no use found
+		// LDL (0001): the register from the latches, the last TB result (0A8 "INPUT HOST BYTE TO
+		// LTCHS", 0A9 LDL R15 "LTCHS TO R15"; X1 at 128-129 sets track X to 76 this way)
+		else if (dst == 1) m_r[sel] = m_t;
 	} else if (dst == 3) {                 // jumps: the RAR takes the complement of the WR bus
 		const int c = (w >> 8) & 15;
-		const u8 wr = src == 2 ? u8(w) : m_r[15 - sel];
+		// through a register: the register field is the register number, as in every other format
+		// (the listing: 7A30 JLB SR,M,R12 returns through the vector 172 stores with LRA R12 = 5930;
+		// Fig. 3-15's remark that it is complemented describes the hardware lines, not the field)
+		const u8 wr = src == 2 ? u8(w) : m_r[sel];
 		if (condition(c)) { m_rar = u8(~wr); cycles = 2; }
 	} else {
 		u8 a; bool arith = true;

@@ -29,6 +29,7 @@ void tek8002::power_on()
 	m_pending = 0; m_bank = 0; m_serial_ctl = 0; m_par_ctl = 0x07; m_timer_ctl = 0;
 	m_da_was = false; m_tbmt_was = true; m_flag_was = false;
 	fdu.control(0x07);
+	fdu.reset();
 	debug.reset();
 	asmproc.command(0xe7, 0x00);
 	cpu.reset();
@@ -147,8 +148,11 @@ void tek8002::devices_tick(int c)
 	if (term.da() && !m_da_was && tty_en) raise(INT_CONSOLE_IN);
 	if (term.tbmt() && !m_tbmt_was && tty_en) raise(INT_CONSOLE_OUT);
 	m_da_was = term.da(); m_tbmt_was = term.tbmt();
-	// the disc interrupt flip-flop is clocked by FLAG going high, when enabled (EA bit 4)
-	if (fdu.flag() && !m_flag_was && (m_par_ctl & 0x10)) raise(INT_DISC);
+	// the disc interrupt flip-flop is clocked by FLAG going low, when enabled (EA bit 4): the
+	// controller holds FLAG from the last address (or data) byte to the end of the operation
+	// (070-2587 microcode, notes/fdc.md "Stage C"), and TEKDOS enables the interrupt with that
+	// FLAG already up (EA <- 37 at 2620) to be woken at the end
+	if (!fdu.flag() && m_flag_was && (m_par_ctl & 0x10)) raise(INT_DISC);
 	m_flag_was = fdu.flag();
 	// interval timer: 10 ms or 100 ms from the baud-rate divider chain
 	const u64 period = u64(CPU_HZ * (timer_100ms ? 0.100 : 0.010));
