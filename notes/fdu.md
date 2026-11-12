@@ -46,6 +46,22 @@ controller drops FLAG. Commands: 00 read diagnostic registers (R1–R15, then R0
    increases system performance during multiple sector record transfers", but not
    confirmed.
 
+4. **RST drops a completion FLAG.** The completion FLAG rises while the host's control code
+   is already RST (111). TEKDOS's handler writes RST again (25B4), which is no strobe edge,
+   and its next operation starts with RST and waits for FLAG low (26BE–26C6, with a
+   timeout). So an RST written while FLAG is up drops it. A pending completion is not
+   cancelled. Before this, every write ended TEKDOS's disc work: DELETE stopped with
+   ERROR 62, FORMAT with ERROR 47, and LDIR of a data disc (which rewrites its directory
+   sector) with ERROR 01. Reads had hidden it, because the SIO strobe that follows a read
+   clears FLAG.
+
+Verified with the write path working (2026-11-12), in TEKDOS 3.3 sessions against tekmato
+(`../tekmato`, whose regression runs them):
+- FORMAT 1 writes all 2,464 sectors and leaves a disc byte-identical to the real formatted
+  disc Tek8002_1b;
+- DELETE zeroes the name and the file record, frees the blocks and decrements the count;
+- COPY to a new file and LDIR of every disc in the collection work.
+
 None of these timings is real: seek, rotation and interleave are not modelled. The
 low-level path (the controller's microprogram, 070-2587 Appendix C) will replace this
 model.

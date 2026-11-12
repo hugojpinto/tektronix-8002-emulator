@@ -88,6 +88,7 @@ void tek8002_fdu::next_sector()
 void tek8002_fdu::start_transfer()
 {
 	m_status = drive_status(m_dev);
+	if (trace) fprintf(stderr, "[FDU command %02x drive %d sector %2d track %2d]\n", m_cmd, m_dev, m_sec, m_trk);
 	m_index = 0;
 	switch (m_cmd) {
 	case CMD_READ:
@@ -178,6 +179,14 @@ void tek8002_fdu::control(u8 c)
 		m_flag = false; m_flag_timer = 0;
 		if (m_phase == phase::data_in && m_index == SECTOR_BYTES) m_in = m_status;
 		if (m_op_done) { m_op_done = false; flag_after(op_delay); }
+	} else if (c == 7 && m_flag && !m_flag_timer) {
+		// RST while a completion FLAG is up (the host was not strobing): the controller takes
+		// it as the reset request and drops FLAG. TEKDOS's disc handler writes RST on the
+		// completion interrupt; its next operation starts with RST and waits for FLAG low
+		// (TEKDOS 3.3, 25B4 and 26BE-26C6). Without this a write is never followed by another
+		// operation: DELETE, FORMAT and the directory write-back of LDIR stopped there.
+		m_flag = false;
+		m_in = m_status;
 	}
 }
 

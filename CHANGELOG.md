@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-12 — Disc writes work
+- The disc unit drops a completion FLAG when the host writes RST (`notes/fdu.md` point 4). TEKDOS's FORMAT, DELETE, COPY to a file, and LDIR of data discs now work. FORMAT leaves a disc identical to a real formatted one.
+- `-fdutrace` also logs every command (code, drive, sector, track).
+- The sibling tool `../tekmato` now reads and writes TEKDOS discs (`tkdos-sssd`), checked against this emulator.
+
 ## 2026-11-12 — Step 1: TEKDOS boots
 - Repository set up from the feasibility study. CPU cores, the MAME shim, the tty helpers, the disassembler tool, the Makefile and the conventions are copied from the 8550 emulator (commit 86caf61).
 - Mainframe (`tek8002`): 2650 at 1.25 MHz, interrupt priority and vectors (Table 3-1), console UART on E8/E9, disc interface on EA/EB, interval timer (EC), program memory banks (EE), the bootstrap PROM over 0000–00FF, read in reversed address order (`notes/boot-prom.md`).
