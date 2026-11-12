@@ -1,5 +1,11 @@
 # Changelog
 
+
+## 2026-11-12 — Version 0.9.0; binary releases
+- `VERSION` (0.9.0) is compiled into every program, and each answers `-version`. Nothing is printed at start-up.
+- The programs find `roms/` and `artwork/` beside themselves when the repository's relative defaults are missing, so an unpacked release runs from anywhere (`host/paths.*`, the same file as the 8550 emulator's).
+- A tag `v0.9.0` builds the releases on GitHub: macOS universal, Linux x86-64 and Windows x64, with the GUI (SDL3 static, or its DLL on Windows), the ROMs, the TEKDOS discs and the panel artwork (`.github/workflows/release.yml`, `tools/package_release.sh`).
+
 ## 2026-11-12 — Memory parity; link v4 agreed; the lamps from the schematics
 - The CT8100's host features from its manual: FS cursor addressing, ESC FF clear page, ESC ] read cursor, US FAC display fields (inverse, blinking, dim, blanked), ESC O clear input, and the SO/SI rulings set drawn from its formula. The cursor is steady, as on the standard terminal (`-cursor blink` for the strap). `emu/tests/ct8100_test.cpp`.
 - Memory parity (070-2711 §4, Table 3-28): bad parity raises interrupt 1 (System Memory) or 3 (Program Memory), and TEKDOS reports ERROR 65 or 66. Faults are injected with `-parity SEC [U:]ADDR` or the monitor's `P` (`tests/parity.sh`, in `make test`). `peek()` no longer goes through the bus.

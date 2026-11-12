@@ -21,7 +21,7 @@ const char *tek8002_options::usage()
 {
 	return "[-prom FILE] [-0..-3 IMG|new:FILE] [-rw] [-fdc hle|lle] [-ttylock on|off] [-cycles N] [-type SEC|prompt TEXT]\n"
 	       "        [-snap SEC FILE] [-input SEC NAME=VALUE] [-press SEC NAME] [-mount SEC N=FILE] [-eject SEC N] [-parity SEC [U:]ADDR]\n"
-	       "        [-target unix:PATH|tcp:HOST:PORT] [-rem SPEC] [-lpt SPEC] [-ppt SPEC] [-trace FILE] [-io] [-fdutrace] [-log FILE]";
+	       "        [-target unix:PATH|tcp:HOST:PORT] [-rem SPEC] [-lpt SPEC] [-ppt SPEC] [-trace FILE] [-io] [-fdutrace] [-log FILE] [-version]";
 }
 
 bool tek8002_options::parse(int argc, char **argv, std::string &unknown)

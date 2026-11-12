@@ -27,17 +27,24 @@ LDFLAGS += -static -static-libgcc -static-libstdc++
 endif
 BUILD ?= build
 
+# the version (../VERSION), compiled into every program (-version)
+VERSION := $(shell cat ../VERSION 2>/dev/null || echo unknown)
+PATHS_OBJ := $(BUILD)/host/paths.o
+
 DASM_OBJ := $(BUILD)/cpu/s2650/2650dasm.o $(BUILD)/cpu/z80/z80dasm.o $(BUILD)/cpu/m6800/6800dasm.o
-HOST     := $(BUILD)/host/serial_link.o $(BUILD)/host/net.o $(BUILD)/host/ipc_target.o $(BUILD)/host/ct8100.o
+HOST     := $(PATHS_OBJ) $(BUILD)/host/serial_link.o $(BUILD)/host/net.o $(BUILD)/host/ipc_target.o $(BUILD)/host/ct8100.o
 SYSTEM   := $(BUILD)/system/tek8002_system.o $(BUILD)/system/options.o
 M8002    := $(BUILD)/machine/tek8002.o $(BUILD)/machine/tek8002_fdu.o $(BUILD)/machine/tek8002_fdc.o $(BUILD)/machine/tek8002_fdd.o $(BUILD)/machine/tek8002_debug.o $(BUILD)/machine/tek8002_asmproc.o $(BUILD)/machine/tek8002_emboard.o $(BUILD)/machine/tek8002_ep6800.o $(BUILD)/machine/tek8002_epz80.o $(BUILD)/cpu/m6800/m6800.o $(BUILD)/machine/tek8002_syscomm.o $(BUILD)/cpu/z80/superzazu/z80.o $(BUILD)/cpu/s2650/s2650.o
 
 all: $(BUILD)/dasm$(EXE) $(BUILD)/tek8002$(EXE)
 
-$(BUILD)/dasm$(EXE): $(BUILD)/tools/dasm.o $(DASM_OBJ)
+$(BUILD)/dasm$(EXE): $(BUILD)/tools/dasm.o $(DASM_OBJ) $(PATHS_OBJ)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 $(BUILD)/tek8002$(EXE): $(BUILD)/main8002.o $(SYSTEM) $(M8002) $(HOST) $(DASM_OBJ)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(PATHS_OBJ): ../VERSION
+$(PATHS_OBJ): CPPFLAGS += -DTEK_VERSION='"$(VERSION)"'
 
 $(BUILD)/%.o: src/%.cpp
 	@mkdir -p $(dir $@)

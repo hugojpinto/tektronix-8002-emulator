@@ -25,6 +25,9 @@ A sibling of the [Tektronix 8550 MDL emulator](https://github.com/hugojpinto/tek
 - **Not yet:** the 8080, 8085 and 6500/1 boards, the PROM programmers and the Real-Time Prototype Analyzer. See [ROADMAP.md](ROADMAP.md).
 
 ## Build and run
+**Binaries:** the [releases](https://github.com/hugojpinto/tektronix-8002-emulator/releases) have `tek8002`, `tek8002-gui` and `dasm` for macOS (universal), Linux (x86-64) and Windows (x64), with the ROMs, the TEKDOS discs and the panel artwork beside them: unpack and see `QUICKSTART.txt`. Every program answers `-version`.
+
+**From source:**
 ```
 cd emu && make
 cp ../disks/TekDOS_3.1_Z80.img /tmp/z80.img       # a copy: -rw saves changes to it

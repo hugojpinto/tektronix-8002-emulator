@@ -12,6 +12,7 @@
 // RESTART, Q quit. With no -scale the windows fit the screen, centred.
 // Front panels: artwork/8002a.lay and fdu.lay (tools/gen_panels.py). Click the switches;
 // drop a disc image on a drive door to insert it, click the door to take it out.
+#include "host/paths.h"
 #include "system/tek8002_system.h"
 #include "host/ct8100_raster.h"
 #include "frontend/sdl/layout.h"
@@ -122,6 +123,7 @@ std::string base_name(const std::string &p)
 
 int main(int argc, char **argv)
 {
+	if (host::version_requested(argc, argv)) return 0;
 	bool cursor_blink = false;                  // the CT8100's cursor is steady; its BLINK CURSOR strap makes it blink (p. 2-2)
 	std::string style = "crt", artwork = "artwork"; double scale = 0; bool panels_on = true;   // scale 0: fit the screen
 	struct shot_t { double at; std::string file; };
@@ -137,6 +139,7 @@ int main(int argc, char **argv)
 		else if (a == "-shot" && i + 2 < argc) { double t = atof(argv[++i]); shots.push_back({ t, argv[++i] }); }
 		else rest.push_back(argv[i]);
 	}
+	artwork = host::data_path(artwork);              // beside the program in a release
 	tek8002_options opt;
 	std::string bad;
 	if (!opt.parse(int(rest.size()), rest.data(), bad)) {

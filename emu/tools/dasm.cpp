@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Hugo José Pinto <hugo.pinto@gmail.com>
 // dasm: disassemble a raw binary for s2650 | z80.
 // usage: dasm <cpu> <file> [base(hex)] [start] [count]
+#include "host/paths.h"
 #include "emu.h"
 #include "cpu/s2650/2650dasm.h"
 #include "cpu/z80/z80dasm.h"
@@ -13,6 +14,7 @@
 struct s2650cfg : s2650_disassembler::config { bool get_z80_mnemonics_mode() const override { return false; } };
 static u32 num(const char *s) { return strtoul(s, 0, 16); }
 int main(int argc, char **argv) {
+	if (host::version_requested(argc, argv)) return 0;
 	if (argc < 3) { fprintf(stderr, "usage: dasm s2650|z80 file [base] [start] [count]\n"); return 1; }
 	std::string cpu = argv[1];
 	FILE *f = fopen(argv[2], "rb"); if (!f) { perror(argv[2]); return 1; }

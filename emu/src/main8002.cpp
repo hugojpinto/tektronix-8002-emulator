@@ -6,6 +6,7 @@
 //   tek8002 [options]   (tek8002_options::usage(); emu/README.md)
 // Interactive runs are paced to real time; with stdin not a terminal, or -cycles, the run is
 // flat out. Ctrl-] enters the monitor.
+#include "host/paths.h"
 #include "system/tek8002_system.h"
 #include "host/tty.h"
 #include <cstdio>
@@ -58,6 +59,7 @@ static bool monitor(tek8002_system &sys)
 
 int main(int argc, char **argv)
 {
+	if (host::version_requested(argc, argv)) return 0;
 	tek8002_options opt;
 	std::string bad;
 	if (!opt.parse(argc, argv, bad)) { fprintf(stderr, "unknown option %s\nusage: %s %s\n", bad.c_str(), argv[0], tek8002_options::usage()); return 1; }

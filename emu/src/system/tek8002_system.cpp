@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2026 Hugo José Pinto <hugo.pinto@gmail.com>
 // The 8002A µProcessor Lab as one system -- see tek8002_system.h.
+#include "host/paths.h"
 #include "system/tek8002_system.h"
 #include "cpu/s2650/2650dasm.h"
 #include <sstream>
@@ -38,9 +39,9 @@ void tek8002_system::show(FILE *f)
 bool tek8002_system::start(std::string &err)
 {
 	std::string prom = opt.prom;
-	if (prom.empty())   // default: the repository's roms/, from the repository root or from emu/
-		for (const char *p : { "roms/tekdos_boot.bin", "../roms/tekdos_boot.bin" })
-			if (FILE *f = fopen(p, "rb")) { fclose(f); prom = p; break; }
+	if (prom.empty())   // default: the repository's roms/, from the repository root or from emu/, or beside the program
+		for (const std::string &p : { std::string("roms/tekdos_boot.bin"), host::data_path("../roms/tekdos_boot.bin") })
+			if (FILE *f = fopen(p.c_str(), "rb")) { fclose(f); prom = p; break; }
 	if (prom.empty()) { err = "bootstrap PROM not found: give -prom FILE (roms/tekdos_boot.bin)"; return false; }
 	if (!m->load_boot_prom(prom, err)) return false;
 	if (!opt.fdc_hle) {
