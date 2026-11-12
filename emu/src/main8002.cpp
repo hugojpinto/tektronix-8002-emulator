@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 	if (!m->load_boot_prom(prom, err)) { fprintf(stderr, "%s\n", err.c_str()); return 1; }
 	for (int d = 0; d < tek8002_fdu::DRIVES; d++)
 		if (!img[d].empty() && !m->fdu.mount(d, img[d], rw, err)) { fprintf(stderr, "%s\n", err.c_str()); return 1; }
-	m->trace_io = io || getenv("TEK_IOTRACE"); m->fdu.trace = fdu_trace || getenv("TEK_FDCTRACE");
+	m->trace_io = io || getenv("TEK_IOTRACE"); m->fdu.trace = fdu_trace || getenv("TEK_FDCTRACE"); m->debug.trace = getenv("TEK_EPTRACE");
 	FILE *logf = logfile.empty() ? nullptr : fopen(logfile.c_str(), "wb");
 	m->term.on_tx = [&](u8 c) { c &= 0x7f; if (c) { fputc(c, stdout); fflush(stdout); } if (logf) { fputc(c, logf); fflush(logf); } };
 	FILE *tf = tracefile.empty() ? nullptr : fopen(tracefile.c_str(), "w");

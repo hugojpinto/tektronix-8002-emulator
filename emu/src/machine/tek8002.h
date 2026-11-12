@@ -10,8 +10,9 @@
 //   Program Memory (670-5298): up to four 16K boards, one bank at a time at 4000-7FFF
 //   Debug & Front Panel I/O (670-5299): ports F8-FF, master/slave hand-over, debug
 //       interrupts (tek8002_debug)
-// Not yet: System Communications (3x 6850, memory map), Assembler Processor (Z80),
-// emulator boards, PROM programmers, RTPA, parity.
+//   Assembler Processor (670-5220): the Z80 slave, control port E7 (tek8002_asmproc)
+// Not yet: System Communications (3x 6850, memory map), emulator boards, PROM
+// programmers, RTPA, parity.
 #ifndef TEK_TEK8002_H
 #define TEK_TEK8002_H
 #include "emu.h"
@@ -19,10 +20,11 @@
 #include "machine/ay31015.h"
 #include "machine/tek8002_fdu.h"
 #include "machine/tek8002_debug.h"
+#include "machine/tek8002_asmproc.h"
 #include <string>
 #include <vector>
 
-class tek8002 : public s2650_device::bus_interface
+class tek8002 : public s2650_device::bus_interface, public slave_bus, public debug_host
 {
 public:
 	static constexpr double CPU_HZ = 1'250'000.0;   // 10 MHz / 8 (070-2711 §3)
@@ -45,6 +47,8 @@ public:
 	ay31015 term;                   // system terminal
 	tek8002_fdu fdu;                // Flexible Disc Unit (drives 0-3)
 	tek8002_debug debug;            // Debug and Front Panel I/O module
+	tek8002_asmproc asmproc{*this}; // Assembler Processor (Z80)
+	tek8002_slave *active_slave() const;   // the slave the Debug module runs, if any
 	int program_boards = 2;         // 8002A: two 16K program memory boards standard (up to 4)
 	bool timer_100ms = false;       // interval timer jumper: 10 ms (default) or 100 ms
 	bool trace_io = false;
@@ -61,7 +65,18 @@ public:
 	void io_write(offs_t port, u8 d) override;
 	int intack() override;
 
+	// slave_bus: what a slave sees. Program memory as one linear space (board = A15-A14);
+	// its OUTs to F0-F7 are SVCs for the Debug module
+	u8 slave_read(u16 a, bool fetch) override;
+	void slave_write(u16 a, u8 d) override;
+	u8 slave_in(u16 port) override;
+	void slave_out(u16 port, u8 d) override;
+	// debug_host
+	void debug_interrupt(int n) override { raise(n); update_irq(); }
+	bool master_interrupt_pending() const override { return m_pending != 0; }
+
 private:
+	std::vector<tek8002_slave *> m_slaves{ &asmproc };   // every slave board, each decoding its own command port
 	std::vector<u8> m_prom;                 // bootstrap PROM, in CPU address order
 	std::vector<u8> m_sysram, m_progmem;
 	u8 m_bank = 0;                          // EE bits 1-0: program memory bank at 4000-7FFF

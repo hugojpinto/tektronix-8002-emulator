@@ -30,6 +30,7 @@ void tek8002::power_on()
 	m_da_was = false; m_tbmt_was = true; m_flag_was = false;
 	fdu.control(0x07);
 	debug.reset();
+	asmproc.command(0xe7, 0x00);
 	cpu.reset();
 	update_irq();
 }
@@ -99,7 +100,8 @@ void tek8002::io_write(offs_t port, u8 d)
 	case 0xec: m_timer_ctl = d & 1; break;
 	case 0xee: m_bank = d & 3; break;
 	default:
-		if (debug.decodes(u8(port))) debug.write(u8(port), d);
+		if (debug.decodes(u8(port))) { debug.write(u8(port), d); break; }
+		for (auto *s : m_slaves) if (s->decodes(u8(port))) s->command(u8(port), d);
 		break;
 	}
 	update_irq();
@@ -144,9 +146,12 @@ void tek8002::devices_tick(int c)
 		m_next_tick += period;
 		if (m_timer_ctl & 1) raise(INT_TIMER);
 	}
-	// a HALT hands the bus to the slave; with none to take it, the Debug module reports SLAVE HALTED
-	if (cpu.halted()) { const int n = debug.master_halted(c); if (n >= 0) raise(n); }
-	else debug.master_running();
+	// a HALT hands the bus to the active slave; with none to take it, the Debug module
+	// reports SLAVE HALTED
+	if (cpu.halted()) {
+		if (tek8002_slave *s = active_slave()) debug.run_slave(*s, c, CPU_HZ, *this);
+		else { const int n = debug.master_halted(c); if (n >= 0) raise(n); }
+	} else debug.master_running();
 	update_irq();
 }
 
@@ -159,4 +164,36 @@ void tek8002::run_slice(int cycles)
 		m_cycles += u64(used); done += used;
 		devices_tick(used);
 	}
+}
+
+// --------------------------------------------------------------------------
+// slaves
+
+tek8002_slave *tek8002::active_slave() const
+{
+	for (auto *s : m_slaves) if (s->active()) return s;
+	return nullptr;
+}
+
+u8 tek8002::slave_read(u16 a, bool)
+{
+	const int board = a >> 14;
+	return board < program_boards ? m_progmem[a] : 0xff;
+}
+
+void tek8002::slave_write(u16 a, u8 d)
+{
+	if ((a >> 14) < program_boards) m_progmem[a] = d;
+}
+
+u8 tek8002::slave_in(u16 port)
+{
+	if (trace_io) fprintf(stderr, "[%.4f slave IN  %04x -> unmapped]\n", m_cycles / CPU_HZ, unsigned(port));
+	return 0xff;
+}
+
+void tek8002::slave_out(u16 port, u8 d)
+{
+	if (debug.slave_out(port)) return;
+	if (trace_io) fprintf(stderr, "[%.4f slave OUT %04x <- %02x unmapped]\n", m_cycles / CPU_HZ, unsigned(port), d);
 }

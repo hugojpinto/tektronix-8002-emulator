@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-12 — Step 2: the Assembler Processor
+- `tek8002_slave`: what a slave board supplies. `tek8002_debug::run_slave` runs whichever slave is active, once for all: forced reset/jump on F9 edges, SVCs (OUT F7–F0 → interrupts 16–23), slave HALT → 27, pausing for the master's interrupts, PC last/next.
+- `tek8002_asmproc`: the Z80 Assembler Processor, control port E7, on program memory.
+- TEKDOS 3.3's ASM and LINK run (`tests/asm_link.sh`): correct 6800 code in the listing and the load file.
+- Found while doing it: an SVC must not arm a forced jump (TEKDOS's handler leaves the jump address alone); SVCs are enabled with F9 bit 4 high (`notes/8002.md`).
+
 ## 2026-11-12 — Disc writes work
 - The disc unit drops a completion FLAG when the host writes RST (`notes/fdu.md` point 4). TEKDOS's FORMAT, DELETE, COPY to a file, and LDIR of data discs now work. FORMAT leaves a disc identical to a real formatted one.
 - `-fdutrace` also logs every command (code, drive, sector, track).

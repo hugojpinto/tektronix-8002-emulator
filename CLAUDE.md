@@ -10,24 +10,25 @@ Start with `FEASIBILITY.md` (what survives, the plan), then `notes/` (hardware f
 |---|---|
 | `emu/` | the emulator. `make` builds `build/tek8002` and `build/dasm` |
 | `emu/src/cpu/` | `s2650/` (MAME via MDL), `z80/` (z80dasm from MAME, `superzazu/` core; for the Assembler Processor). Provenance in `emu/src/cpu/SOURCE.txt` |
-| `emu/src/machine/` | `tek8002.*` (mainframe: System Processor, System and Program Memory), `tek8002_debug.*` (Debug and Front Panel I/O module), `tek8002_fdu.*` (Flexible Disc Unit, high level), `ay31015.h` (console UART) |
+| `emu/src/machine/` | `tek8002.*` (mainframe: System Processor, System and Program Memory), `tek8002_debug.*` (Debug and Front Panel I/O module: master/slave hand-over, SVCs, the slave run loop), `tek8002_slave.h` (what a slave board supplies), `tek8002_asmproc.*` (Assembler Processor, Z80, port E7), `tek8002_fdu.*` (Flexible Disc Unit, high level), `ay31015.h` (console UART) |
 | `emu/src/host/tty.h` | raw tty, key polling (from MDL) |
 | `emu/src/main8002.cpp` | tty front end: console on this terminal, monitor (Ctrl-]), pacing, scripted `-type` |
 | `notes/` | hardware findings: `8002.md` (System Processor, memory, interrupts, Debug module), `fdu.md` (disc protocol and format), `boot-prom.md`, `dasm/`. **Facts established by reverse engineering live here** |
 | `roms/` | `tekdos_boot.bin` (bootstrap PROM, listing order; `MANIFEST.md`) |
 | `disks/` | working copies of disc images |
 | `sources/` | original material: bitsavers manuals (`manuals/800x/`, with `pdftotext -layout` text), disc images (`disks/`), firmware (`firmware/`), ztpe.nl's OS internals (`ztpe/`). **Read-only; never modify** |
-| `tests/` | `boot_ldir.sh`: boot TEKDOS and list two reference discs. Disc writes are checked by `../tekmato/scripts/regression.sh` section 6 |
+| `tests/` | `boot_ldir.sh`: boot TEKDOS and list two reference discs; `asm_link.sh`: ASM and LINK on the Z80 (uses `../tekmato`). Disc writes are checked by `../tekmato/scripts/regression.sh` section 6 |
 | `reference/` | MAME commit the cores trace back to |
 
 ## Resuming work (state on 2026-11-12)
 0. **Step 1 done:** the bootstrap PROM boots TEKDOS 3.1 and 3.3 (6800) from the emulated disc unit to the `>` prompt, and LDIR lists the directory. `Tek8002_1a`'s listing matches the printout photographed with the original disc. Models: System Processor (ports E8–EE, interrupts), memory and PROM overlay, Debug module hand-over (interrupt 27 when no slave takes the bus), disc unit at high level (`notes/fdu.md` lists what is inferred).
 Disc writes work too (FORMAT, DELETE, COPY; `notes/fdu.md` point 4), and `../tekmato` reads and writes TEKDOS discs (`tkdos-sssd`), checked against this emulator by its regression.
+**Step 2 done:** the Z80 Assembler Processor runs TEKDOS's ASM and LINK (`tests/asm_link.sh`); slave boards share one interface (`tek8002_slave`) and one run loop in the Debug module.
 Next (FEASIBILITY.md §5): the Z80 Assembler Processor (port E7; ASM/LINK), System Communications (6850s at CA–CF, memory map C9), FORMAT/DUP on writable images, then the disc controller at low level from its microcode (070-2587 Appendix C), and an emulator board.
 
 **How hardware is reverse-engineered here:** read the service manual's theory of operation and schematics, then let TEKDOS show what it does: `-io` logs every port access, `-trace` every instruction, `TEK_INTTRACE` every interrupt. Disassemble TEKDOS from the image (`build/dasm s2650 <(dd if=IMG bs=1 skip=$((0x1000)) count=$((0x4000))) 0 START COUNT`: image offset 0x1000 is memory 0000). Check against the ztpe.nl OS reference (`sources/ztpe/osinternals.txt`, Annex B ports, chapter 8 debugging), which covers the same hardware under Signetics' DOS versions.
 
-**Debug switches** (stderr): `-io` or `TEK_IOTRACE` (ports), `-fdutrace` or `TEK_FDCTRACE` (sector reads and writes), `TEK_INTTRACE` (interrupts taken), `-trace FILE` (2650 instructions).
+**Debug switches** (stderr): `-io` or `TEK_IOTRACE` (ports, and a slave's unmapped I/O), `TEK_EPTRACE` (slave forced jumps and debug interrupts), `-fdutrace` or `TEK_FDCTRACE` (sector reads and writes), `TEK_INTTRACE` (interrupts taken), `-trace FILE` (2650 instructions).
 
 ## Build and smoke test
 ```
@@ -42,8 +43,9 @@ build/tek8002 -0 ../disks/TekDOS_3.3_6800_cpy1.img -cycles $((25*1250000)) -type
 
 ## Regression checks (run after touching CPU cores or machine code)
 1. `tests/boot_ldir.sh` must print PASS for both discs (boot and LDIR, compared with `tests/expected/`).
-2. After disc-unit changes, `../tekmato/scripts/regression.sh` must pass: its section 6 runs TEKDOS's FORMAT, COPY and DELETE in this emulator.
-3. More checks are added here as each step lands, each with a known-good reference: a printout, a manual's sample session, or a real machine.
+2. `tests/asm_link.sh` must pass (after Debug module, slave or memory changes).
+3. After disc-unit changes, `../tekmato/scripts/regression.sh` must pass: its section 6 runs TEKDOS's FORMAT, COPY and DELETE in this emulator.
+4. More checks are added here as each step lands, each with a known-good reference: a printout, a manual's sample session, or a real machine.
 
 ## Conventions (shared with ../MDL)
 - **Minimal edits to ported cores:** keep every change small and mark it (`[tek8550]` marks MDL's; this project's use `[tek8002]`). Record core modifications in `emu/src/cpu/SOURCE.txt`. A fix to a shared core goes to MDL as well.
@@ -58,6 +60,6 @@ build/tek8002 -0 ../disks/TekDOS_3.3_6800_cpy1.img -cycles $((25*1250000)) -type
 - **No personal paths** (`/Users/...`) in tracked files.
 
 ## Known gaps
-- **Not emulated yet:** Assembler Processor (Z80), System Communications (3× 6850, memory map), emulator boards, PROM programmers, RTPA / Real Time Trace, parity errors, the front panel, the disc controller at low level.
+- **Not emulated yet:** the Debug module's breakpoints, single cycle and interrupt mask; System Communications (3× 6850, memory map), emulator boards, PROM programmers, RTPA / Real Time Trace, parity errors, the front panel, the disc controller at low level.
 - **Lost:** the emulator boards' PROMs (e.g. the 6800 board's 82S115 "SYSTEM" and "FETCH"), any 8002 diagnostic disc, the 8001's TEKOPS PROMs.
 - **Inferred:** the disc controller's completion FLAG and RST dropping it, SIO keeping a read sector, and multi-sector reads (`notes/fdu.md`); FF from absent ports and banks.
