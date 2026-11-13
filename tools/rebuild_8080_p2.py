@@ -26,10 +26,10 @@ def s(addr, value, conf, why):
 # buffer 004A (070-2706 §4)
 s(0xfa02, 0x41, 'A', 'CI: function 41, read binary and wait (40 is no function)')
 s(0xfa07, 0x01, 'B', 'CI: buffer length 1 (one character; 0 reads nothing)')
-s(0xfa0d, 0x01, 'C', 'CO: channel 1 (CI and CO must differ: CI 0, CO 1, RI 2, PO 3, LO 4). TEKDOS pre-assigns no channel, so nothing can tell 0 from 1: a user simply assigned whichever the board used')
+s(0xfa0d, 0x01, 'B', 'Read as the source someone wrote: the five templates sit in order (CI, CO, RI, PO, LO), and a table filled in that order is numbered 0-4, which is also the order of the Intel I/O byte (console, reader, punch, list). CO: channel 1 (CI and CO must differ: CI 0, CO 1, RI 2, PO 3, LO 4).')
 s(0xfa11, 0x01, 'B', 'CO: buffer length 1 (one character)')
 s(0xfa16, 0x01, 'A', 'RI: function 01, read ASCII and wait (00 is no function; P1 sets 04, rewind, on the same block)')
-s(0xfa21, 0x03, 'C', 'PO: channel 3 (RI and PO must differ)')
+s(0xfa21, 0x03, 'B', 'Read as the source someone wrote: the five templates sit in order (CI, CO, RI, PO, LO), and a table filled in that order is numbered 0-4, which is also the order of the Intel I/O byte (console, reader, punch, list). PO: channel 3')
 for a, dev in ((0xfa1b, 'RI'), (0xfa25, 'PO'), (0xfa2f, 'LO')):
     s(a, 0x7f, 'C', '%s: buffer length 7F (7E or 7F; P1 keeps 128-byte line buffers, and a length of N+1 with N = 126 is the manual\'s convention)' % dev)
 
@@ -98,7 +98,7 @@ s(0xfaef, 0xaf, 'B', 'XRA A: clear the flag')
 s(0xfaf4, 0x0d, 'B', 'MVI C,0D: CR, then LF (0C, a form feed, before an LF is unlikely)')
 s(0xfaf5, 0xcd, 'A', 'CALL 007A')
 s(0xfafa, 0xc3, 'B', 'MVI C,0A; JMP 007A (tail call)')
-s(0xfafd, 0x21, 'C', 'FAFD: displaced LXI H,204E, run before FB00 (operand bits 0 unknown). Nothing shows FAFD is entered: if only FB00 is, these three bytes are dead and 20 (as read) is as good')
+s(0xfafd, 0x21, 'B', 'Read as source, the alternative is an 8085 RIM in 8080 code or stray bytes between routines; LXI H fits the displaced-instruction pattern. FAFD: displaced LXI H,204E, run before FB00 (operand bits 0 unknown). Nothing shows FAFD is entered: if only FB00 is, these three bytes are dead and 20 (as read) is as good')
 s(0xfb03, 0xb7, 'B', 'LDA 1EAA; ORA A')
 s(0xfb05, 0xaf, 'B', 'XRA A')
 s(0xfb0c, 0xc9, 'B', 'RET (RZ, as read, behaves the same: Z is always set after XRA A)')
@@ -172,8 +172,6 @@ s(0xfbef, 0xfb, 'A', 'dump -> FB80')
 AS_READ = {
     # kept as read, never observable: TEKDOS writes them (status, data, count of each template)
     # or never executes them (the NOP after each SVC, the padding); 00 is the natural value
-    0xfa03: 'CI: channel 0 (0 or 1; see FA0D)', 0xfa17: 'RI: channel 2 (2 or 3; see FA21)',
-    0xfa2b: 'LO: channel 4 (4 or 5)',
 
     0xfa4d: 'displaced LXI H,1EFA: low byte (1EFA or 1EFB)',
     0xfa5f: 'displaced LXI H,2024: low byte (24 or 25)', 0xfa60: 'displaced LXI H,2024: high byte (20 or 21)',
@@ -181,7 +179,6 @@ AS_READ = {
     0xfa9b: 'CALL 0282: the hex-print routine (0282 or 0283)', 0xfaa2: 'CALL 0282 (0282 or 0283)',
     0xfac6: 'LDA 1E3E (1E3E or 1E3F)',
     0xface: 'LDA 1E40 (1E40 or 1E41)',
-    0xfae0: 'MOV C,M (4E) or MOV C,A (4F): what is printed before JMP 00D8',
     0xfae2: 'CALL 007A (007A or 007B)', 0xfae5: 'JMP 00D8 (00D8 or 00D9)', 0xfae8: 'CALL 008A (008A or 008B)',
     0xfaf6: 'CALL 007A', 0xfafb: 'JMP 007A',
     0xfafe: 'displaced LXI H,204E: low byte (4E or 4F)', 0xfaff: 'displaced LXI H,204E: high byte (20 or 21)',
@@ -205,6 +202,8 @@ k([0xfa82, 0xfa87, 0xfa8c, 0xfa91, 0xfaab, 0xfab0, 0xfab5, 0xfaba], 'B', 'MVI C,
 k([0xfad9], 'B', 'ANI C0: the list field of the I/O byte, as the assembler\'s PL/M source tests IOCHK AND 0C0H')
 k([0xfac9], 'B', 'CPI 40: column 64 = the assembler\'s 72 (PL/M LIST stops at COLUMN < 72) less the 8 the line number adds')
 k([0xfaf9], 'B', 'MVI C,0A: LF after the CR')
+k([0xfa03, 0xfa17, 0xfa2b], 'B', 'a channel (CI 0, RI 2, LO 4): '+'Read as the source someone wrote: the five templates sit in order (CI, CO, RI, PO, LO), and a table filled in that order is numbered 0-4, which is also the order of the Intel I/O byte (console, reader, punch, list)')
+k([0xfae0], 'B', 'MOV C,M: A holds the I/O-byte list field just stored (40, 80 or C0), which is no character to print; M is the caller\'s character')
 k([0xfad1], 'B', 'CPI 20: is the character at 1E40 a space (21 would test for "!")')
 k([0xfba8, 0xfbba, 0xfbc6, 0xfbd9], 'B', 'the NOP after an SVC (070-2702 §11: OUT then NOP; the 8080\'s NOP is 00, also Tek\'s fill)')
 k([0xfbc7], 'B', 'padding before PUT: 00, Tek\'s fill')
