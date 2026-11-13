@@ -208,6 +208,16 @@ high-level model, and every test runs in both modes. Established:
   high-level model is faster (`-fdc hle`).
 
 ## Still to establish
-- Whether the factory interleave really was 3 on shipped units (a flux capture of a real TEKDOS
-  disc, or a photo of a board's S4104).
+- **The interleave step: 3 or 17.** The schematic's wiring (section 4 → WR1 … section 1 → WR4)
+  gives 3 at the factory setting. The manual's other sources all point the other way:
+  - the set-up step (§1, 5–1 = Off Off On On On);
+  - Fig. 3-8 (SW5–SW1 on bits 5–1, giving 0x31, step 17);
+  - the §1 text ("sector 00, sector 16, sector 01, sector 17", a half-turn alternation that step 17
+    reproduces and step 3 does not).
+  Vince's board (EEVblog #151, 2026-11-12) has a 5-position S4104 at that setting, and he reads
+  the interleave as "16 sectors, half a disc rotation". The microcode boots, FORMATs and runs the
+  disc tools with INL 03, 11 or 31 alike (checked 2026-11-13), so the emulator cannot decide. What
+  would decide it: a continuity check on a real board (S4104 pin 10, section 1, to U2040A pin 1 =
+  WR4 as drawn, or to the WR1 gate), or a flux capture of a real disc. It matters for writing real
+  discs: the controller checks each header's sector number. The model keeps 3 until then.
 - Sector and index pulse widths (the drive's manual, 118-0195-00, is not on bitsavers).
