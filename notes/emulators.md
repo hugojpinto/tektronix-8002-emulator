@@ -51,8 +51,8 @@ table at 24CB: F8 0B on the Z80 discs, F9 FF on the 6800's.
 | Status bit 6 | a 6802 fitted: DSTAT prints "6802" when set, "6800" when clear (E2 is the "6800/6802 Emulator Processor"; a "6802 probe connects to 6800 emulator") | DSTAT 1951–1957; 070-2711 Appendix E, §1 |
 
 ## The 6800 board's PROMs
-Two 82S115s (512 × 8), "SYSTEM" and "FETCH", dumped by Eelco Vriezekolk (ztpe.nl, the thread's
-"2650") with his own 82S115 reader, sent 2026-11-13. Originals in `sources/ztpe/6800_board/`,
+Two 82S115s (512 × 8), "SYSTEM" and "FETCH", dumped by Eelco Vriezekolk ([ztpe.nl](https://ztpe.nl/2650/), the EEVblog
+thread's "2650") with his own 82S115 reader, sent 2026-11-13. Originals in `sources/ztpe/6800_board/`,
 copies in `roms/ep6800/` (`roms/MANIFEST.md`). `build/dasm m6800 roms/ep6800/6800_system.bin f800`
 disassembles the first.
 
@@ -100,6 +100,25 @@ above the opcode presumably unused or a state). Every opcode the 6800 lacks read
   JSR's bit 7, WAI's bit 5 and the counter drive in hardware is not established; that needs the
   board's schematic (its service manual is not on bitsavers).
 - `-ep6800 hle` keeps the earlier high-level routines (the same results; `tests/run6800.sh`).
+
+## The 8080 board's PROMs
+The 8080 Emulator Processor (E1) is not emulated, but its two 512-byte PROMs were read by
+Eelco Vriezekolk ([ztpe.nl](https://ztpe.nl/2650/)) on 2026-11-13: P1, 160-0028-00, and P2, 160-0027-00
+(`sources/ztpe/8080_board/`).
+- **Where they sit:** P1 at F800–F9FF (its code jumps within F800–F9FF and loads FA00, FA0A
+  and FA14, which are in P2), P2 at FA00–FBFF.
+- **TEKDOS's entries are in P2:** six discs give the board table at 24CB as FB EF (Tek8002_3,
+  4, 5, 6a, 7a and 11, among them the 8080 and 8085 ones), so PUT is FBE4 and GET FBE7, with
+  restore and dump presumably at FBEA and FBED, as on the Z80 board's F800–F809.
+- **P2's dump has data bit 0 stuck at 0** (no odd byte in 512; P1 has 293). Its table at
+  FBE1–FBEF reads `C2 00 00, C2 C8 FA, C2 BA FA, C2 A8 FA, C2 80 FA`: as `C3` (JMP) these
+  are PUT → FAC8, GET → FABA, FBEA → FAA8, FBED → FA80. Its text " DND *LHRRHNF*" is
+  "EOE *MISSING*"-like with bit 0 restored. A second read was asked for.
+- **P1 is a larger 8080 program:** a 14-entry `JMP` table at F800 (F800 → F82A, a `HLT` loop),
+  console I/O through SVC 1 (`OUT (F7)`), and at F9C2 (entry 12) a routine that sizes RAM (the
+  first page that does not hold a complemented byte), puts the stack below its top, fills
+  0003 (94), 0004, 0007 (0A), 0011–0014 and the top page, and jumps to 0020. Its page zero
+  resembles CP/M's (0003 IOBYTE, 0004 drive); what it serves is not established.
 
 ## Z80 (`tek8002_epz80`, E3, 4.00 MHz)
 Mode 0 runs from the board's clock: jumper J1 gives 2 or 4 MHz on the Z80A board. The Z80B

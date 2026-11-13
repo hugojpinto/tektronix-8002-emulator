@@ -1,7 +1,7 @@
 # 6800 Emulator Processor PROMs
 
 The two 82S115 PROMs (512 × 8) of an 8001/8002 6800 Emulator Processor board, "SYSTEM" and
-"FETCH", as received. Read by Eelco Vriezekolk (ztpe.nl, the 2650 Restoration Project) with
+"FETCH", as received. Read by Eelco Vriezekolk ([ztpe.nl](https://ztpe.nl/2650/), the 2650 Restoration Project) with
 his own 82S115 reader, which he had used to read and program several PROMs before, and sent
 on 2026-11-13. © Tektronix, Inc.; kept for preservation and research.
 
