@@ -136,12 +136,21 @@ development system run unchanged on the 8002; the 1978 manual does not mention i
 Eelco cleaned the pins and read it again, with the same result. `tools/rebuild_8080_p2.py`
 rebuilds it: bits 7–1 as read, and bit 0 set at 130 addresses, each listed with its reason and
 a confidence. `--report` grades every one of the 512 bytes: A 152 (verified under TEKDOS, or
-forced by the decoding), B 280 (one sensible reading), C 80 (a choice). The 80 C bytes come
-down to about twenty independent decisions; only the channels and the line lengths would show
-to a TEKDOS user. How it was attacked (2026-11-13):
+forced by the decoding), B 294 (one sensible reading), C 66 (a choice). Only the channels and
+the line lengths (8 bytes) would show to a TEKDOS user; 6 more never matter (equivalent entries,
+unused table entries); the rest are addresses inside Intel's assembler. How it was attacked (2026-11-13):
 - **The empty zones** (FA32–FA3F, FB31–FB7F, FBDA–FBDD, FBF0–FBFF, and the byte before PUT)
   are 00, not 01: every intact PROM of this family that Tektronix programmed fills unused space
   with 00 (the 6800 SYSTEM PROM's 438 unused bytes, its FETCH PROM's 256; not one 01 or FF).
+- **The assembler compiled from its source:** version 2.0 in the original PL/M (ASSV1, with Mark
+  Ogden's C port of the Fortran PL/M compiler, after repairing a 66-column truncation that had
+  cut five comments and hidden a DO) and versions 2.0 and 4.1 in PL/M-80 (ASSV2, ASSV3, with the
+  port of ISIS PL/M-80). No build lands on the tape's addresses, which belong to a later, larger
+  version ("8080 MDS MACRO ASSEMBLER"; the compiled 2.0 says "8080 MACRO ASSEMBLER, VERSION
+  2.0"). But the original-PL/M build has the tape's shape: the I/O procedures and LIST first and
+  below 0060, the hex printer next, variables near the top, free memory just above. That
+  settles the page of the output routines (00); the PL/M-80 builds, with their DATA tables
+  first, are not the tape's lineage.
 - **Operands decided by structure:** jumps inside P2 and calls into P1 are forced; Tek's own
   variables (1CD8, 1CDA, 1CDC, 1CDE, 1CE0) can only be at even addresses, or the three words
   and two flags would overlap, but the whole block could be one page up (1D).

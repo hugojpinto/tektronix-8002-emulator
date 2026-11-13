@@ -213,8 +213,15 @@ k([0xfa44, 0xfa4a, 0xfa51, 0xfa63, 0xfa77, 0xfa7a, 0xfa9e, 0xfaa5, 0xfaa8, 0xfab
   'B', 'the low byte of one of Tek\'s variables (1CD8 last line, 1CDA counter, 1CDC message pointer, 1CDE, 1CE0): only the even values let the three words (INX H walks the counter\'s two bytes) and the flags sit side by side without overlapping')
 k([0xfa45, 0xfa4b, 0xfa52, 0xfa64, 0xfa78, 0xfa7b, 0xfa9f, 0xfaa6, 0xfaa9, 0xfac0, 0xfadf, 0xfaec, 0xfaf2, 0xfb08, 0xfb19, 0xfb1e],
   'C', 'the page of Tek\'s variables, 1C as read: the whole block could equally be in page 1D (one free area of the assembler\'s RAM or the next); all these bytes go together')
-k([0xfa75, 0xfa85, 0xfa8a, 0xfa8f, 0xfa94, 0xfaae, 0xfab3, 0xfab8, 0xfabd, 0xfae3, 0xfae6, 0xfae9, 0xfaf7, 0xfafc, 0xfa9c, 0xfaa3],
-  'C', 'the page of a routine in Intel\'s assembler (007A, 008A, 00BE, 00D8; 0282): page 00 (02) as read; PL/M emits procedures in declaration order, I/O first, which favours the low page, but no binary of the assembler is known')
+# 2026-11-13: the assembler's surviving source was compiled (ASSV1, version 2.0, original PL/M,
+# with the c-ports Fortran-PL/M compiler; ASSV2/ASSV3 with the PL/M-80 port). No build lands on
+# the tape's addresses (the tape is a later, larger version), but the original-PL/M build has the
+# tape's shape: the I/O procedures and LIST come first and lie below 0060, the hex printer next
+# (0139), the variables near the top (1810-1CB9), free memory just above (1D00). ASSV2/ASSV3 put
+# their DATA tables first and are not the tape's lineage.
+k([0xfa75, 0xfa85, 0xfa8a, 0xfa8f, 0xfa94, 0xfaae, 0xfab3, 0xfab8, 0xfabd, 0xfae3, 0xfae6, 0xfae9, 0xfaf7, 0xfafc],
+  'B', 'the page of an output routine of Intel\'s assembler (007A, 008A, 00BE, 00D8): page 00, as read. Compiled, the assembler\'s I/O procedures and LIST come first and end below 0060, so even its larger tape version keeps them in page 00')
+k([0xfa9c, 0xfaa3], 'C', 'the page of the assembler\'s hex-print routine (0282 or 0382): compiled version 2.0 has it at 0139; the tape\'s later version adds code before it, by an unknown amount')
 k([0xfa74, 0xfa84, 0xfa89, 0xfa8e, 0xfa93, 0xfaad, 0xfab2, 0xfab7, 0xfabc],
   'C', 'the low byte of the assembler\'s character-output routine 00BE (BE or BF; the same in all nine)')
 k([0xfa4e, 0xfac7, 0xfacf, 0xfb02, 0xfb0b], 'C', 'the page of an assembler variable or displaced operand (1EFA, 1E3E, 1E40, 1EAA: 1E or 1F; 006E: 00 or 01)')
