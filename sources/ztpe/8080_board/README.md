@@ -14,3 +14,7 @@ preservation and research.
 both PROMs, and P1's bit 0 (293 ones), toggle normally. Its jump table has `C2` (JNZ) where
 `C3` (JMP) belongs, and its message reads " DND *LHRRHNF*". Not yet in `roms/`: the 8080
 board is not emulated. What they contain: `notes/emulators.md`, "The 8080 board's PROMs".
+
+**Rebuilt:** `roms/ep8080/8080_p2_160-0027-00.bin` is P2 with bit 0 restored by
+`tools/rebuild_8080_p2.py` (130 bytes, each with its reason and a confidence; 23 more kept as
+read but uncertain). Everything TEKDOS uses is verified in the emulator (`tests/run8080.sh`).

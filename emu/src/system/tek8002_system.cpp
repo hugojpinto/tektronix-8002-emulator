@@ -45,22 +45,23 @@ bool tek8002_system::start(std::string &err)
 	if (prom.empty()) { err = "bootstrap PROM not found: give -prom FILE (roms/tekdos_boot.bin)"; return false; }
 	if (!m->load_boot_prom(prom, err)) return false;
 	// the disc controller's microprogram and the 6800 board's PROM sit next to the bootstrap
-	// PROM (roms/fdc, roms/ep6800)
+	// PROM (roms/fdc, roms/ep6800, roms/ep8080)
 	const size_t slash = prom.find_last_of("/\\");
 	const std::string roms = slash == std::string::npos ? std::string(".") : prom.substr(0, slash);
 	if (!opt.fdc_hle && !m->fdu.use_controller(roms + "/fdc", err)) return false;
 	if (!opt.ep6800_hle && !m->ep6800.load_firmware(roms + "/ep6800", err)) return false;
+	if (!m->ep8080.load_firmware(roms + "/ep8080", err)) return false;
 	for (int d = 0; d < tek8002_fdu::DRIVES; d++)
 		if (!opt.disks[d].empty() && !mount(d, opt.disks[d], err)) return false;
 	// the prototype, for the emulator boards' modes 1 and 2 (notes/prototype-link.md)
 	if (!opt.targetspec.empty()) {
 		if (!target.open(opt.targetspec, err)) return false;
-		m->ep6800.target = m->epz80.target = &target;
+		m->ep8080.target = m->ep6800.target = m->epz80.target = &target;
 	}
 	m->trace_io = opt.io || getenv("TEK_IOTRACE");
 	m->fdu.trace = opt.fdutrace || getenv("TEK_FDCTRACE");
 	m->debug.trace = getenv("TEK_EPTRACE");
-	m->ep6800.trace = m->epz80.trace = getenv("TEK_EPTRACE");
+	m->ep8080.trace = m->ep6800.trace = m->epz80.trace = getenv("TEK_EPTRACE");
 	if (!opt.logfile.empty() && !(logf = fopen(opt.logfile.c_str(), "wb"))) { err = opt.logfile + ": cannot write"; return false; }
 	if (!opt.tracefile.empty()) {
 		if (!(tracef = fopen(opt.tracefile.c_str(), "w"))) { err = opt.tracefile + ": cannot write"; return false; }

@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright (C) 2026 Hugo José Pinto <hugo.pinto@gmail.com>
-// dasm: disassemble a raw binary for s2650 | z80 | m6800.
+// dasm: disassemble a raw binary for s2650 | z80 | m6800 | i8080.
 // usage: dasm <cpu> <file> [base(hex)] [start] [count]
 #include "host/paths.h"
 #include "emu.h"
 #include "cpu/s2650/2650dasm.h"
 #include "cpu/z80/z80dasm.h"
 #include "cpu/m6800/6800dasm.h"
+#include "cpu/i8085/8085dasm.h"
 #include <vector>
 #include <sstream>
 #include <iostream>
@@ -16,7 +17,7 @@ struct s2650cfg : s2650_disassembler::config { bool get_z80_mnemonics_mode() con
 static u32 num(const char *s) { return strtoul(s, 0, 16); }
 int main(int argc, char **argv) {
 	if (host::version_requested(argc, argv)) return 0;
-	if (argc < 3) { fprintf(stderr, "usage: dasm s2650|z80|m6800 file [base] [start] [count]\n"); return 1; }
+	if (argc < 3) { fprintf(stderr, "usage: dasm s2650|z80|m6800|i8080 file [base] [start] [count]\n"); return 1; }
 	std::string cpu = argv[1];
 	FILE *f = fopen(argv[2], "rb"); if (!f) { perror(argv[2]); return 1; }
 	std::vector<u8> img; int c; while ((c = fgetc(f)) != EOF) img.push_back(u8(c)); fclose(f);
@@ -26,6 +27,7 @@ int main(int argc, char **argv) {
 	std::unique_ptr<util::disasm_interface> d;
 	if (cpu == "s2650") d = std::make_unique<s2650_disassembler>(&cfg);
 	else if (cpu == "m6800") d = std::make_unique<m680x_disassembler>(6800);
+	else if (cpu == "i8080") d = std::make_unique<i8085_disassembler>();
 	else d = std::make_unique<z80_disassembler>();
 	data_buffer buf; buf.rd = [&](offs_t a) -> u8 { a -= base; return a < img.size() ? img[a] : 0xff; };
 	while (pc < end) {

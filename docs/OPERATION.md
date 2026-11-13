@@ -117,7 +117,7 @@ tek8002 [-prom FILE] [-0..-3 IMG|new:FILE] [-rw] [-fdc hle|lle] [-ttylock on|off
 
 | Option | Does |
 |---|---|
-| `-prom FILE` | the bootstrap PROM image. Default `roms/tekdos_boot.bin`, found from the repository root or from `emu/`. The disc controller's microprogram is read from `fdc/` next to it, and the 6800 board's PROMs from `ep6800/` |
+| `-prom FILE` | the bootstrap PROM image. Default `roms/tekdos_boot.bin`, found from the repository root or from `emu/`. The disc controller's microprogram is read from `fdc/` next to it, and the 6800 and 8080 boards' PROMs from `ep6800/` and `ep8080/` |
 | `-0` … `-3 IMG` | a disc image in drive 0–3: a raw image of 315,392 bytes (77 tracks × 32 sectors × 128 bytes, in logical order) |
 | `-0` … `-3 new:FILE` | a never-formatted disc, with no flux at all; FORMAT it, and with `-rw` it is saved to FILE |
 | `-rw` | discs are writable, and saved on exit or eject. Without it, every disc is write-protected (§5) |

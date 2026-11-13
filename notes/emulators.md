@@ -101,26 +101,71 @@ above the opcode presumably unused or a state). Every opcode the 6800 lacks read
   board's schematic (its service manual is not on bitsavers).
 - `-ep6800 hle` keeps the earlier high-level routines (the same results; `tests/run6800.sh`).
 
-## The 8080 board's PROMs
-The 8080 Emulator Processor (E1) is not emulated, but its two 512-byte PROMs were read by
-Eelco Vriezekolk ([ztpe.nl](https://ztpe.nl/2650/)) on 2026-11-13: P1, 160-0028-00, and P2, 160-0027-00
-(`sources/ztpe/8080_board/`).
-- **Where they sit:** P1 at F800–F9FF (its code jumps within F800–F9FF and loads FA00, FA0A
-  and FA14, which are in P2), P2 at FA00–FBFF.
-- **TEKDOS's entries are in P2:** six discs give the board table at 24CB as FB EF (Tek8002_3,
-  4, 5, 6a, 7a and 11, among them the 8080 and 8085 ones), so PUT is FBE4 and GET FBE7, with
-  restore and dump presumably at FBEA and FBED, as on the Z80 board's F800–F809.
-- **P2's dump has data bit 0 stuck at 0** (no odd byte in 512; P1 has 293). Its table at
-  FBE1–FBEF reads `C2 00 00, C2 C8 FA, C2 BA FA, C2 A8 FA, C2 80 FA`: as `C3` (JMP) these
-  are PUT → FAC8, GET → FABA, FBEA → FAA8, FBED → FA80. Its text " DND *LHRRHNF*" is
-  "EOE *MISSING*"-like with bit 0 restored. A second read was asked for.
-- **P1 is a larger 8080 program:** a 14-entry `JMP` table at F800 (F800 → F82A, a `HLT` loop),
-  console I/O through SVC 1 (`OUT (F7)`), and at F9C2 (entry 12) a routine that sizes RAM (the
-  first page that does not hold a complemented byte), puts the stack below its top, fills
-  0003 (94), 0004, 0007 (0A), 0011–0014 and the top page, and jumps to 0020. Its page zero
-  resembles CP/M's (0003 IOBYTE, 0004 drive); what it serves is not established.
+## 8080A (`tek8002_ep8080`, E1, 2 MHz)
+The 8080A/8085A Emulator Processor, as an 8080A, running its two PROMs (070-2702-01, the
+8080A/8085A Assembler and Emulator Users Manual, March 1979 revision, §11–12). Checked by
+`tests/run8080.sh` (15 checks) and `tests/prototype.sh` (7).
+| Item | Behaviour | Established by |
+|---|---|---|
+| SVCs | `OUT` to F7 … F0 then a `NOP` ("allowing time for the SVC to occur"); SRB pointers at 0040–004B | 070-2702 §11 |
+| Halt | `HLT`; GO resumes at it | §12 |
+| Firmware | P2's table at FBE4 PUT, FBE7 GET, FBEA restore, FBED dump (TEKDOS's base FBEF, on six discs: Tek8002_3, 4, 5, 6a, 7a and 11) | the PROM; DEB INIT's derivation as for the other boards |
+| Register block | 0000 L, 01 H, 02 E, 03 D, 04 C, 05 B, 06 A, 07 F, 08 scratch, 09/0A SP | the firmware; TEKDOS's trace and DSTAT match the manual's example; the 8550's 8085 board (sibling `notes/8301.md`) has the same layout, and its unknown byte 8 is this scratch |
+| PROMs visible | F800–FBFF during firmware calls and mode-0 user runs | *inferred*: P1's monitor needs SVCs, which modes 1/2 turn off |
+| GET/PUT in modes 1/2 | the firmware's `LDAX D` / `STAX D` reach the prototype | *inferred*: the only instructions GET and PUT use for it (as the 6800's FETCH PROM flags its own) |
+| Clock | 2 MHz in mode 0 | *inferred*: the 8080A's standard rate; no manual gives it |
 
-## Z80 (`tek8002_epz80`, E3, 4.00 MHz)
+### The PROMs
+Read by Eelco Vriezekolk ([ztpe.nl](https://ztpe.nl/2650/)) on 2026-11-13: P1, 160-0028-00,
+F800–F9FF, and P2, 160-0027-00, FA00–FBFF (`sources/ztpe/8080_board/`; P1 loads FA00, FA0A and
+FA14). `build/dasm i8080 FILE F800` disassembles them.
+
+**P1 is an Intel MDS-800 monitor interface.** Its jump table at F800 is the MDS monitor's
+vector: CI F803, RI F806, CO F809, PO F80C, LO F80F, CSTS F812, IOCHK F815 and IOSET F818
+(the I/O byte at 0003), MEMCK F81B (B = top of memory, A = EF), IODEF F81E and SPCL F821
+(both `RET`), F824 start-up and F827 reader rewind. F800 is a `HLT` loop. Each call is made
+through SVC 1: it saves 0040–00C9 to the top page, copies a 10-byte template from P2 to 0040
+(the SVC 1 pointer, 0042, then the SRB), issues `OUT F7` and restores the page. PO and LO
+collect a line in 128-byte buffers in the top pages and write it at CR; RI reads a line and
+hands it out a character at a time. The start-up (F824) finds the top of RAM (the first page
+that does not keep a complemented byte), puts the stack below it, sets 0003 = 94, the buffer
+pointers, 0007 = 0A and 0014 = FA, and jumps to 0020. So 8080 programs written for Intel's
+development system run unchanged on the 8002; the 1978 manual does not mention it.
+
+**P2's read lost data bit 0.** No byte of 512 is odd (P1 has 293), and the chip is faulty:
+Eelco cleaned the pins and read it again, with the same result. `tools/rebuild_8080_p2.py`
+rebuilds it: bits 7–1 as read, and bit 0 set at 130 addresses, each listed with its reason and
+a confidence (`--report` prints the table). P2 holds:
+- **FA00–FA31, P1's SVC templates.** Each is 00 42 (the pointer), then function, channel,
+  status, data, count, length and buffer 004A. The functions are forced by what is legal and by
+  P1 (CI 41 read binary, CO 42 write binary, RI 01 read ASCII, PO and LO 02 write ASCII). The
+  channels are CI 0, CO 1, RI 2, PO 3, LO 4: each pair must differ, and the read allows only
+  that or a swap within the pairs, so the order is a choice. The line lengths are 7F or 7E (7F
+  chosen).
+- **FA40–FB20, patch routines for a RAM-resident 8080 program.** Each replaces an instruction
+  in it, does its work and runs the displaced instruction. They keep a BCD line counter (1CDA,
+  starting at 9999 so the first line is 0000), print it as four hex digits through the
+  program's routine at 0282, or four spaces when it has not changed, followed by four spaces;
+  test the column and the I/O byte's list field; print a pending CR LF; and when the source
+  read through RI ends, or reaches ^Z, feed back " END *MISSING*" CR LF a character at a time.
+  So the program is an assembler reading its source through the monitor. It is not preserved:
+  no disc in `sources/` calls into P2 or the monitor, so this part cannot be run. 23 bytes in
+  it (addresses inside that program) are kept as read although 1 would fit as well.
+- **FB21–FB30, the text** " END *MISSING*" CR LF.
+- **FB80–FBDD, the debug firmware.** All verified under TEKDOS:
+  - dump (FB80): `SHLD 0000; STA 0006`; A = the carry; `LXI H,0; DAD SP`; then
+    `LXI SP,000B; PUSH H; RAR` (the carry back); `PUSH PSW; DCX SP; PUSH B; PUSH D`. It ends
+    by restoring SP, HL and A, then `OUT F1; NOP`;
+  - restore (FBA9): `LXI SP,0002; POP D; POP B; INX SP; POP PSW; POP H; SPHL; LHLD 0000;
+    LDA 0006; OUT F1; NOP`;
+  - GET (FBBB): `LHLD 0001; MOV E,H; MOV D,L; LDAX D; STA 0000; OUT F0; NOP`. It does not
+    write the status byte;
+  - PUT (FBC8): the same address, `STAX D; LDAX D; XRA B; STA 0003`, so the status is 00 when
+    the byte reads back;
+  - the table (FBDE–FBEF): two unused `JMP 0000`, then PUT, GET, restore and dump. GET's and
+    restore's entries could equally be the NOP before them.
+
+## Z80 (`tek8002_epz80`, E3, 4.00 MHz)## Z80 (`tek8002_epz80`, E3, 4.00 MHz)
 Mode 0 runs from the board's clock: jumper J1 gives 2 or 4 MHz on the Z80A board. The Z80B
 board's J3003 gives 4 or 6 MHz, but "only 4 MHz or below" in an 8002A (070-3665 §2). On
 8001/8002A systems "two wait states are inserted each time the program memory is accessed, or
@@ -172,8 +217,8 @@ and clock throughout. As modelled:
   `tests/prototype.sh`: a fixed loop takes the target 21 647 µs at 4 MHz and 43 295 µs at 2 MHz.
 - **Inferred, not established:** the 6800's status bit 7, control bits 4 and 2 (above). The
   boards' service manuals (the Z80's optional service manual, the 6800's) would settle them.
-- **The 8080 board (E1)** is not modelled. Its TEKDOS discs boot, and its DEB CNTL tests status
-  bit 4 like the others.
+- **The 8080 board (E1)** runs its PROMs, P2 rebuilt (above). The 8085A emulator (port E5, in
+  the same manual: its trace and DSTAT add RIM and SOD) is not modelled.
 
 ## Checked
 - `tests/run6800.sh` (18 checks) and `tests/runz80.sh` (17, Tektronix's DEMO%S) cover running,

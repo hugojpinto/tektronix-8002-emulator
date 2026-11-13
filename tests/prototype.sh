@@ -7,6 +7,8 @@
 #   firmware's GET). Mode 2: PATCH puts a program into the prototype (PUT), it runs from there,
 #   DUMP reads it (GET), and TRACE ALL traces it.
 #   6800 board (TEKDOS 3.3 6800): mode 1 through the map, and mode 2, traced to its WAI.
+#   8080 board (TEKDOS 8080 3.0): mode 1 through the map, MOVE UP (GET); mode 2, PATCH (PUT),
+#   DUMP (GET), the program run from the prototype and traced (its rebuilt P2 firmware).
 # An "emulator halted" error (46) puts TEKDOS back in mode 0 (its halt handler, 3B7A), so
 # each run here selects its mode again. Run from the repository root; needs python3.
 cd "$(dirname "$0")/.." || exit 1
@@ -58,6 +60,21 @@ check "6800 mode 1: WAI"              "*DOS* ERROR 46"                      "$W/
 check "6800 mode 2: PATCH (PUT)"      "[W 0400 86 -> ff]"                   "$W/m1.log"
 check "6800 mode 2: traced"           "0402 B70480 STA  A  0480     =0480   A5 00 0000 0000 C8" "$W/m1.txt"
 check "6800 mode 2: WAI break"        "0406 BREAK"                          "$W/m1.txt"
+
+cp sources/bitsavers/disks/Tek8002_Belgium_Amusements/Tek8002_3.img "$W/i80.img"; chmod u+w "$W/i80.img"
+target i1
+run "$W/i80.img" -type prompt 'EMULATE 1\r' -type prompt 'MAP U 8000-80FF\r' -type prompt 'PATCH 200 3E5A32008076\r' -type prompt 'GO 200\r' \
+	-type prompt 'EMULATE 1\r' -type prompt 'MOVE UP 8000 8003 300\r' -type prompt 'DUMP 300 30F\r' > "$W/i1.txt"
+check "8080 mode 1: mapped write"     "[W 8000 5a -> ff]"                   "$W/i1.log"
+check "8080 mode 1: HLT"              "*DOS* ERROR 46"                      "$W/i1.txt"
+check "8080 mode 1: MOVE UP (GET)"    "0300=5A FF FF FF"                    "$W/i1.txt"
+target i2
+run "$W/i80.img" -type prompt 'EMULATE 2\r' -type prompt 'PATCH 100 2120017EB7CA0E01D31023C3030176\r' -type prompt 'PATCH 120 4D4F444520320D00\r' \
+	-type prompt 'DUMP 100 12F\r' -type prompt 'DEBUG\r' -type prompt 'TRACE ALL\r' -type prompt 'GO 100\r' > "$W/i2.txt"
+check "8080 mode 2: PATCH (PUT)"      "[W 0100 21 -> ff]"                   "$W/i2.log"
+check "8080 mode 2: DUMP (GET)"       "0100=21 20 01 7E B7 CA 0E 01 D3 10 23 C3 03 01 76 FF" "$W/i2.txt"
+check "8080 mode 2: runs from it"     "MODE 2"                              "$W/i2.out"
+check "8080 mode 2: traced"           "0108 D310   OUT   10        0000  06  4D 00 00 00 00 01 20" "$W/i2.txt"
 check "6800 mode 2: DUMP (GET)"       "0480=A5 FF"                          "$W/m1.txt"
 check "6800 mode 2: DSTAT"            "M=2  6800"                           "$W/m1.txt"
 # the prototype's clock (link v4): a fixed loop (20 x 256 DJNZ, then HALT) in mode 1 takes the

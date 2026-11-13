@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-13 — The 8080A Emulator Processor, with its PROMs (one rebuilt)
+- The 8080 board (port E1) runs its two PROMs, read by Eelco Vriezekolk ([ztpe.nl](https://ztpe.nl/2650/)), on MAME's i8085 core as an 8080 (copied from the sibling 8550 emulator; a constructor flag selects MAME's i8080 variant).
+- P1 (160-0028-00) is an Intel MDS-800 monitor interface at F800: CI, RI, CO, PO, LO, CSTS, IOCHK, IOSET, MEMCK..., each through a TEKDOS SVC. So programs written for Intel's development system run on the 8002.
+- P2 (160-0027-00) lost data bit 0 (the chip is faulty). `tools/rebuild_8080_p2.py` rebuilds it from the code's own logic, TEKDOS and the 8080 manual (070-2702-01, now in `sources/`), with a confidence for each restored bit. It holds P1's SVC templates, patch routines for an Intel-style assembler (a BCD line counter, listing columns, " END *MISSING*" fed in at the end of the source), and the debug firmware.
+- Verified under TEKDOS 8080 3.0 (`tests/run8080.sh`, 15 checks; `tests/prototype.sh`, 7 more). The manual's own trace example comes out value for value. All registers go through dump, SET, restore and STEP, the carry included, which the dump saves around its `DAD SP` with `RAR`. GET and PUT work in modes 1 and 2, and so do the monitor calls CO, CI, RI, PO and LO. The register block is the one the 8550's 8085 board uses, whose byte 8 is this firmware's scratch.
+- `dasm` disassembles 8080 code (`build/dasm i8080`).
+- Checked: `make test` (113 checks), the screenshots byte-identical.
+
 ## 2026-11-13 — The 6800 board's PROMs, dumped and running
 - Eelco Vriezekolk ([ztpe.nl](https://ztpe.nl/2650/)) dumped the 6800 Emulator Processor's two 82S115s, "SYSTEM" and "FETCH" (`roms/ep6800/`, originals in `sources/ztpe/6800_board/`). The board now runs its real firmware: SYSTEM at F800–F9FF executes on the 6800, and its routines end in their debug SVCs as before. `-ep6800 hle` keeps the high-level routines.
 - What they confirmed: the four entries (F9F4 PUT, F9F7 GET, F9FA restore, F9FD dump), both register blocks and both debug SVCs, all as inferred from TEKDOS. What they settled: the dump keeps the CC by reading it with TPA after `PSHA; INS`.

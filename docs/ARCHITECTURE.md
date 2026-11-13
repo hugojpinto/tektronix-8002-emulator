@@ -50,6 +50,7 @@ The mainframe is a card cage on one bus (070-2711; `notes/8002.md`).
 | **Debug and Front Panel I/O** (670-5299) | ports F8–FF: the master/slave hand-over, breakpoints, single cycle, SVCs, forced jumps, PC last/next | `tek8002_debug` |
 | **Assembler Processor** (670-5220) | a **Z80** at 2.5 MHz that runs ASM, LINK and the macro processor; port E7 | `tek8002_asmproc` |
 | **6800 Emulator Processor** | a **6800** at 1 MHz that runs your program; port E2 | `tek8002_ep6800` |
+| **8080A Emulator Processor** | an **8080A** at 2 MHz that runs your program; port E1; PROMs with an Intel MDS-800 monitor interface and the debug firmware | `tek8002_ep8080` |
 | **Z80 Emulator Processor** | a **Z80** at 4 MHz; port E3 | `tek8002_epz80` |
 | **System Communications** (670-5219) | three MC6850 ACIAs (modem, printer, paper tape) and the memory map; ports C9–CF | `tek8002_syscomm` |
 
@@ -88,11 +89,13 @@ The facts here, and how each was established, are in `notes/8002.md` ("Debug and
 
 ## 5. The emulator boards
 
-`tek8002_emboard` holds what the 6800 and Z80 boards share (`notes/emulators.md`); `tek8002_ep6800` and `tek8002_epz80` add each processor.
+`tek8002_emboard` holds what the 8080, 6800 and Z80 boards share (`notes/emulators.md`); `tek8002_ep8080`, `tek8002_ep6800` and `tek8002_epz80` add each processor.
 
 **The control byte** (written to E2 or E3): bit 7 active; bit 1 = 0 maps the board's **firmware PROM** (firmware calls 80, 90, C0, C4, D0) and 1 runs your program (92, B2, F2); bits 6–5 the emulation mode; bit 2 lets the board's fetches reach the breakpoint and single-cycle logic; bit 4 lets the prototype's interrupts through. The meanings of bits 2 and 4 are inferred from what TEKDOS writes.
 
 **The status byte** (read): bit 5 present, bit 4 halted. On the Z80, bits 7/6 are IFF2/IFF1 and 1–0 the interrupt mode, which software cannot read on a Z80, so the board must follow them; TEKDOS copies the byte into the register block for DSTAT. On the 6800, bit 6 means a 6802 and bit 7 must read 1.
+
+**The 8080 board's firmware** is its own PROMs too: P1, an Intel MDS-800 monitor interface, as read, and P2, the debug firmware, rebuilt from a read that lost a data line (`tools/rebuild_8080_p2.py`; `notes/emulators.md`). Its routines end in `OUT F1`/`OUT F0` and a NOP, the 8080's SVC.
 
 **The firmware.** The 6800 board's SYSTEM PROM was dumped in 2026 and runs on the 6800 as it is, with its FETCH PROM steering two of its data cycles (`notes/emulators.md`, "The 6800 board's PROMs"). The Z80 board's PROM is lost, so its routines are modelled at high level, as one step each, from what TEKDOS does around them and from 070-2711 §1's step-by-step walkthrough; the 6800's high-level version is kept behind `-ep6800 hle`. The routines:
 
