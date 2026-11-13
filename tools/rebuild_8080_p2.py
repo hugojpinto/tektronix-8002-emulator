@@ -6,11 +6,12 @@
 # "The 8080 board's PROMs"). Bits 7-1 are taken from the read as they are; bit 0 is set only
 # at the addresses listed below, each with the reason. The output never differs from the
 # read in bits 7-1 (checked).
-# usage: tools/rebuild_8080_p2.py [READ] [OUT]
+# usage: tools/rebuild_8080_p2.py [READ] [OUT] [--report]   (--report: every byte's grade, as a table)
 import sys
 
-READ = sys.argv[1] if len(sys.argv) > 1 else 'sources/ztpe/8080_board/8080 160-0027-00 P2.bin'
-OUT = sys.argv[2] if len(sys.argv) > 2 else 'roms/ep8080/8080_p2_160-0027-00.bin'
+ARGS = [a for a in sys.argv[1:] if not a.startswith('--')]
+READ = ARGS[0] if len(ARGS) > 0 else 'sources/ztpe/8080_board/8080 160-0027-00 P2.bin'
+OUT = ARGS[1] if len(ARGS) > 1 else 'roms/ep8080/8080_p2_160-0027-00.bin'
 
 # address: (value, confidence, reason). Confidence: A = forced by the code or by TEKDOS
 # (verified in the emulator where TEKDOS uses it), B = the only sensible reading, C = a choice
@@ -173,14 +174,13 @@ AS_READ = {
     # or never executes them (the NOP after each SVC, the padding); 00 is the natural value
     0xfa03: 'CI: channel 0 (0 or 1; see FA0D)', 0xfa17: 'RI: channel 2 (2 or 3; see FA21)',
     0xfa2b: 'LO: channel 4 (4 or 5)',
-    0xfba8: 'the NOP of the dump SVC (070-2702 §11: OUT then NOP)', 0xfbba: 'the NOP of the restore SVC',
-    0xfbc6: 'the NOP of the GET SVC', 0xfbd9: 'the NOP of the PUT SVC', 0xfbc7: 'padding before PUT',
+
     0xfa4d: 'displaced LXI H,1EFA: low byte (1EFA or 1EFB)',
     0xfa5f: 'displaced LXI H,2024: low byte (24 or 25)', 0xfa60: 'displaced LXI H,2024: high byte (20 or 21)',
     0xfa71: 'displaced JMP 14FA: low byte (FA or FB)', 0xfa72: 'displaced JMP 14FA: high byte (14 or 15)',
     0xfa9b: 'CALL 0282: the hex-print routine (0282 or 0283)', 0xfaa2: 'CALL 0282 (0282 or 0283)',
     0xfac6: 'LDA 1E3E (1E3E or 1E3F)',
-    0xface: 'LDA 1E40 (1E40 or 1E41)', 0xfad1: 'CPI 20 (20 or 21: a space)',
+    0xface: 'LDA 1E40 (1E40 or 1E41)',
     0xfae0: 'MOV C,M (4E) or MOV C,A (4F): what is printed before JMP 00D8',
     0xfae2: 'CALL 007A (007A or 007B)', 0xfae5: 'JMP 00D8 (00D8 or 00D9)', 0xfae8: 'CALL 008A (008A or 008B)',
     0xfaf6: 'CALL 007A', 0xfafb: 'JMP 007A',
@@ -190,17 +190,107 @@ AS_READ = {
 }
 
 
+# Every other byte the patches' operands use is kept as read too, for a stated reason; the
+# report grades them so that every byte of P2 is accounted for.
+KEPT = {}
+def k(addrs, conf, why):
+    for a in addrs:
+        assert a not in SET and a not in AS_READ and a not in KEPT, hex(a)
+        KEPT[a] = (conf, why)
+k([0xfa7f, 0xfa80, 0xfa96, 0xfa97, 0xfac3, 0xfac4, 0xfacb, 0xfacc, 0xfad3, 0xfad4, 0xfadb, 0xfadc, 0xfb11],
+  'B', 'a jump inside P2: the other value lands mid-instruction, skips a needed INX H or PUSH H, or (high byte FB) jumps into the firmware')
+k([0xfad7, 0xfb0e, 0xfb0f], 'B', 'a call into P1: F815 IOCHK and F806 RI (F906 is CSTS, which reads nothing; F807 is mid-entry)')
+k([0xfa5b], 'B', 'ACI 00: 01 would add the BCD carry twice')
+k([0xfa82, 0xfa87, 0xfa8c, 0xfa91, 0xfaab, 0xfab0, 0xfab5, 0xfaba], 'B', 'MVI C,20: a space for the listing columns (21 would print "!")')
+k([0xfad9], 'B', 'ANI C0: the list field of the I/O byte, as the assembler\'s PL/M source tests IOCHK AND 0C0H')
+k([0xfac9], 'B', 'CPI 40: column 64 = the assembler\'s 72 (PL/M LIST stops at COLUMN < 72) less the 8 the line number adds')
+k([0xfaf9], 'B', 'MVI C,0A: LF after the CR')
+k([0xfad1], 'B', 'CPI 20: is the character at 1E40 a space (21 would test for "!")')
+k([0xfba8, 0xfbba, 0xfbc6, 0xfbd9], 'B', 'the NOP after an SVC (070-2702 §11: OUT then NOP; the 8080\'s NOP is 00, also Tek\'s fill)')
+k([0xfbc7], 'B', 'padding before PUT: 00, Tek\'s fill')
+k([0xfb14], 'B', 'CPI 1A: ^Z, end of file under TEKDOS (1B is ESC)')
+k([0xfa44, 0xfa4a, 0xfa51, 0xfa63, 0xfa77, 0xfa7a, 0xfa9e, 0xfaa5, 0xfaa8, 0xfabf, 0xfade, 0xfaeb, 0xfaf1, 0xfb07, 0xfb18, 0xfb1d],
+  'B', 'the low byte of one of Tek\'s variables (1CD8 last line, 1CDA counter, 1CDC message pointer, 1CDE, 1CE0): only the even values let the three words (INX H walks the counter\'s two bytes) and the flags sit side by side without overlapping')
+k([0xfa45, 0xfa4b, 0xfa52, 0xfa64, 0xfa78, 0xfa7b, 0xfa9f, 0xfaa6, 0xfaa9, 0xfac0, 0xfadf, 0xfaec, 0xfaf2, 0xfb08, 0xfb19, 0xfb1e],
+  'C', 'the page of Tek\'s variables, 1C as read: the whole block could equally be in page 1D (one free area of the assembler\'s RAM or the next); all these bytes go together')
+k([0xfa75, 0xfa85, 0xfa8a, 0xfa8f, 0xfa94, 0xfaae, 0xfab3, 0xfab8, 0xfabd, 0xfae3, 0xfae6, 0xfae9, 0xfaf7, 0xfafc, 0xfa9c, 0xfaa3],
+  'C', 'the page of a routine in Intel\'s assembler (007A, 008A, 00BE, 00D8; 0282): page 00 (02) as read; PL/M emits procedures in declaration order, I/O first, which favours the low page, but no binary of the assembler is known')
+k([0xfa74, 0xfa84, 0xfa89, 0xfa8e, 0xfa93, 0xfaad, 0xfab2, 0xfab7, 0xfabc],
+  'C', 'the low byte of the assembler\'s character-output routine 00BE (BE or BF; the same in all nine)')
+k([0xfa4e, 0xfac7, 0xfacf, 0xfb02, 0xfb0b], 'C', 'the page of an assembler variable or displaced operand (1EFA, 1E3E, 1E40, 1EAA: 1E or 1F; 006E: 00 or 01)')
+
+# The empty zones: every intact PROM of this family that Tektronix programmed fills unused space
+# with 00 (the 6800 SYSTEM PROM's 438 unused bytes, its FETCH PROM's unused 256; not one FF or
+# 01 in empty space), so these read-as-00 bytes are 00. The 8080's NOP is 00 as well.
+EMPTY = [(0xfa32, 0xfa3f), (0xfb31, 0xfb7f), (0xfbda, 0xfbdd), (0xfbf0, 0xfbff)]
+
+
 def report(out):
     """A table of every byte that differs from the read, and every byte kept as read but uncertain."""
     lines = ['| Address | Read | Rebuilt | Confidence | Why |', '|---|---|---|---|---|']
-    for addr in sorted(set(SET) | set(AS_READ)):
+    for addr in sorted(set(SET) | set(AS_READ) | set(KEPT)):
         i = addr - 0xfa00
         if addr in SET:
             v, c, why = SET[addr]
+        elif addr in KEPT:
+            v, (c, why) = out[i], KEPT[addr]
+            why = 'kept as read: ' + why
         else:
             v, c, why = out[i], 'C', 'kept as read: ' + AS_READ[addr]
         lines.append('| %04X | %02X | %02X | %s | %s |' % (addr, out[i] & 0xfe, v, c, why))
+    for addr in unaccounted(out):
+        c, why = rest_grade(addr)
+        lines.append('| %04X | %02X | %02X | %s | kept as read: %s |' % (addr, out[addr - 0xfa00] & 0xfe, out[addr - 0xfa00], c, why))
+    for lo, hi in EMPTY:
+        lines.append('| %04X-%04X | 00 | 00 | B | empty: Tektronix fills unused space with 00 in every intact PROM of this family |' % (lo, hi))
+    lines.sort(key=lambda l: l[2:6] if l[2:3] in '0123456789ABCDEF' and l[:2] == '| ' else '')
     return '\n'.join(lines) + '\n'
+
+
+def summary(out):
+    """Grade counts over all 512 bytes."""
+    from collections import Counter
+    g = Counter(v[1] for v in SET.values())
+    g.update(v[0] for v in KEPT.values())
+    g.update('C' for _ in AS_READ)
+    g.update(rest_grade(a)[0] for a in unaccounted(out))
+    g['B'] += sum(hi - lo + 1 for lo, hi in EMPTY)
+    return g
+
+
+# The mutation run of 2026-11-13: each byte of FA00-FA31 and FB80-FBEF with bit 0 flipped, under
+# the checks of tests/run8080.sh and tests/prototype.sh (PUT into ROM included). These survived:
+# flipping them changes nothing TEKDOS shows.
+SURVIVORS = {0xfa04, 0xfa05, 0xfa06, 0xfa0e, 0xfa0f, 0xfa10, 0xfa18, 0xfa19, 0xfa1a, 0xfa1b, 0xfa22, 0xfa23,
+             0xfa24, 0xfa25, 0xfa2c, 0xfa2d, 0xfa2e, 0xfa2f, 0xfb9a, 0xfb9b, 0xfb9c, 0xfb9f, 0xfba0, 0xfba1,
+             0xfba2, 0xfba3, 0xfba4, 0xfba5, 0xfba8, 0xfbba, 0xfbc6, 0xfbc7, 0xfbd9, 0xfbda, 0xfbdb,
+             0xfbdc, 0xfbdd, 0xfbde, 0xfbdf, 0xfbe0, 0xfbe1, 0xfbe2, 0xfbe3, 0xfbe8, 0xfbeb}
+
+
+def rest_grade(addr):
+    """The grade of a byte kept as read that no table above lists."""
+    if 0xfa00 <= addr <= 0xfa31:
+        if (addr - 0xfa00) % 10 in (4, 5, 6):
+            return 'B', 'a template\'s status, data or count: TEKDOS writes it (00 is the natural start)'
+        return ('A' if addr not in SURVIVORS else 'B'), 'a template\'s pointer (0042) or buffer (004A), or a field P1 sets: verified (mutation caught)'
+    if 0xfb21 <= addr <= 0xfb30:
+        return 'B', 'a character of " END *MISSING*" CR LF (the other value is another letter)'
+    if 0xfa40 <= addr <= 0xfb20:
+        return 'B', 'an opcode of the patches: the other value is a different instruction that breaks the routine'
+    if addr in (0xfbe0, 0xfbe3):
+        return 'C', 'an unused table entry\'s JMP 0000, high byte (00 or 01)'
+    if addr in SURVIVORS:
+        return 'B', 'the dump\'s tail (SP, HL, A put back), which TEKDOS never observes: by symmetry with the entry and the restore'
+    return 'A', 'firmware: verified under TEKDOS (flipping it fails a check)'
+
+
+def unaccounted(out):
+    """Bytes the report does not cover: they must be opcodes or operands whose bit 0 is forced
+    by the decoding (the other value is another instruction or breaks the flow)."""
+    covered = set(SET) | set(AS_READ) | set(KEPT)
+    for lo, hi in EMPTY:
+        covered |= set(range(lo, hi + 1))
+    return [a for a in range(0xfa00, 0xfc00) if a not in covered]
 
 
 def build(read):
@@ -221,5 +311,7 @@ if __name__ == '__main__':
     n = {c: sum(1 for v in SET.values() if v[1] == c) for c in 'ABC'}
     print('%s: %d bytes with bit 0 set (A %d, B %d, C %d); %d kept as read but uncertain'
           % (OUT, len(SET), n['A'], n['B'], n['C'], len(AS_READ)))
+    g = summary(out)
+    print('all 512 bytes graded: A %d (verified under TEKDOS or forced), B %d (one sensible reading), C %d (a choice)' % (g['A'], g['B'], g['C']))
     if '--report' in sys.argv:
         sys.stdout.write(report(out))

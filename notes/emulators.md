@@ -135,8 +135,16 @@ development system run unchanged on the 8002; the 1978 manual does not mention i
 **P2's read lost data bit 0.** No byte of 512 is odd (P1 has 293), and the chip is faulty:
 Eelco cleaned the pins and read it again, with the same result. `tools/rebuild_8080_p2.py`
 rebuilds it: bits 7–1 as read, and bit 0 set at 130 addresses, each listed with its reason and
-a confidence (`--report` prints the table: 86 A, 36 B, 8 C, and 30 bytes kept as read but
-uncertain). How it was attacked (2026-11-13):
+a confidence. `--report` grades every one of the 512 bytes: A 152 (verified under TEKDOS, or
+forced by the decoding), B 280 (one sensible reading), C 80 (a choice). The 80 C bytes come
+down to about twenty independent decisions; only the channels and the line lengths would show
+to a TEKDOS user. How it was attacked (2026-11-13):
+- **The empty zones** (FA32–FA3F, FB31–FB7F, FBDA–FBDD, FBF0–FBFF, and the byte before PUT)
+  are 00, not 01: every intact PROM of this family that Tektronix programmed fills unused space
+  with 00 (the 6800 SYSTEM PROM's 438 unused bytes, its FETCH PROM's 256; not one 01 or FF).
+- **Operands decided by structure:** jumps inside P2 and calls into P1 are forced; Tek's own
+  variables (1CD8, 1CDA, 1CDC, 1CDE, 1CE0) can only be at even addresses, or the three words
+  and two flags would overlap, but the whole block could be one page up (1D).
 - **Mutation testing:** each byte TEKDOS executes (FA00–FA31, FB80–FBEF) had its bit 0 flipped
   and the checks rerun: 117 of 162 mutants fail. The survivors are fields TEKDOS overwrites
   (each template's status, data and count), code never executed (the NOP after each SVC,
