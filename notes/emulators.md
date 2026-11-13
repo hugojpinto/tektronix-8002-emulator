@@ -151,6 +151,17 @@ unused table entries); the rest are addresses inside Intel's assembler. How it w
   below 0060, the hex printer next, variables near the top, free memory just above. That
   settles the page of the output routines (00); the PL/M-80 builds, with their DATA tables
   first, are not the tape's lineage.
+- **Intel's assembler run on the board (2026-11-13):** version 2.0, compiled for the MDS
+  monitor (its seven monitor addresses set to P1's F803 … F81B), loaded with TEKDOS's RVHEX and
+  started at F824, runs: banner and "P=" through CO, the pass number through CI, the source
+  through RI line by line across passes (a file holding the source three times stands for
+  feeding the tape again: this version does not call P1's reader rewind), and the listing
+  through LO, with correct code for backward references. So P1 and P2's templates carry real
+  Intel software end to end. Two places in the compiled assembler misbehave because the
+  compiler port evaluates an embedded assignment before the other operand, where the original
+  compiler did not (LOOKUP's binary search, written `LOC+0 <> (LOC:=…)`, had to be rewritten for
+  the test; forward references still come out wrong): faults of the rebuilt assembler, not of
+  the board.
 - **Operands decided by structure:** jumps inside P2 and calls into P1 are forced; Tek's own
   variables (1CD8, 1CDA, 1CDC, 1CDE, 1CE0) can only be at even addresses, or the three words
   and two flags would overlap, but the whole block could be one page up (1D).
