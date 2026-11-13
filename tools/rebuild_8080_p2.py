@@ -25,14 +25,19 @@ def s(addr, value, conf, why):
 # buffer 004A (070-2706 §4)
 s(0xfa02, 0x41, 'A', 'CI: function 41, read binary and wait (40 is no function)')
 s(0xfa07, 0x01, 'B', 'CI: buffer length 1 (one character; 0 reads nothing)')
-s(0xfa0d, 0x01, 'C', 'CO: channel 1 (CI and CO must differ: CI 0, CO 1, RI 2, PO 3, LO 4)')
+s(0xfa0d, 0x01, 'C', 'CO: channel 1 (CI and CO must differ: CI 0, CO 1, RI 2, PO 3, LO 4). TEKDOS pre-assigns no channel, so nothing can tell 0 from 1: a user simply assigned whichever the board used')
 s(0xfa11, 0x01, 'B', 'CO: buffer length 1 (one character)')
 s(0xfa16, 0x01, 'A', 'RI: function 01, read ASCII and wait (00 is no function; P1 sets 04, rewind, on the same block)')
 s(0xfa21, 0x03, 'C', 'PO: channel 3 (RI and PO must differ)')
 for a, dev in ((0xfa1b, 'RI'), (0xfa25, 'PO'), (0xfa2f, 'LO')):
     s(a, 0x7f, 'C', '%s: buffer length 7F (7E or 7F; P1 keeps 128-byte line buffers, and a length of N+1 with N = 126 is the manual\'s convention)' % dev)
 
-# --- FA40-FB20: patch routines for a RAM-resident 8080 program reading source through the
+# --- FA40-FB20: patch routines for Intel's paper-tape "8080 MDS Macro Assembler" (identified:
+# the MDS-800 operator manual 98-129A starts it at 0020, where P1's start-up jumps; its PL/M
+# source, versions 2.0 and 4.1 on mark-ogden.uk, lists to column 72 and tests IOCHK AND 0C0H;
+# no binary is known). They add a line-number column and an END at the end of the source.
+# Below, "a RAM-resident 8080 program" is that assembler:
+# patch routines for a RAM-resident 8080 program reading source through the
 # monitor's RI (an assembler, by its line counter and END injection). Each replaces an
 # instruction in that program, does its work and runs the displaced instruction (first if it
 # keeps HL, last if not). The program itself is not preserved, so nothing here can be run.
@@ -80,6 +85,8 @@ for a in (0xfaac, 0xfab1, 0xfab6):
     s(a, 0xcd, 'A', 'MVI C,20; CALL 00BE')
 s(0xfabb, 0xc3, 'B', 'MVI C,20; JMP 00BE (the fourth space, as a tail call)')
 s(0xfac1, 0xb7, 'B', 'LDA 1CDE; ORA A (ORA M would need HL)')
+# FAC9 CPI 40 is kept as read and is no longer uncertain: column 64 = the assembler's 72
+# (its PL/M LIST stops at COLUMN < 72) minus the 8 columns the line number adds.
 s(0xfad5, 0xcd, 'A', 'CALL F815: the monitor\'s IOCHK (the I/O byte)')
 s(0xfad6, 0x15, 'A', 'CALL F815 (F814 is mid-entry)')
 s(0xfae4, 0xc3, 'B', 'JMP 00D8 (the displaced jump; every exit above goes here)')
@@ -90,10 +97,10 @@ s(0xfaef, 0xaf, 'B', 'XRA A: clear the flag')
 s(0xfaf4, 0x0d, 'B', 'MVI C,0D: CR, then LF (0C, a form feed, before an LF is unlikely)')
 s(0xfaf5, 0xcd, 'A', 'CALL 007A')
 s(0xfafa, 0xc3, 'B', 'MVI C,0A; JMP 007A (tail call)')
-s(0xfafd, 0x21, 'B', 'FAFD: displaced LXI H,204E (operand bits 0 unknown)')
+s(0xfafd, 0x21, 'C', 'FAFD: displaced LXI H,204E, run before FB00 (operand bits 0 unknown). Nothing shows FAFD is entered: if only FB00 is, these three bytes are dead and 20 (as read) is as good')
 s(0xfb03, 0xb7, 'B', 'LDA 1EAA; ORA A')
 s(0xfb05, 0xaf, 'B', 'XRA A')
-s(0xfb0c, 0xc9, 'B', 'RET')
+s(0xfb0c, 0xc9, 'B', 'RET (RZ, as read, behaves the same: Z is always set after XRA A)')
 s(0xfb0d, 0xcd, 'A', 'FB0D: CALL F806, the monitor\'s RI (the displaced call)')
 s(0xfb12, 0xfb, 'A', 'JC FB16: end of input')
 s(0xfb16, 0xe5, 'A', 'PUSH H')
@@ -138,8 +145,13 @@ getput = [  # FBBB GET: LHLD 0001; MOV E,H; MOV D,L; LDAX D; STA 0000; OUT F0; N
     (0xfbc9, 0x01, 'PUT: LHLD 0001'), (0xfbcc, 0x55, 'PUT: MOV D,L'), (0xfbd0, 0x47, 'PUT: MOV B,A'),
     (0xfbd5, 0x03, 'PUT: STA 0003, the status'), (0xfbd7, 0xd3, 'PUT: OUT F0'),
 ]
+# Mutation testing (each executed byte's bit 0 flipped, tests rerun) shows TEKDOS always
+# restores before resuming, so the dump's tail (FB9A-FBA5: SP, HL and A put back) is never
+# observed: those bits rest on the code's own symmetry (LXI SP,0007 is the only value that
+# pops back what was pushed; LHLD 0000 and LDA 0006 mirror SHLD 0000 and STA 0006), grade B.
+TAIL = {0xfb9a, 0xfb9b, 0xfb9d, 0xfb9e, 0xfb9f}
 for a, v, why in dump + restore + getput:
-    s(a, v, 'A', why)
+    s(a, v, 'B' if a in TAIL else 'A', why)
 
 # --- FBDE-FBEF: the entry table (TEKDOS's base FBEF: PUT = base - 11, GET = base - 8)
 for a in (0xfbde, 0xfbe1, 0xfbe4, 0xfbe7, 0xfbea, 0xfbed):
@@ -157,11 +169,17 @@ s(0xfbef, 0xfb, 'A', 'dump -> FB80')
 # the program's variables found so far are all at even addresses (1CD8, 1CDA, 1CDC, 1CDE,
 # 1CE0), which supports that for the variables but not for the entry points.
 AS_READ = {
+    # kept as read, never observable: TEKDOS writes them (status, data, count of each template)
+    # or never executes them (the NOP after each SVC, the padding); 00 is the natural value
+    0xfa03: 'CI: channel 0 (0 or 1; see FA0D)', 0xfa17: 'RI: channel 2 (2 or 3; see FA21)',
+    0xfa2b: 'LO: channel 4 (4 or 5)',
+    0xfba8: 'the NOP of the dump SVC (070-2702 §11: OUT then NOP)', 0xfbba: 'the NOP of the restore SVC',
+    0xfbc6: 'the NOP of the GET SVC', 0xfbd9: 'the NOP of the PUT SVC', 0xfbc7: 'padding before PUT',
     0xfa4d: 'displaced LXI H,1EFA: low byte (1EFA or 1EFB)',
     0xfa5f: 'displaced LXI H,2024: low byte (24 or 25)', 0xfa60: 'displaced LXI H,2024: high byte (20 or 21)',
     0xfa71: 'displaced JMP 14FA: low byte (FA or FB)', 0xfa72: 'displaced JMP 14FA: high byte (14 or 15)',
     0xfa9b: 'CALL 0282: the hex-print routine (0282 or 0283)', 0xfaa2: 'CALL 0282 (0282 or 0283)',
-    0xfac6: 'LDA 1E3E (1E3E or 1E3F)', 0xfac9: 'CPI 40 (40 or 41: column 64)',
+    0xfac6: 'LDA 1E3E (1E3E or 1E3F)',
     0xface: 'LDA 1E40 (1E40 or 1E41)', 0xfad1: 'CPI 20 (20 or 21: a space)',
     0xfae0: 'MOV C,M (4E) or MOV C,A (4F): what is printed before JMP 00D8',
     0xfae2: 'CALL 007A (007A or 007B)', 0xfae5: 'JMP 00D8 (00D8 or 00D9)', 0xfae8: 'CALL 008A (008A or 008B)',

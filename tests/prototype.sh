@@ -68,10 +68,11 @@ run "$W/i80.img" -type prompt 'EMULATE 1\r' -type prompt 'MAP U 8000-80FF\r' -ty
 check "8080 mode 1: mapped write"     "[W 8000 5a -> ff]"                   "$W/i1.log"
 check "8080 mode 1: HLT"              "*DOS* ERROR 46"                      "$W/i1.txt"
 check "8080 mode 1: MOVE UP (GET)"    "0300=5A FF FF FF"                    "$W/i1.txt"
-target i2
-run "$W/i80.img" -type prompt 'EMULATE 2\r' -type prompt 'PATCH 100 2120017EB7CA0E01D31023C3030176\r' -type prompt 'PATCH 120 4D4F444520320D00\r' \
+target i2 --ro F000-F0FF
+run "$W/i80.img" -type prompt 'EMULATE 2\r' -type prompt 'PATCH F000 12\r' -type prompt 'PATCH 100 2120017EB7CA0E01D31023C3030176\r' -type prompt 'PATCH 120 4D4F444520320D00\r' \
 	-type prompt 'DUMP 100 12F\r' -type prompt 'DEBUG\r' -type prompt 'TRACE ALL\r' -type prompt 'GO 100\r' > "$W/i2.txt"
 check "8080 mode 2: PATCH (PUT)"      "[W 0100 21 -> ff]"                   "$W/i2.log"
+check "8080 mode 2: PUT read-back"    "*PATCH* ERROR 59"                    "$W/i2.txt"
 check "8080 mode 2: DUMP (GET)"       "0100=21 20 01 7E B7 CA 0E 01 D3 10 23 C3 03 01 76 FF" "$W/i2.txt"
 check "8080 mode 2: runs from it"     "MODE 2"                              "$W/i2.out"
 check "8080 mode 2: traced"           "0108 D310   OUT   10        0000  06  4D 00 00 00 00 01 20" "$W/i2.txt"

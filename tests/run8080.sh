@@ -19,6 +19,7 @@ cp sources/bitsavers/disks/Tek8002_Belgium_Amusements/Tek8002_3.img "$W/sys.img"
 run() { "$EMU" -fdc "$FDC" -prom roms/tekdos_boot.bin -rw -0 "$W/sys.img" -cycles $((600 * 1250000)) "$@" </dev/null 2>/dev/null | tr -d '\000\007\023' | tr '\r' '\n'; }
 fail=0
 check() { if grep -qF -- "$2" "$3"; then echo "PASS $1"; else echo "FAIL $1 (wanted '$2')"; fail=1; fi; }
+line() { if grep -qx -- "$2" "$3"; then echo "PASS $1"; else echo "FAIL $1 (wanted the line '$2')"; fail=1; fi; }   # a whole line
 
 # the manual's average program, its first instructions (13FF holds 12)
 run -type prompt 'PATCH 0 AF476711FF131A1B76\r' -type prompt 'PATCH 13FF 12\r' -type prompt 'DEBUG\r' \
@@ -41,11 +42,11 @@ check "STEP after SET"     "010E 87     ADD   A         1FF0  07  42 B2 C3 D4 E5
 
 # the monitor: CO prints HI; PO writes POK to a file, LO prints LO
 run -type prompt 'ASSIGN 1 CONO\r' -type prompt 'PATCH 20 0E48CD09F80E49CD09F80E0DCD09F876\r' -type prompt 'GO F824\r' > "$W/co.txt"
-check "monitor CO"         "HI"                                                          "$W/co.txt"
+line "monitor CO"          "HI"                                                          "$W/co.txt"
 run -type prompt 'ASSIGN 3 PUNCHED\r' -type prompt 'ASSIGN 4 CONO\r' \
 	-type prompt 'PATCH 20 0E50CD0CF80E4FCD0CF80E4BCD0CF80E0DCD0CF8\r' -type prompt 'PATCH 34 0E4CCD0FF80E4FCD0FF80E0DCD0FF876\r' \
 	-type prompt 'GO F824\r' -type prompt 'CLOSE 3\r' > "$W/pl.txt"
-check "monitor LO"         "LO"                                                          "$W/pl.txt"
+line "monitor LO"          "LO"                                                          "$W/pl.txt"
 if [ -x "$TEKMATO" ]; then
 	"$TEKMATO" -open "$W/sys.img" -type PUNCHED > "$W/punched.txt" 2>&1
 	check "monitor PO"     "POK"                                                         "$W/punched.txt"

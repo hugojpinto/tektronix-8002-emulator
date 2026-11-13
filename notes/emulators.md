@@ -135,7 +135,27 @@ development system run unchanged on the 8002; the 1978 manual does not mention i
 **P2's read lost data bit 0.** No byte of 512 is odd (P1 has 293), and the chip is faulty:
 Eelco cleaned the pins and read it again, with the same result. `tools/rebuild_8080_p2.py`
 rebuilds it: bits 7–1 as read, and bit 0 set at 130 addresses, each listed with its reason and
-a confidence (`--report` prints the table). P2 holds:
+a confidence (`--report` prints the table: 86 A, 36 B, 8 C, and 30 bytes kept as read but
+uncertain). How it was attacked (2026-11-13):
+- **Mutation testing:** each byte TEKDOS executes (FA00–FA31, FB80–FBEF) had its bit 0 flipped
+  and the checks rerun: 117 of 162 mutants fail. The survivors are fields TEKDOS overwrites
+  (each template's status, data and count), code never executed (the NOP after each SVC,
+  padding, the two unused table entries), entries one byte before their code (a NOP), the line
+  lengths, and the dump's tail, which TEKDOS never observes because it always restores before
+  resuming. Those are graded B or C, not A. PUT's read-back was invisible until the test
+  wrote to ROM in the prototype (`proto_target.py --ro`): TEKDOS then reports
+  `*PATCH* ERROR 59`.
+- **A blind rebuild** by an independent agent that saw only the two reads and the manuals
+  agrees on 508 of 512 bytes. The four others are the line lengths (7E) and FAFD (20), all
+  graded C here.
+- **No other copy** of any part of P2: 836 files (both emulators' disc images, the DOS/50
+  discs' files, every ROM), searched with bit 0 masked.
+- **The channels** (CI 0, CO 1, RI 2, PO 3, LO 4) cannot be tested: TEKDOS pre-assigns none,
+  so a user assigned whatever the board used. No Tektronix document about the monitor
+  interface was found; the 8080A Emulator Processor service supplement (070-3380-00) is not
+  online.
+
+P2 holds:
 - **FA00–FA31, P1's SVC templates.** Each is 00 42 (the pointer), then function, channel,
   status, data, count, length and buffer 004A. The functions are forced by what is legal and by
   P1 (CI 41 read binary, CO 42 write binary, RI 01 read ASCII, PO and LO 02 write ASCII). The
@@ -148,9 +168,14 @@ a confidence (`--report` prints the table). P2 holds:
   program's routine at 0282, or four spaces when it has not changed, followed by four spaces;
   test the column and the I/O byte's list field; print a pending CR LF; and when the source
   read through RI ends, or reaches ^Z, feed back " END *MISSING*" CR LF a character at a time.
-  So the program is an assembler reading its source through the monitor. It is not preserved:
-  no disc in `sources/` calls into P2 or the monitor, so this part cannot be run. 23 bytes in
-  it (addresses inside that program) are kept as read although 1 would fit as well.
+  The program is Intel's paper-tape **8080 MDS Macro Assembler**: the MDS-800 operator manual
+  (98-129A, 1975) loads it from tape and starts it at 0020, where P1's start-up jumps. Its PL/M
+  source (versions 2.0 and 4.1, on mark-ogden.uk) lists to column 72 (the patch's column 64 is
+  72 less the 8 the line number adds), tests `IOCHK AND 0C0H` for the list device (the patch's
+  `ANI C0`), and reads until an END statement, which under TEKDOS would never come. No binary
+  is known, and no disc in `sources/` calls into P2 or the monitor, so this part cannot be run.
+  Its bytes that are addresses inside the assembler are kept as read although 1 would fit as
+  well.
 - **FB21–FB30, the text** " END *MISSING*" CR LF.
 - **FB80–FBDD, the debug firmware.** All verified under TEKDOS:
   - dump (FB80): `SHLD 0000; STA 0006`; A = the carry; `LXI H,0; DAD SP`; then

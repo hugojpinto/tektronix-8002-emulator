@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2026 Hugo José Pinto <hugo.pinto@gmail.com>
 """Reference prototype (target system) for the 8550 and 8002 emulators' Z80 probe (also the
-8002's 6800 probe, which uses R/W only). Copied unchanged otherwise from tektronix-8550-emulator.
+8002's 6800 probe, which uses R/W only). Copied from tektronix-8550-emulator, plus --ro (a range that ignores writes, for a failing PUT).
 
 Protocol v3 (see notes/prototype-link.md; v1/v2 clients work unchanged): the emulator connects and sends
 4-byte requests  [op, addr_lo, addr_hi, data];  each gets a 2-byte reply
@@ -22,7 +22,7 @@ and an optional periodic interrupt (--tick MS) answering INTA with RST 38h (FFh)
 cleared by writing any value to port 12h. v3 test aids: --io-wait N inserts N WAIT
 states in every I/O cycle (a slow peripheral); --reset-at MS pulses RESET once.
 
-usage: proto_target.py [--unix PATH | --tcp PORT] [--rom FILE@HEXADDR ...] [--tick MS]
+usage: proto_target.py [--unix PATH | --tcp PORT] [--rom FILE@HEXADDR ...] [--ro HEXLO-HEXHI ...] [--tick MS]
 """
 import argparse, os, select, socket, sys
 
@@ -31,6 +31,7 @@ def main():
     ap.add_argument('--unix', help='listen on a Unix socket path')
     ap.add_argument('--tcp', type=int, help='listen on TCP port (localhost)')
     ap.add_argument('--rom', action='append', default=[], help='FILE@HEXADDR to preload')
+    ap.add_argument('--ro', action='append', default=[], help='HEXLO-HEXHI: memory that ignores writes, like a ROM')
     ap.add_argument('--tick', type=float, default=0, help='periodic INT every MS milliseconds')
     ap.add_argument('--log', action='store_true', help='log every access to stderr')
     ap.add_argument('--io-wait', type=int, default=0, help='v3: WAIT states in every I/O cycle (0-15)')
@@ -44,6 +45,7 @@ def main():
         data = open(path, 'rb').read()
         a = int(addr, 16)
         ram[a:a + len(data)] = data
+    ro = [tuple(int(x, 16) for x in r.split('-')) for r in args.ro]
     inq = bytearray()
     us = 0.0
     tick_us = args.tick * 1000.0
@@ -88,7 +90,8 @@ def main():
                 khz = int(round(args.clock * 1000))
                 res = (khz >> 8 if a & 1 else khz) & 0xff
             elif op in (ord('R'), ord('F')): res = ram[a]
-            elif op == ord('W'): ram[a] = d
+            elif op == ord('W'):
+                if not any(lo <= a <= hi for lo, hi in ro): ram[a] = d
             elif op == ord('I'):
                 wait = args.io_wait
                 if lo == 0x10: res = inq.pop(0) if inq else 0
