@@ -12,9 +12,18 @@
 // - A forced jump sets the PC; it also ends a WAI.
 // - Modes 1 and 2: memory through the probe as tek8002_emboard routes it; IRQ, NMI and RESET
 //   from the prototype. The 6800 has no I/O space and no fetch signal.
-// - Firmware (the SYSTEM PROM, 82S115, not preserved), at high level, from what TEKDOS does
-//   around it (DEB INIT 195D-196E, DEB CNTL 15DE-160B and 1733, DSTAT 18E9-1937) and from
-//   070-2711 §1's walkthrough (steps 9-19 restore, 34-37 dump):
+// - Firmware: the SYSTEM PROM (82S115, 512 bytes; dumped by Eelco Vriezekolk, ztpe.nl, 2026),
+//   roms/ep6800/6800_system.bin, runs on the 6800 at F800-F9FF while the firmware is mapped
+//   (load_firmware; notes/emulators.md "The 6800 board's PROMs"). Its routines end with a jump
+//   to FEF1 (debug SVC 1) or FEF0 (debug SVC 2); the board then waits for the next forced jump.
+//   The FETCH PROM (roms/ep6800/6800_fetch.bin), indexed by opcode, gives each instruction's
+//   cycle count (low nibble = 17 - cycles: how the board finds the next fetch) and flags.
+//   While the firmware is mapped, two flags steer data cycles (inferred, notes/emulators.md):
+//   bit 7 clear (PSHA, PULA) sends the stack cycle to 0000, the register block's A; bit 6
+//   clear (LDA/STA indexed) sends the data cycle to the prototype in modes 1 and 2 (GET, PUT).
+//   Without the PROM (-ep6800 hle), the routines are modelled at high level, from what TEKDOS
+//   does around them (DEB INIT 195D-196E, DEB CNTL 15DE-160B and 1733, DSTAT 18E9-1937) and
+//   from 070-2711 §1's walkthrough (steps 9-19 restore, 34-37 dump):
 //     F9FA  restore: load A, B, X, SP, CC from 0000-0006, then debug SVC 1 (port F1)
 //     F9FD  dump: store A, B, X, SP, CC at 0000-0006, then debug SVC 1
 //     F9F4/F9F7  PUT/GET a prototype byte (tek8002_emboard.h), then debug SVC 2: TEKDOS's
@@ -25,6 +34,8 @@
 #define TEK_TEK8002_EP6800_H
 #include "machine/tek8002_emboard.h"
 #include "cpu/m6800/m6800.h"
+#include <string>
+#include <vector>
 
 class tek8002_ep6800 : public tek8002_emboard, private m6800_cpu_device::bus_interface
 {
@@ -35,6 +46,10 @@ public:
 	const char *name() const override { return "6800 Emulator Processor"; }
 	double board_clock_hz() const override { return 1.0e6; }
 	m6800_cpu_device cpu;
+	// the SYSTEM and FETCH PROMs (512 bytes each) from DIR/6800_system.bin and 6800_fetch.bin;
+	// without them, the high-level routines
+	bool load_firmware(const std::string &dir, std::string &err);
+	bool prom_firmware() const { return !m_sys.empty(); }
 
 protected:
 	void cpu_reset() override { cpu.reset(); }
@@ -54,5 +69,11 @@ protected:
 private:
 	u8 read(u16 a, bool opcode) override;
 	void write(u16 a, u8 d) override;
+	bool svc_address(u16 a) const { return (a & 0xfff8) == SVC_BASE && (m_bus.svcs_enabled() || firmware_mapped()); }
+	std::vector<u8> m_sys;                    // the SYSTEM PROM, at F800-F9FF while the firmware is mapped
+	std::vector<u8> m_fetch;                  // the FETCH PROM: per-opcode cycle count and flags
+	u8 m_op = 0;                              // the opcode of the instruction running
+	// a firmware data cycle steered by the FETCH PROM: 0 none, 1 to 0000 (bit 7), 2 to the prototype (bit 6)
+	int steer() const;
 };
 #endif

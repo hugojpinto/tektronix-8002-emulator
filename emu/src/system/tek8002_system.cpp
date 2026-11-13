@@ -44,12 +44,12 @@ bool tek8002_system::start(std::string &err)
 			if (FILE *f = fopen(p.c_str(), "rb")) { fclose(f); prom = p; break; }
 	if (prom.empty()) { err = "bootstrap PROM not found: give -prom FILE (roms/tekdos_boot.bin)"; return false; }
 	if (!m->load_boot_prom(prom, err)) return false;
-	if (!opt.fdc_hle) {
-		// the disc controller's microprogram sits next to the bootstrap PROM (roms/fdc)
-		const size_t slash = prom.find_last_of("/\\");
-		const std::string dir = (slash == std::string::npos ? std::string(".") : prom.substr(0, slash)) + "/fdc";
-		if (!m->fdu.use_controller(dir, err)) return false;
-	}
+	// the disc controller's microprogram and the 6800 board's PROM sit next to the bootstrap
+	// PROM (roms/fdc, roms/ep6800)
+	const size_t slash = prom.find_last_of("/\\");
+	const std::string roms = slash == std::string::npos ? std::string(".") : prom.substr(0, slash);
+	if (!opt.fdc_hle && !m->fdu.use_controller(roms + "/fdc", err)) return false;
+	if (!opt.ep6800_hle && !m->ep6800.load_firmware(roms + "/ep6800", err)) return false;
 	for (int d = 0; d < tek8002_fdu::DRIVES; d++)
 		if (!opt.disks[d].empty() && !mount(d, opt.disks[d], err)) return false;
 	// the prototype, for the emulator boards' modes 1 and 2 (notes/prototype-link.md)

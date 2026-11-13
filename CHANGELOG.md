@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-13 — The 6800 board's PROMs, dumped and running
+- Eelco Vriezekolk (ztpe.nl) dumped the 6800 Emulator Processor's two 82S115s, "SYSTEM" and "FETCH" (`roms/ep6800/`, originals in `sources/ztpe/6800_board/`). The board now runs its real firmware: SYSTEM at F800–F9FF executes on the 6800, and its routines end in their debug SVCs as before. `-ep6800 hle` keeps the high-level routines.
+- What they confirmed: the four entries (F9F4 PUT, F9F7 GET, F9FA restore, F9FD dump), both register blocks and both debug SVCs, all as inferred from TEKDOS. What they settled: the dump keeps the CC by reading it with TPA after `PSHA; INS`.
+- What they showed: A is moved by PSHA/PULA, never stored by address. The FETCH PROM is a per-opcode table (cycle count in its low nibble, how the board finds fetches without a fetch pin) that flags exactly PSHA/PULA and the indexed LDA/STA, the firmware's A and GET/PUT cycles. Modelled (*inferred*): while the firmware is mapped, the first go to 0000 (the block's A), the second to the prototype in modes 1 and 2. A test with SP = 0FF9 showed TEKDOS needs exactly that (`notes/emulators.md`, "The 6800 board's PROMs").
+- 6800 core: TAP and RTI keep CC bits 7–6 at 1, as on the chip (MAME stored the byte as is; `emu/src/cpu/SOURCE.txt`).
+- `dasm` disassembles 6800 code (`build/dasm m6800 FILE BASE`).
+- Checked: `make test` (91 checks), `tests/run6800.sh` with both disc models, the screenshots byte-identical.
+
 
 ## 2026-11-12 — Version 0.9.0; binary releases
 - `VERSION` (0.9.0) is compiled into every program, and each answers `-version`. Nothing is printed at start-up.

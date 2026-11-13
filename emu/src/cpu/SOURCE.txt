@@ -9,4 +9,8 @@ CPU cores and disassemblers, copied unchanged from the sibling Tektronix 8550 em
                the m6802/m6808/nsc8105 variants left out); 6800ops.hxx and
                6800dasm.* copied unchanged
 MAME commit: reference/MAME-SOURCE.txt.
-Changes made in this project are marked [tek8002] and listed here. None so far.
+Changes made in this project are marked [tek8002] and listed here:
+  m6800/6800ops.hxx  TAP and RTI keep CC bits 7-6 set: they are not implemented on the
+               6800 and always read as 1 (MC6800 data sheet, "Condition Code Register").
+               Upstream stores the byte as is, so a TAP of 00 made TPA read 00. Found by
+               the 6800 board's real SYSTEM PROM, whose dump reads CC with TPA (2026-11-13).

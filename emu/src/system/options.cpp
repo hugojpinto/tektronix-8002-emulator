@@ -19,7 +19,7 @@ std::string tek8002_options::unescape(const std::string &t)
 
 const char *tek8002_options::usage()
 {
-	return "[-prom FILE] [-0..-3 IMG|new:FILE] [-rw] [-fdc hle|lle] [-ttylock on|off] [-cycles N] [-type SEC|prompt TEXT]\n"
+	return "[-prom FILE] [-0..-3 IMG|new:FILE] [-rw] [-fdc hle|lle] [-ep6800 hle|prom] [-ttylock on|off] [-cycles N] [-type SEC|prompt TEXT]\n"
 	       "        [-snap SEC FILE] [-input SEC NAME=VALUE] [-press SEC NAME] [-mount SEC N=FILE] [-eject SEC N] [-parity SEC [U:]ADDR]\n"
 	       "        [-target unix:PATH|tcp:HOST:PORT] [-rem SPEC] [-lpt SPEC] [-ppt SPEC] [-trace FILE] [-io] [-fdutrace] [-log FILE] [-version]";
 }
@@ -51,6 +51,7 @@ bool tek8002_options::parse(int argc, char **argv, std::string &unknown)
 		else if (a == "-lpt") lptspec = next();
 		else if (a == "-ppt") pptspec = next();
 		else if (a == "-fdc" && i + 1 < argc && (std::string(argv[i + 1]) == "hle" || std::string(argv[i + 1]) == "lle")) fdc_hle = next() == "hle";
+		else if (a == "-ep6800" && i + 1 < argc && (std::string(argv[i + 1]) == "hle" || std::string(argv[i + 1]) == "prom")) ep6800_hle = next() == "hle";
 		else { unknown = a; return false; }
 	}
 	return true;

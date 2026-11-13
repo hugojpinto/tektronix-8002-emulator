@@ -2,8 +2,9 @@
 
 `emu/src/machine/tek8002_emboard.*` holds what the boards share. Each board is its own class:
 `tek8002_ep6800` (port E2) and `tek8002_epz80` (port E3). Both run from program memory as
-slaves of the System Processor, under the Debug module. Their firmware PROMs are not preserved,
-so what the firmware does is modelled from the manuals and from TEKDOS 3.1 (Z80) and 3.3 (6800).
+slaves of the System Processor, under the Debug module. The 6800 board's two PROMs were dumped
+in 2026 and run as they are (below, "The 6800 board's PROMs"); the Z80 board's are not
+preserved, so its firmware is modelled from the manuals and from TEKDOS 3.1.
 The boards' own service manuals are not on bitsavers (070-2701 lists the 6800's).
 
 Sources:
@@ -44,10 +45,61 @@ table at 24CB: F8 0B on the Z80 discs, F9 FF on the 6800's.
 | Item | Behaviour | Established by |
 |---|---|---|
 | SVCs | a read or write of FEF7–FEF2 is SVC 1–6 (ports F7–F2), while the Debug module takes SVCs. The access does not reach memory, and an instruction makes one SVC. SRB pointers at 0040–004B | 070-2349 §10, Table 10-1 |
-| Firmware | F9FA restore, F9FD dump, F9F4 PUT, F9F7 GET | DEB INIT 195D–196E; the kernel's GET/PUT derivation |
-| Register block | 0000 A, 0001 B, 0002–0003 X, 0004–0005 SP, 0006 CC (7 bytes, swapped with TEKDOS's buffer at 1538) | DEB CNTL 1733–174B; DSTAT 18E9–1937 |
+| Firmware | F9FA restore, F9FD dump, F9F4 PUT, F9F7 GET: the SYSTEM PROM at F800–F9FF, run by the 6800 | DEB INIT 195D–196E; the kernel's GET/PUT derivation; confirmed by the PROM (below) |
+| Register block | 0000 A, 0001 B, 0002–0003 X, 0004–0005 SP, 0006 CC (7 bytes, swapped with TEKDOS's buffer at 1538) | DEB CNTL 1733–174B; DSTAT 18E9–1937; the PROM's direct addresses 01–06 (A reaches 0000 by the FETCH PROM's steering) |
 | Status bit 7 | must read 1 in normal running. When it reads 0, TEKDOS treats the last instruction as incomplete: it resumes at PC last and resets the 6800 first (DEB CNTL 1550–155C, 15A9–15BB, 1602–1607), the same treatment it gives a halt (bit 4). The reading that fits: the 6800 stopped on an instruction boundary (its last cycle was a fetch, so PC last/next are valid). A stop in mid-instruction would need the reset and the re-run. In the model instructions are atomic, so it reads 1. The 8550 diagnostic (6800.TST) reads E2 once and does not test it, and no 6800 board manual is preserved | DEB CNTL (*inferred meaning*) |
 | Status bit 6 | a 6802 fitted: DSTAT prints "6802" when set, "6800" when clear (E2 is the "6800/6802 Emulator Processor"; a "6802 probe connects to 6800 emulator") | DSTAT 1951–1957; 070-2711 Appendix E, §1 |
+
+## The 6800 board's PROMs
+Two 82S115s (512 × 8), "SYSTEM" and "FETCH", dumped by Eelco Vriezekolk (ztpe.nl, the thread's
+"2650") with his own 82S115 reader, sent 2026-11-13. Originals in `sources/ztpe/6800_board/`,
+copies in `roms/ep6800/` (`roms/MANIFEST.md`). `build/dasm m6800 roms/ep6800/6800_system.bin f800`
+disassembles the first.
+
+**SYSTEM** holds 74 bytes of 6800 code at offsets 1B6–1FF; the rest is 00. With the PROM at
+F800–F9FF, the four entries TEKDOS's DEB INIT derives are a jump table of `BRA; NOP` pairs:
+| Entry | Routine | Code |
+|---|---|---|
+| F9F4 PUT | F9E4 | `LDX $01; LDA $00; NOP; STA 0,X; TAB; NOP; LDA 0,X; CBA` → status 00 if the byte reads back, else the byte read; `STA $03; JMP $FEF0` |
+| F9F7 GET | F9D5 | `LDX $01; NOP; LDA 0,X; STA $00; LDA #0; STA $03; JMP $FEF0` |
+| F9FA restore | F9C4 | `LDB $01; LDX $02; LDS $04; DES; LDA $06; TAP; PULA; JMP $FEF1` |
+| F9FD dump | F9B6 | `PSHA; INS; TPA; STA $06; STB $01; STX $02; STS $04`, then the restore's tail from `LDS $04` |
+- **The register block and the GET/PUT block are as inferred from TEKDOS**, and the routines end
+  in debug SVC 1 (FEF1) and debug SVC 2 (FEF0), as modelled.
+- **The CC is read with TPA** after `PSHA; INS`, which leave the flags alone: that answers how
+  the dump kept the CC. TPA must give bits 7–6 as 1: MAME's core lost them after a `TAP` of
+  00, which the PROM exposed; fixed in the core (`emu/src/cpu/SOURCE.txt`).
+- **A never goes into the block by address.** The dump pushes it (`PSHA`, SP restored by `INS`)
+  and the restore pulls it (`DES` … `PULA`). TEKDOS reads and writes A at block byte 0, and
+  does not look at the user's stack: with SP = 0FF9 and A = 5A, the pushed 5A sat at 0FF9 while
+  DSTAT showed 00, until the steering below was modelled (checked 2026-11-13).
+- **The SVC jump stops the board:** the 6800 halts at its fetch of FEF1/FEF0 until TEKDOS's next
+  forced jump, so nothing there runs (modelled as a NOP).
+- **SVCs in modes 1 and 2:** TEKDOS turns SVCs off there (F9 bit 4), but GET and PUT work in
+  those modes, so while the firmware is mapped FEF0–FEF7 still reach the Debug module
+  (*inferred*).
+
+**FETCH** is a table indexed by the opcode (offsets 000–0FF; 100–1FF are 00, the address bit
+above the opcode presumably unused or a state). Every opcode the 6800 lacks reads 00.
+- **Bits 3–0 = 17 − the instruction's cycle count**, for every opcode: 2-cycle immediates `F`,
+  3-cycle direct loads `E`, branches `D`, indexed `C`, … BSR `9`, JSR extended `8`, RTI (10) `7`,
+  SWI (12) `5`, WAI (9) `8`. The 6800 has no fetch pin; the board counts each instruction's
+  cycles from its fetch to know when the next fetch comes (the Debug module's FETCH, PC last
+  and single cycle need it). Status bit 7 ("stopped on an instruction boundary", above) is
+  likely this counter at its end.
+- **Bit 4 = 0** for exactly the instructions with operand bytes.
+- **Bits 7–5 are 1 except for a handful:** bit 7 clear for PSHA, PULA and JSR (indexed and
+  extended); bit 6 clear for NOP, LDA indexed and STA indexed; bit 5 clear for NOP, PSHA, PULA
+  and WAI. PSHB, PULB, LDB and STB are not flagged. These are what the SYSTEM PROM uses: PSHA and
+  PULA move A, the indexed LDA/STA reach the prototype in GET/PUT, each after a NOP that does
+  nothing else, and WAI is the halt.
+- **Modelled (*inferred*):** while the firmware is mapped, a data cycle of an instruction whose
+  bit 7 is clear goes to 0000 (so PSHA/PULA move A to and from the block's byte 0), and one
+  whose bit 6 is clear goes to the prototype in modes 1 and 2 (GET and PUT, as 070-2711 §1's
+  UGET; in mode 0 to program memory). That reproduces everything TEKDOS shows. What the NOPs,
+  JSR's bit 7, WAI's bit 5 and the counter drive in hardware is not established; that needs the
+  board's schematic (its service manual is not on bitsavers).
+- `-ep6800 hle` keeps the earlier high-level routines (the same results; `tests/run6800.sh`).
 
 ## Z80 (`tek8002_epz80`, E3, 4.00 MHz)
 Mode 0 runs from the board's clock: jumper J1 gives 2 or 4 MHz on the Z80A board. The Z80B
@@ -89,10 +141,10 @@ and clock throughout. As modelled:
   halted" error (46). Select the mode again before the next run.
 
 ## Modelled at high level, or open
-- **Firmware:** each routine is one step, with a guessed timing (40 cycles). The model saves the
-  true registers. How the real dump captured the 6800's CC unchanged, or the Z80's IM, is
-  unknown (the Z80's comes from the status). Where each PROM sits in the address space, beyond
-  its entries, is unknown.
+- **Z80 firmware:** each routine is one step, with a guessed timing (40 cycles). The model saves
+  the true registers. How the real dump captured the Z80's IM is unknown (the model takes it from
+  the status). Where its PROM sits in the address space, beyond its entries, is unknown. The 6800
+  board's firmware runs from its dumped PROM (above).
 - **The prototype's clock:** in modes 1 and 2 the processor runs from it. The probe takes it from
   the socket's clock pin (070-3665 §1: mode 1 "allows the prototype circuit's memory, I/O, and
   clock to be exercised"; §3, Fig. 3-9). The link carries its rate (v4, `K`), and the board then

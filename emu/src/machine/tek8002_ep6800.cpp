@@ -3,19 +3,63 @@
 // The 8002 6800 Emulator Processor -- see tek8002_ep6800.h.
 #include "machine/tek8002_ep6800.h"
 
+#include <cstdio>
+
+static bool load_82s115(const std::string &path, std::vector<u8> &out, std::string &err)
+{
+	FILE *f = fopen(path.c_str(), "rb");
+	if (!f) { err = "missing 6800 board PROM: " + path; return false; }
+	std::vector<u8> p(513);
+	p.resize(fread(p.data(), 1, p.size(), f));
+	fclose(f);
+	if (p.size() != 512) { err = path + ": not a 512-byte 82S115 image"; return false; }
+	out = p;
+	return true;
+}
+
+bool tek8002_ep6800::load_firmware(const std::string &dir, std::string &err)
+{
+	std::vector<u8> sys, fetch;
+	if (!load_82s115(dir + "/6800_system.bin", sys, err) || !load_82s115(dir + "/6800_fetch.bin", fetch, err)) return false;
+	m_sys = sys; m_fetch = fetch;
+	return true;
+}
+
+int tek8002_ep6800::steer() const
+{
+	if (m_fetch.empty() || !firmware_mapped()) return 0;
+	const u8 f = m_fetch[m_op];
+	if (!(f & 0x80)) return 1;
+	if (!(f & 0x40) && emulation_mode() != 0) return 2;
+	return 0;
+}
+
 // The SVC window answers while the Debug module takes SVCs (TEKDOS disables them in modes
-// 1 and 2, where FEF0-FEF7 are the prototype's like any address). The 6800 has no
-// instruction-fetch pin, so the prototype sees reads and writes only.
+// 1 and 2, where FEF0-FEF7 are the prototype's like any address), and always for the
+// firmware: its GET, PUT, dump and restore end in debug SVCs in every mode (inferred: they
+// work in modes 1 and 2). The firmware's jump to FEF1/FEF0 stops the board at that fetch
+// until TEKDOS's next forced jump, so whatever answers there is never executed: modelled
+// as a NOP. The 6800 has no instruction-fetch pin, so the prototype sees reads and writes only.
 u8 tek8002_ep6800::read(u16 a, bool opcode)
 {
-	if ((a & 0xfff8) == SVC_BASE && m_bus.svcs_enabled()) { svc(a); return m_bus.slave_read(a, false); }
-	if (proto_mem(a)) return proto_read(a, false);
-	return m_bus.slave_read(a, opcode);
+	if (svc_address(a)) { svc(a); return opcode && firmware_mapped() ? 0x01 : m_bus.slave_read(a, false); }
+	u8 d;
+	// the SYSTEM PROM: F800-F9FF while the firmware is mapped (its entries are F9F4-F9FD;
+	// whether it is mirrored elsewhere is not known)
+	if (!m_sys.empty() && firmware_mapped() && a >= 0xf800 && a <= 0xf9ff) d = m_sys[a & 0x1ff];
+	else if (!opcode && steer() == 1) d = m_bus.slave_read(0x0000, false);
+	else if (!opcode && steer() == 2) d = target->mem_read(a);
+	else if (proto_mem(a)) d = proto_read(a, false);
+	else d = m_bus.slave_read(a, opcode);
+	if (opcode) m_op = d;
+	return d;
 }
 
 void tek8002_ep6800::write(u16 a, u8 d)
 {
-	if ((a & 0xfff8) == SVC_BASE && m_bus.svcs_enabled()) { svc(a); return; }
+	if (svc_address(a)) { svc(a); return; }
+	if (steer() == 1) { m_bus.slave_write(0x0000, d); return; }
+	if (steer() == 2) { target->mem_write(a, d); return; }
 	if (proto_mem(a)) { proto_write(a, d); return; }
 	m_bus.slave_write(a, d);
 }
@@ -30,6 +74,7 @@ void tek8002_ep6800::target_lines(bool reset_edge, bool nmi_edge, bool irq)
 // The register block at 0000-0006: A, B, X (high, low), SP (high, low), CC (DSTAT 18E9-1937)
 bool tek8002_ep6800::firmware(u16 entry)
 {
+	if (!m_sys.empty()) return false;        // the real PROM runs on the 6800
 	if (entry == FW_DUMP) {
 		const u8 cc = cpu.cc();
 		put(0, cpu.a()); put(1, cpu.b());

@@ -14,6 +14,7 @@ struct tek8002_options
 	std::string disks[4];              // -0 .. -3 IMAGE ("new:FILE": a never-formatted disc)
 	bool writeback = false;            // -rw
 	bool fdc_hle = false;              // -fdc hle|lle
+	bool ep6800_hle = false;           // -ep6800 hle|prom: the 6800 board's firmware at high level, or its SYSTEM PROM
 	bool tty_lock = true;              // -ttylock on|off: the CT8100's TTY LOCK key
 	long long max_cycles = -1;         // -cycles (2650 cycles at 1.25 MHz)
 	std::vector<timed_t> typed;        // -type SECONDS|prompt TEXT

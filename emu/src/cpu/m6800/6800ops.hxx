@@ -79,7 +79,7 @@ OP_HANDLER( asld )
 /* $06 TAP inherent ##### */
 OP_HANDLER( tap )
 {
-	CC=A;
+	CC=A|0xc0;	// [tek8002] CC bits 7-6 are not implemented on the 6800 and read as 1
 
 	// TAP temporarily sets the I flag and blocks IRQ until the next opcode
 	// (if the next opcode is TAP, IRQ is blocked again)
@@ -431,6 +431,7 @@ OP_HANDLER( abx )
 OP_HANDLER( rti )
 {
 	PULLBYTE(CC);
+	CC|=0xc0;	// [tek8002] CC bits 7-6 read as 1, whatever was on the stack
 	PULLBYTE(B);
 	PULLBYTE(A);
 	PULLWORD(pX);

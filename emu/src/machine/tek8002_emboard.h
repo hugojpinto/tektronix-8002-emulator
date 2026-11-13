@@ -24,7 +24,8 @@
 //   of the WAIT instruction"). The other bits are each board's (board_status;
 //   notes/emulators.md). Bits nobody drives read 0 (the open bus).
 // - The firmware runs when a forced jump lands on one of its entries while the PROM is
-//   mapped. Modelled at high level: one step does the routine's work, signals its debug SVC,
+//   mapped. A board with its PROM dumped (the 6800) runs it on its processor; otherwise one
+//   step does the routine's work at high level. Either way the routine signals its debug SVC
 //   and the board then waits in the PROM for the next forced jump.
 // - Emulation modes 1 and 2 (070-2701 §4 EMULATE, §7 "Operating Modes"; TEKDOS's EMULATE
 //   builds the control byte as 90 | mode bits 20 or 60, and 02 for runs: 92, B2, F2). In a
