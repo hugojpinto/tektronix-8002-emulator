@@ -57,7 +57,10 @@ u8 tek8002_ep8080::io_read(u8 port)
 
 void tek8002_ep8080::io_write(u8 port, u8 d)
 {
-	if ((port & 0xf8) == 0xf0 && (m_bus.svcs_enabled() || firmware_mapped())) svc(port);
+	// SVCs only while the Debug module takes them, the firmware's too (the diagnostics' SVC
+	// mask test, DE211 subtest 0E, masks them around a firmware call; GET and PUT in modes 1
+	// and 2 still work: TEKDOS enables SVCs for the firmware's runs)
+	if ((port & 0xf8) == 0xf0 && m_bus.svcs_enabled()) svc(port);
 	else if (proto_io()) target->io_write(port, d);
 	else m_bus.slave_out(port, d);
 }

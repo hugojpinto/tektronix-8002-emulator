@@ -25,10 +25,13 @@ void tek8002_emboard::step()
 			target_lines(rs && !m_trst, user && n && !m_tnmi, user && target->irq());
 			m_trst = rs; m_tnmi = n;
 		}
+		const u16 pc = cpu_pc();
 		cpu_step();
 		// a firmware routine that ran on the processor (a real PROM) ends with its debug SVC:
-		// the board then waits there for the next forced jump, as the high-level routines do
-		if (m_svc >= 0 && firmware_mapped()) { m_prom_pc = cpu_pc(); m_in_prom = true; }
+		// the board then waits there for the next forced jump, as the high-level routines do.
+		// Only an SVC from the PROM: a program's own SVC while the firmware is mapped goes on
+		// after the master halts again (the diagnostics' SVC test, DE310 subtest 8, with E3 <- 94)
+		if (m_svc >= 0 && firmware_mapped() && firmware_code(pc)) { m_prom_pc = cpu_pc(); m_in_prom = true; }
 	}
 	if (m_svc >= 0) m_bus.slave_out(u16(0xf0 + m_svc), 0);
 }

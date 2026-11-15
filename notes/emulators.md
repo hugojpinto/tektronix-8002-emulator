@@ -24,7 +24,7 @@ Sources:
 | Item | Behaviour | Established by |
 |---|---|---|
 | Control byte | Bit 7 = active. Bit 1 = 0 maps the firmware (firmware calls 80, 90, C0, C4, D0; user runs 92, 96, B2, F2). Bits 6–5 = mode (00 = 0, 01 = 1, 11 = 2). Bits 4 and 2 below | TEKDOS writes (`-io`); EMULATE (Z80 EMULATO 18C5–1926: 90 \| mode << 5, then \| 02); the 8550's rule (8301.md "E3 write bits") |
-| Control bit 2 | the board's fetch and access signals reach the Debug module's breakpoint and single-cycle logic. TEKDOS sets it in the run value whenever it gives breakpoints or single cycle to the Debug module, and clears it when a trace board does that job: DEB INIT checks port C2 for one (197A–1985). The ESC stop sets it together with F8 ← CF, single cycle on (2E46–2E52), and leaving DEBUG clears it (3818). Modelled: an emulator board's breakpoint and single-cycle events count only while it is set. Every test still passes with the gate, so TEKDOS always sets it where it needs them | TRACE 1A95–1ABE, BKPT 1AD7–1AF8, DEB INIT, kernel (*inferred meaning*) |
+| Control bit 2 | the board's fetch and access signals reach the Debug module's breakpoint and single-cycle logic. TEKDOS sets it in the run value whenever it gives breakpoints or single cycle to the Debug module, and clears it when a trace board does that job: DEB INIT checks port C2 for one (197A–1985). The ESC stop sets it together with F8 ← CF, single cycle on (2E46–2E52), and leaving DEBUG clears it (3818). Modelled: an emulator board's breakpoint and single-cycle events count only while it is set. Every test still passes with the gate, so TEKDOS always sets it where it needs them. **Z80 board only:** the diagnostics run the 6800 and 8080 boards with bit 2 clear (E2/E1 ← 90) and expect breakpoints and single cycle (DE211, DE111), so there it gates nothing; their Z80 test sets it (E3 ← 94) | TRACE 1A95–1ABE, BKPT 1AD7–1AF8, DEB INIT, kernel (*inferred meaning*); the diagnostics |
 | Control bit 4 | set for every user run (92, 96, B2, F2) and the start-up probe (90), clear for every debug firmware call (80, C0, C4). Modelled as letting the prototype's INT/NMI through, after the OS/40 Z80 specifics' "Interrupts are detected only when user code is being executed" (070-3939). No TEKDOS code tests anything else that fits | TEKDOS writes; sibling 8301.md (*inferred*) |
 | Status, bit 5 | board present | the 8550's Z80 diagnostic (configuration probe 4454) |
 | Status, bit 4 | the processor is halted (6800 WAI, Z80 HALT). TEKDOS then resumes at PC last, the halt instruction itself, and on the 6800 resets the board first | kernel 3C4C–3C55 and 2E3F; DEB CNTL on 6800, Z80 and 8080; 070-2349 §11 "continues at the beginning of the WAIT instruction" |
@@ -75,9 +75,12 @@ F800–F9FF, the four entries TEKDOS's DEB INIT derives are a jump table of `BRA
   DSTAT showed 00, until the steering below was modelled (checked 2026-11-13).
 - **The SVC jump stops the board:** the 6800 halts at its fetch of FEF1/FEF0 until TEKDOS's next
   forced jump, so nothing there runs (modelled as a NOP).
-- **SVCs in modes 1 and 2:** TEKDOS turns SVCs off there (F9 bit 4), but GET and PUT work in
-  those modes, so while the firmware is mapped FEF0–FEF7 still reach the Debug module
-  (*inferred*).
+- **SVCs in modes 1 and 2:** TEKDOS turns SVCs off for the user's runs there (F9 bit 4). FEF0–FEF7
+  reach the Debug module only while SVCs are on, the firmware's debug SVCs included: the
+  diagnostics' SVC mask test (DE211 subtest 0E) masks them around a firmware call and expects
+  none. (Until 2026-11-15 the firmware's were modelled as always reaching it, *inferred* from GET
+  and PUT working in modes 1 and 2; `tests/prototype.sh` passes either way, so TEKDOS has SVCs
+  on for the firmware's runs.) The 8080 board's OUT F0–F7 likewise.
 
 **FETCH** is a table indexed by the opcode (offsets 000–0FF; 100–1FF are 00, the address bit
 above the opcode presumably unused or a state). Every opcode the 6800 lacks reads 00.

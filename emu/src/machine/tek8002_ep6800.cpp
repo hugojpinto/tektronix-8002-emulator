@@ -34,10 +34,9 @@ int tek8002_ep6800::steer() const
 	return 0;
 }
 
-// The SVC window answers while the Debug module takes SVCs (TEKDOS disables them in modes
-// 1 and 2, where FEF0-FEF7 are the prototype's like any address), and always for the
-// firmware: its GET, PUT, dump and restore end in debug SVCs in every mode (inferred: they
-// work in modes 1 and 2). The firmware's jump to FEF1/FEF0 stops the board at that fetch
+// The SVC window answers while the Debug module takes SVCs (F9 bit 4), for the firmware's
+// debug SVCs too: the diagnostics' SVC mask test (DE211 subtest 0E) expects none while they
+// are masked. Otherwise FEF0-FEF7 are memory (the prototype's in modes 1 and 2). The firmware's jump to FEF1/FEF0 stops the board at that fetch
 // until TEKDOS's next forced jump, so whatever answers there is never executed: modelled
 // as a NOP. The 6800 has no instruction-fetch pin, so the prototype sees reads and writes only.
 u8 tek8002_ep6800::read(u16 a, bool opcode)

@@ -44,6 +44,9 @@ public:
 
 	virtual void reset() = 0;                    // forced reset (and activation)
 	virtual void jump(u16 target) = 0;           // forced jump
+	// forced interrupt: the Debug module's pulse on the slave's interrupt level zero line
+	// (Universal One Hardware Reference §4.2.3), "stored and processed on the Slave CPU card"
+	virtual void forced_interrupt() {}
 	virtual void step() = 0;                     // one instruction
 	virtual u16 pc() const = 0;
 	virtual bool halted() const = 0;

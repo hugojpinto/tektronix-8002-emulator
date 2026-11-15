@@ -11,7 +11,7 @@ void tek8002_debug::reset()
 	for (auto &b : m_bp) b = 0xff;
 	m_pc_last = m_pc_next = 0;
 	m_halt_cycles = 0; m_halt_reported = false;
-	m_reset_pending = m_jump_pending = false;
+	m_reset_pending = m_jump_pending = m_int_pending = m_jump_by_int = false;
 	m_events = m_held = 0;
 	m_frac = 0;
 }
@@ -26,9 +26,17 @@ void tek8002_debug::write(u8 port, u8 d)
 		// master's halt clocks the jump command out (070-2711 §6 "Forced Jump Logic"). Every
 		// write arms again: TEKDOS's 6800 probe rewrites F9 <- FA on each retry (1D9C-1DC1).
 		// (ztpe.nl Annex B reads it as a 1 -> 0 transition, which software that writes the
-		// bits back to 1 in between cannot tell apart.) Forced interrupt: no slave uses it.
+		// bits back to 1 in between cannot tell apart.) Forced interrupt (bit 1) alone: a pulse
+		// to the slave when it next runs (DE310 subtest 3, CMD FD: the Z80's NMI, to 0066).
+		// A forced reset or interrupt without a forced jump cancels a jump an interrupt armed
+		// (below): the diagnostics' slave reset and forced interrupt tests (DE310 subtests 2
+		// and 3, FE and FD after a halt) expect the slave at its reset address or NMI vector,
+		// not at the jump register's. (Inferred. Other writes leave it armed: TEKDOS's DEBUG
+		// relies on that after a HALT; a jump the command armed stays armed until taken.)
 		if (!(d & 0x01)) m_reset_pending = true;
-		if (!(d & 0x04)) m_jump_pending = true;
+		if (!(d & 0x02)) m_int_pending = true;
+		if (!(d & 0x04)) { m_jump_pending = true; m_jump_by_int = false; }
+		else if ((d & 0x03) != 0x03 && m_jump_by_int) m_jump_pending = m_jump_by_int = false;
 		const bool was_masked = masked();
 		m_command = d;
 		if (was_masked && !masked() && m_held) { const u32 h = m_held; m_held = 0; raise(h); }
@@ -100,11 +108,16 @@ void tek8002_debug::run_slave(tek8002_slave &s, int cycles2650, double master_hz
 	master_running();                      // a slave holds the bus: no "slave halted" from the detector
 	if (m_host.master_interrupt_pending()) return;
 	if (m_reset_pending) { m_reset_pending = false; s.reset(); }
+	// a forced interrupt with a forced jump: the jump takes the slave, and the interrupt only
+	// ends a halt, which the jump does anyway (TEKDOS reaches a halted Z80 so, with F9 <- F9;
+	// whether the board's lost firmware undid the NMI's push is not known: the model keeps SP)
+	if (m_int_pending && m_jump_pending) m_int_pending = false;
 	if (m_jump_pending) {
-		m_jump_pending = false;
+		m_jump_pending = m_jump_by_int = false;
 		if (trace) fprintf(stderr, "[debug: %s forced jump to %04x]\n", s.name(), jump_address());
 		s.jump(jump_address());
 	}
+	if (m_int_pending) { m_int_pending = false; s.forced_interrupt(); }
 	m_frac += cycles2650 * (s.clock_hz() / master_hz);
 	while (m_frac > 0) {
 		const u64 c0 = s.cycles();
@@ -115,16 +128,22 @@ void tek8002_debug::run_slave(tek8002_slave &s, int cycles2650, double master_hz
 		if (debugging() && !(m_control & 0x10)) m_events |= 1u << INT_SINGLE_CYCLE;
 		if (!s.debug_signals()) m_events &= ~((1u << INT_BP1) | (1u << INT_BP2) | (1u << INT_SINGLE_CYCLE));
 		if (s.halted()) m_events |= 1u << INT_SLAVE_HALTED;
+		// PC last/next follow the slave's fetches while debugging is enabled (F8 bit 5 low;
+		// ztpe.nl Annex B "kept up to date"), not only when it stops: the diagnostics' SVC
+		// mask test (DE211 subtest 0E) reads them while the slave runs on. TEKDOS disables
+		// debugging before it sends the slave into the emulator's dump routine, whose own
+		// instructions must not replace the user's PC (DEB CNTL; 070-2711 §1, step 39)
+		if (debugging()) { m_pc_last = pc; m_pc_next = s.pc(); }
+		// breakpoints and single cycle on the same instruction stop the slave for one reason:
+		// BP1, else BP2, else single cycle (the diagnostics' interrupt priority test, DE310
+		// subtest 7, expects BP1 alone, and BP2 alone once BP1 is disabled)
+		if (m_events & (1u << INT_BP1)) m_events &= ~((1u << INT_BP2) | (1u << INT_SINGLE_CYCLE));
+		else if (m_events & (1u << INT_BP2)) m_events &= ~(1u << INT_SINGLE_CYCLE);
 		if (m_events) {
-			// PC last/next follow the slave's fetches only while debugging is enabled (F8 bit 5
-			// low; ztpe.nl Annex B "kept up to date"): TEKDOS disables it before it sends the
-			// slave into the emulator's dump routine, whose own instructions must not replace
-			// the user's PC (DEB CNTL; 070-2711 §1 walkthrough, step 39)
-			if (debugging()) { m_pc_last = pc; m_pc_next = s.pc(); }
 			// an SVC alone lets the slave continue where it stopped; anything else arms a
 			// forced jump to the address the master sets
 			const u32 svcs = 0xffu << INT_SVC1;
-			if (m_events & ~svcs) m_jump_pending = true;
+			if ((m_events & ~svcs) && !m_jump_pending) m_jump_pending = m_jump_by_int = true;
 			if (trace) fprintf(stderr, "[debug: %s stops at %04x, next %04x]\n", s.name(), pc, m_pc_next);
 			const u32 e = m_events;
 			m_events = 0;

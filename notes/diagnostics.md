@@ -49,7 +49,9 @@ System Communications 1 and 2, 90/91 system and program memory.
 | DE710 | ASSEM. PROC. TEST (Z80 Assembler Processor) | pass |
 | DE141 | 8080 CHIP REV 1.C | pass (reports itself as E140) |
 | D1E10 | PROBE TEST | pass (bypassed) |
-| DE111, DE211, DE310 | 8080, 6800, Z80 DEBUG | **fail**, see below |
+| DE111 | 8080 DEBUG | pass |
+| DE310 | Z80 DEBUG | subtests 1–D pass; E (the board's PROM checksum: its firmware was never dumped) and F (instruction decode, open) fail |
+| DE211 | 6800 DEBUG | subtests 02 (slave reset: the 6800 starts at FEF1, not at the test's program), 0E (with SVCs masked the program runs away from FEF1), 0F and 10 fail; the others pass |
 | DE221 | 6800 FETCH | **fail**, see below |
 | DCA11 | SYS COMM 1 | pass, with the test fixture (below), then chains (CAL) to DCC11 |
 | DCC11 | SYS COMM 2 | fails: needs a cable between ports 1 and 2 ("SET BAUD RATE THE SAME FOR BOTH PORTS"), not modelled |
@@ -59,7 +61,7 @@ System Communications 1 and 2, 90/91 system and program memory.
 | D0411, D0811–D0831, D0C11–D0C31, D1411, D1A11, D1A22, D1C11, D3A21, D3A30 | paper tape, TTY, GPIO, RS-232, printer, PROM programmers (1702A, 2708/04, 82S), 8080 and 6800 hardware analysers | fail or bypass: not emulated |
 | D1613 | DISK1 | stops at once: "ALL DISKS TO BE TESTED MUST HAVE SCRATCH FORMATED DISKETTES" (to be run with formatted blanks in the drives) |
 
-The Debug tests, as they report them (each sets the jump register, breakpoints, the command
+The Debug tests, as they first reported them (before the fixes listed in `notes/8002.md`, Debug module) (each sets the jump register, breakpoints, the command
 byte F9 and the control byte F8, runs the board, and checks PC last, PC next and the
 interrupts raised):
 - **Slave reset** (CMD FE, CONTROL DF): PC last should be 0064. It is 0000 (6800), 03E8 (Z80).

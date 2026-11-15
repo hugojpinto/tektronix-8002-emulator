@@ -88,6 +88,8 @@ private:
 	int m_halt_cycles = 0;
 	bool m_halt_reported = false;
 	bool m_reset_pending = false, m_jump_pending = false;   // forced reset / jump, taken when the slave next runs
+	bool m_int_pending = false;                             // forced interrupt, likewise
+	bool m_jump_by_int = false;                             // the pending jump was armed by an interrupt
 	u32 m_events = 0;                      // debug interrupts (bit n = interrupt n) the current slave instruction caused
 	u32 m_held = 0;                        // raised while masked
 	double m_frac = 0;                     // slave clocks owed

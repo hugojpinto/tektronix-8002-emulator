@@ -59,6 +59,7 @@ protected:
 	// and DSTAT prints IM, IFF1 and IFF2 from it (DEB INIT 1ADA-1AE0, DSTAT 1983-19BC). The
 	// board must follow EI, DI, IM and interrupts to know them (inferred: how is not known).
 	void target_lines(bool reset_edge, bool nmi_edge, bool irq) override;
+	void forced_interrupt() override { z80_gen_nmi(&cpu); }   // the Debug module's: NMI (DE310 subtest 3)
 	u8 board_status() const override { return u8((cpu.iff2 ? 0x80 : 0) | (cpu.iff1 ? 0x40 : 0) | (cpu.interrupt_mode & 3)); }
 
 private:

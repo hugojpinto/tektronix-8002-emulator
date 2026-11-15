@@ -17,7 +17,8 @@
 //   programs can call the monitor (inferred: SVCs, which the monitor needs, are off in
 //   modes 1 and 2, where F800-FBFF are the prototype's).
 // - SVCs: OUT to F7 ... F0 followed by a NOP (070-2702 §11), while the Debug module takes
-//   them; the firmware's OUT F1/F0 (debug SVCs 1 and 2) always reach it.
+//   them (F9 bit 4), the firmware's debug SVCs 1 and 2 (OUT F1/F0) too: the diagnostics' SVC
+//   mask test (DE211) expects none while they are masked.
 // - HLT is the halt the Debug module detects (§12: GO "continues at the beginning of the HLT
 //   instruction").
 // - Firmware calls see program memory, where TEKDOS lends the register block (0000 L, 01 H,
@@ -56,6 +57,10 @@ protected:
 	bool cpu_halted() const override { return cpu.halted(); }
 	u64 cpu_cycles() const override { return m_cyc; }
 	bool firmware(u16) override { return false; }   // the PROMs run on the 8080
+	// control bit 2 does not gate the debug signals here: the diagnostics' 8080 DEBUG test
+	// (DE111) runs the board with E1 <- 90 and expects breakpoints and single cycle
+	bool debug_signals() const override { return true; }
+	bool firmware_code(u16 pc) const override { return !m_prom.empty() && pc >= PROM_BASE && pc <= PROM_END; }
 	u8 board_status() const override { return 0x00; }
 	void target_lines(bool reset_edge, bool nmi_edge, bool irq) override;
 

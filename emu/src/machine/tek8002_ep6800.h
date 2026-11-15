@@ -59,6 +59,10 @@ protected:
 	bool cpu_halted() const override { return cpu.waiting(); }
 	u64 cpu_cycles() const override { return cpu.total_cycles(); }
 	bool firmware(u16 entry) override;
+	// control bit 2 does not gate the debug signals here: the diagnostics' 6800 DEBUG test
+	// (DE211) runs the board with E2 <- 90 and expects breakpoints and single cycle
+	bool debug_signals() const override { return true; }
+	bool firmware_code(u16 pc) const override { return !m_sys.empty() && pc >= 0xf800 && pc <= 0xf9ff; }
 	// Bit 7: TEKDOS's debug control resets the board and resumes at PC last when it reads 0
 	// (DEB CNTL 1550-155C, 1602-1607); what drives it is not known, so it reads 1. Bit 6: a
 	// 6802 fitted: DSTAT names the processor "6802" when it is set, "6800" when not (DSTAT
@@ -69,7 +73,9 @@ protected:
 private:
 	u8 read(u16 a, bool opcode) override;
 	void write(u16 a, u8 d) override;
-	bool svc_address(u16 a) const { return (a & 0xfff8) == SVC_BASE && (m_bus.svcs_enabled() || firmware_mapped()); }
+	// SVCs only while the Debug module takes them, the firmware's too: the diagnostics' SVC
+	// mask test (DE211 subtest 0E) masks them around a firmware call and expects no SVC
+	bool svc_address(u16 a) const { return (a & 0xfff8) == SVC_BASE && m_bus.svcs_enabled(); }
 	std::vector<u8> m_sys;                    // the SYSTEM PROM, at F800-F9FF while the firmware is mapped
 	std::vector<u8> m_fetch;                  // the FETCH PROM: per-opcode cycle count and flags
 	u8 m_op = 0;                              // the opcode of the instruction running
