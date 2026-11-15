@@ -54,3 +54,15 @@ Every disc was booted from drive 0 (`-fdc lle`, the TEKDOS boot PROM); the banne
 - **"Hazel" discs** (`99900827`–`99900831`) for the 6809, 8080/85, 6800, Z80 and 8048, and
   `99900826` (H2LASM).
 - `CPM/*`: CP/M on the 8002, among them WordStar, Whitesmiths C and a 6809 assembler source.
+  The CP/M file system follows the TEKDOS boot files: directory at image offset 5000 (64
+  entries), 1K allocation blocks numbered from there, no skew (`tekmato` does not read it yet).
+  Mostly documents for Millennium's later systems (the 9516 / ESS, 1980-82), descendants of the
+  8002 design rather than documentation of it: `cpm_trace_theory_of_ops` (`DARRYL`, "9516 TRACE
+  CARD THEORY OF OPERATIONS", D. Plauck, 3/24/82: trace RAM, triggering by EVENTS from the DEBUG
+  and COMPARATOR cards on the slave bus, master interface, slave bus spec), `TekDOS/88000141_8088_
+  thor_of_ops` (an 8088 emulator: forced sequence logic, breakpoints, SWI jamming, slave bus
+  spec), `debug_card_programmable_parts_2-3-81` (`DBUG`, "E.S.S. DEBUG - PHASE 2 EQUATIONS",
+  11/17/80, and its FPGA/FPLA/PAL sources), `tek_cpm_prom_document_format` (`ESS.TXT`, the ESS
+  master card, a Z80 board, rev 3.1, 26 May 81; `SYS.TXT`, Acorn, ESS master, HIP), `xspgc.prn`
+  (the Millennium Microlyzer human interface spec, 11-30-80), `arb_mgr_work_disk` (an arbiter,
+  DCM spec), and PAL sources with how-tos (`0517-0135-01` to `0142-01`).
