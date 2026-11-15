@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-11-15 — The 8080's I/O cycles drive A13
+- On the 8002 bus an 8080 I/O cycle carries A13 high, the line the 2650's E/NE (extended I/O) takes there and the bus peripherals decode with the port (070-2711 §3, §5). Millennium's 8080 hardware analyzer test traces IN 00 as address 2000; with it, D3A21 passes all 14 runnable subtests. The prototype still sees the 8080's own pins.
+
 ## 2026-11-15 — The RTPA against its own users guide
 - **Two manuals for the board** were in `sources/` all along: the RTPA service manual (070-2356: theory of operation, every register) and the 8002 RTPA users guide (070-2785: seven procedures on an 8080 sample program, with the displays a real 8002A printed, and each emulator board's clock and wait states). `tests/rtpa_guide.sh` (in `make test`) replays the procedures: 81 checks, every bus-cycle count and break line as printed.
 - **Rules they settled** in the shared model (`machine/rtpa.*`; 8550's `notes/rtpa.md`, "Documentation of the board"): LIMit is event 1 within event 2's address and bus-type requirements; data compares take ≥ and ≤ too; delays count in the CNT unit, share the G.P. counter's ARM gate and restart at each occurrence unless running; ARM takes event 2 from the next cycle, and event 2 disarms (FRZ then lets the trace run again); counting stops at the break; the PC latches follow every instruction (TEKDOS's halt line read 0000 with the board fitted); the status reports the events matching on the breaking cycle.

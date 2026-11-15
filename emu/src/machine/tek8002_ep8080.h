@@ -80,6 +80,12 @@ private:
 	void io_write(u8 port, u8 d) override;
 	u8 inta() override { return target->irq_vector(); }
 
+	// an I/O cycle on the 8002 bus: the 8080 puts the port on A15-A8 as well as A7-A0 (8080A
+	// data sheet), and the board drives A13 high, the line the 2650's E/NE (extended I/O) takes
+	// on that bus, which its peripherals decode with the port (070-2711 §3, §5: "A13 is another
+	// address range indicator"). Inferred from Millennium's 8080 hardware analyzer test (D3A21),
+	// which traces IN 00 as address 2000 and OUT F7 as F7F7. The prototype sees the 8080's pins.
+	static u16 bus_port(u8 port) { return u16(port * 0x101 | 0x2000); }
 	bool prom_visible() const { return firmware_mapped() || (user_run() && emulation_mode() == 0); }
 	// GET/PUT's own cycles: LDAX D or STAX D during a firmware call in modes 1/2
 	bool to_prototype() const { return firmware_mapped() && emulation_mode() != 0 && (m_op == 0x1a || m_op == 0x12); }

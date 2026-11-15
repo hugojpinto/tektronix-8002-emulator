@@ -80,6 +80,10 @@ LOC  INST   MNEM  OPER      SP    RF  RA RB RC RD RE RH RL
 0201 117502 LXI   D,0275    0000  02  00 00 00 02 75 00 00
 0201 BREAK
 ```
+
+![The first break on event 1](screenshots/rtpa/r1_break.png)
+*`EV` shows the setting; `G 200` stops after `LXI D`.*
+
 The program stopped **after** the instruction whose cycle matched: `LXI D` has run (DE = 0275). `S` in `BIF-1 S` means stop; section 9 shows the other choice.
 
 `B=` restricts the kind of bus cycle: `F` fetch, `MR`/`MW` memory read/write, `IR`/`IW` I/O, `W` any write, `ALL`. With `EV 1 B=F` the result is the same: 0201 is an opcode fetch. With `EV 1 B=W` nothing matches, since nobody writes to 0201, and the program runs on to its halt:
@@ -111,6 +115,10 @@ ADDR DATA MNEMONIC  EXTERNAL  BUS
 0384  03            00000000  M R
 0300  00  NOP       00000000  M R F
 ```
+
+![DR 5 after the break on the NOP](screenshots/rtpa/r2_drt.png)
+*Event 2 stops on the `NOP` at 0300; `DR 5` shows the `JMP 0300` that led there.*
+
 The way into 0300: the `JMP 0300` at 0382, its two address bytes, then the fetch at 0300. The bus column is **M**emory or **I**/O, **R**ead or **W**rite, **F**etch. EXTERNAL is the probe's eight clips (none connected here).
 
 `RT` chooses what is stored. With only fetches, the same five lines reach further back:
@@ -143,9 +151,13 @@ COUNT=00011 CYCL
 > CN U
 > G 200
 > CN
-COUNT=00016 USEC
+COUNT=00017 USEC
 ```
-**11 bus cycles**: DI (1), LXI D (3), LXI H (3), MVI M (3), and the fetch at 0209. The guide shows 11 and 17 µs. The 8080 board runs at 3 MHz and adds one wait state to every memory cycle, so these 49 clocks take 16.3 µs.
+
+![Counting bus cycles, then microseconds](screenshots/rtpa/r3_count.png)
+*From `G` to the break at 0209: 11 bus cycles, then the same run timed in microseconds.*
+
+**11 bus cycles**: DI (1), LXI D (3), LXI H (3), MVI M (3), and the fetch at 0209. The guide shows the same 11 and 17 µs. The 8080 board runs at 3 MHz and adds one wait state to every memory cycle, so these 49 clocks take 16.3 µs; the counter's 1 µs clock runs freely, so it reads 16 or 17 depending on where it stands when the run starts.
 
 The counter's units: `F` fetches, `C` bus cycles, `E` emulator clocks, `U` microseconds, `M` milliseconds, `T` trace stores, `1`/`2` occurrences of event 1/2.
 
@@ -176,6 +188,10 @@ One pass of LOOP1 is 23 − 11 = **12 bus cycles**, so the 20th occurrence comes
 > CN
 COUNT=00739 CYCL
 ```
+
+![The delayed break at 037F](screenshots/rtpa/r4_delay.png)
+*The 20th pass at 239 cycles; with `C=500` the break comes 500 cycles later, at 037F in LOOP2.*
+
 239 + 500 = **739**, and by then the program is in LOOP2. The delay unit follows `CN`: after `CN U`, `C=20` means 20 µs.
 
 Event 2 has its own pass count and delay. On the memory read of `CMP C` in LOOP2:
@@ -224,6 +240,10 @@ LOOP1 ran **38** times (0250 to 0275). With event 1 in LOOP2 (`EV 1 CLR A=37B D=
 > CN
 COUNT=00461 CYCL
 ```
+
+![ARM: event 1 arms event 2](screenshots/rtpa/r5_arm.png)
+*461 bus cycles from LOOP1's first `MVI` to LOOP2's.*
+
 From the first `MVI` of LOOP1 to the first of LOOP2: **461** bus cycles. With `EV 1 P=10` the measurement starts at the 10th pass (**353**), and with `EV 2 P=20` it ends at LOOP2's 20th (**581**).
 
 Two rules the guide points out:
@@ -271,6 +291,10 @@ BIF-1 C 2 C
 > CN
 COUNT=00995 CYCL
 ```
+
+![BIF IND C: break lines printed without stopping](screenshots/rtpa/r6_ind_c.png)
+*Three event 1 lines in LOOP1, two event 2 lines in LOOP2, and the program runs on to its halt.*
+
 These are the guide's lines exactly. Event 1 fires every 10th pass of LOOP1 (L = 5A, 64, 6E), 20 cycles after its event. Event 2's delay of 150 cycles is longer than 10 passes, so the 20th pass comes while it is still running and is ignored: it fires after the 10th and the 30th passes only.
 
 ## 10. Freeze the trace: FRZ
@@ -300,6 +324,10 @@ ADDR DATA MNEMONIC  EXTERNAL  BUS
 > CN
 COUNT=00985 CYCL
 ```
+
+![FRZ: the trace frozen at event 1](screenshots/rtpa/r7_frz.png)
+*The program ran on to 0300, but the trace ends at 0209, where event 1 froze it.*
+
 The trace ends at 0209, event 1, though the program ran on for 985 cycles to 0300.
 
 With `BIF FRZ C`, event 2 prints, **disarms**, and lets the trace run again until event 1 comes back. With event 1 at 0209 and event 2 at 0212, both in LOOP1, that happens on every pass, and the trace keeps the stretch from each event 2 to the next event 1:
@@ -342,6 +370,10 @@ Move the window above 0300 (`EV 2 A>300`), and the first `JMP` there is LOOP2's:
 0386 C37B03 JMP   037B      0000  06  50 03 25 02 75 03 4F
 0386 BREAK
 ```
+
+![LIM: event 1 within event 2's limits](screenshots/rtpa/r8_lim.png)
+*The first `JMP` below 0300 is at 0212; with the window above 0300, LOOP2's at 0386.*
+
 Event 1's pass count and delay work under LIM: with event 1 at 0209 and event 2 `A<37E`, `EV 1 P=5` breaks after 59 cycles, and `C=10` more after 69. Event 2's pass count and delay change nothing.
 
 ## 12. Before, around or after the event
@@ -382,6 +414,7 @@ ADDR DATA MNEMONIC  EXTERNAL  BUS
 
 - **Options:** `-rtpa` fits the board; `-rtpa probe` loops the probe back to A0–A7 (a diagnostic fixture). The probe cannot be fed from outside yet.
 - **Timing:** the 8080 board runs at 3 MHz with one wait state per memory cycle, the Z80 board at 4 MHz with two, the 6800 at 1 MHz with none, as the guide's Appendix A gives them; the analyzer counts them cycle by cycle.
+- **The pictures** are made by `tools/make_rtpa_shots.sh` from a scripted run of this session (the commands above, in order), so they come out the same on every run.
 - **Trace of a run:** `TEK_RTPATRACE=1` logs every register access, match and break on stderr.
 - **Known differences** from the real lab (`notes/rtpa.md`, "Open"): microsecond delays can expire one instruction early; the 6800's timing in SVC-heavy loops is a few cycles off; the trace before a program does not show the board firmware's last fetch.
 - **The same session on the 8550:** the sibling 8550 emulator has the same board, under DOS/50 (`../tektronix-8550-emulator/docs/RTPA.md`).

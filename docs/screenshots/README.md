@@ -29,6 +29,21 @@ Each session runs twice on fresh copies of its discs. The first run finds where 
 | `50_format_dup.png` | FORMAT, DUP and LDIR of a never-formatted disc |
 | `60_mode1.png`, `61_mode2_trace.png` | modes 1 and 2 against `tools/proto_target.py` |
 
+## The RTPA tutorial (`tools/make_rtpa_shots.sh`)
+
+`rtpa/*.png`, the pictures in `docs/RTPA.md`: one TEKDOS 8080 session with `-rtpa` that types the tutorial's commands in order, snapped and picked by content as above.
+
+| Picture | What |
+|---|---|
+| `rtpa/r1_break.png` | `EV`, then the first break on event 1 |
+| `rtpa/r2_drt.png` | break on event 2 at 0300; `DR 5` |
+| `rtpa/r3_count.png` | `CN C` and `CN U`: the count from `G` to the break |
+| `rtpa/r4_delay.png` | pass count 20, then a delay of 500 cycles: COUNT 739 |
+| `rtpa/r5_arm.png` | `BIF ARM`: 461 cycles between two events |
+| `rtpa/r6_ind_c.png` | `BIF IND C`: break lines printed, the program runs on |
+| `rtpa/r7_frz.png` | `BIF FRZ` and `DR 11`: the trace frozen at event 1 |
+| `rtpa/r8_lim.png` | `BIF LIM`: event 1 within event 2's address window |
+
 ## The graphical front end (`tools/make_tutorial_shots.sh`, `tools/make_hero.sh`)
 
 `tek8002-gui -shot` captures of the CT8100 window and both front panels, run with `SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software` and composed on a backdrop by `tools/compose_gui.py`. Batch runs of the GUI advance 1/60 s of machine time per frame, so the captures are deterministic.
@@ -48,5 +63,6 @@ make -C emu && make -C emu gui
 tools/make_screenshots.sh           # needs ../tekmato and python3 with Pillow
 tools/make_tutorial_shots.sh
 tools/make_hero.sh
+tools/make_rtpa_shots.sh
 ```
 Each takes an optional work directory. `git status docs/` stays clean unless something visible changed.
