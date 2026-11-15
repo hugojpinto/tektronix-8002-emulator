@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-15 — Millennium's internal floppies
+- 80 disc images from bitsavers (`bits/Millennium/Millennium_internal_floppies.zip`), Millennium Systems' own discs for the 8002 hardware, in `sources/bitsavers/disks/Millennium_internal_floppies/` with their imaging logs (the `.a2r` flux files left in the zip).
+- Every one was booted on the emulator unchanged: TEKDOS 1.6 for the 2650 (the earliest seen, with a source file), 1.9 for the 6800, 2.2 Z80, 3.1 for the Z80, 6800, 6801 and 8048, TEKTIP 1.5, UCSD Pascal's PMON, and the Diagnostic Interpreter Program 4.4 with one test file per module (master CPU, memories, disc, Debug, the 8080/6800/Z80 boards...). The CP/M discs stop where they hand over to a 64K Z80 slave; 14 are data discs with no system, and one is not in FDU geometry. The README lists them all.
+- `notes/8002.md`: the front-panel connector P3 pin by pin, from the Universal One manual, confirmed on a real 8002.
+
 ## 2026-11-13 — The 8080A Emulator Processor, with its PROMs (one rebuilt)
 - The 8080 board (port E1) runs its two PROMs, read by Eelco Vriezekolk ([ztpe.nl](https://ztpe.nl/2650/)), on MAME's i8085 core as an 8080 (copied from the sibling 8550 emulator; a constructor flag selects MAME's i8080 variant).
 - P1 (160-0028-00) is an Intel MDS-800 monitor interface at F800: CI, RI, CO, PO, LO, CSTS, IOCHK, IOSET, MEMCK..., each through a TEKDOS SVC. So programs written for Intel's development system run on the 8002.

@@ -1,0 +1,462 @@
+
+                        FOR ACORN,ESS MASTER,HIP
+
+
+
+
+
+1.0 MEMORY STRUCTURE
+
+1.1 ACORN MEMORY STRUCTURE
+
+     The ACORN processor has a 16K to 64K byte non expandable RAM memory
+
+with parity.
+
+
+
+1.2 ESS MASTER MEMORY STRUCTURE
+
+     The  ESS master processor has a 16k to 48k byte non expandable  RAM
+
+memory  with  parity.  When the top 16k byte of  the  memory  (addresses
+
+C000H-FFFFH) are accessed the processor will access the multibus for the
+
+memory  data.  There  is  a port on the card which allows the  16k  byte
+
+window  onto  the  multibus to be placed in any 16K  byte  page  of  the
+
+MULTIBUS 1M byte address range.
+
+
+
+1.3 HIP MEMORY STRUCTURE
+
+     The  HIP processor has a 16k to 64K byte non expandable ram  memory
+
+with  parity.  This  memory is dual ported and may be accessed from  the
+
+MULTIBUS as a 64k byte page of the MULTIBUS 1M byte address  range.  The
+
+processor on this card views the local memory as being the in the first
+
+64k  of the MULTIBUS address space.  When the processor accesses any  of
+
+the  other  64k multibus pages the top 16K bytes of the memory page  are
+
+assumed to be in the local memory.
+
+
+
+     The Processor to memory  address sturcture is as follows.
+
+                  _________________________________________________
+
+     ADDRESS BIT  19!18!17!16!15!14!13!12!11!10!9!8!7!6!5!4!3!2!1!0
+
+                  -------------------------------------------------
+
+                     BANK    !BLOCK!   LOCATION
+
+
+
+     BANK      BLOCK
+
+      0        0,1,2,3   ACCESS IS TO LOCAL 64K BYTE MEMORY
+
+     1-FH      3         ACCESS IS TO LOCAL 64K BYTE MEMORY
+
+     1-F       0,1,2     ACCESS IS TO MEMORY ON THE MULTIBUS
+
+.PA
+
+2.0 SYSTEM I/O DEVICES AND MAP
+
+
+
+ADDRESS ACORN ESS HIP
+
+00-03H  YES   YES YES  Z80 DUART RS449 AND RS232 SERIAL PORT
+
+08-0BH  YES       YES  Z80 DUART RS232 AND RS232 SERIAL PORT
+
+10-13H  YES            Z80 CTC INTERRUPT CONTROL(3CHAN) AND TIMER 1 CHAN
+
+18H     YES            Z80 DMA 1 CHANNEL FOR FLOPPY
+
+20-21H  YES   YES YES  9513 TIMER FOR BAUD RATE
+
+28-2BH  YES       YES  1797 FLOPPY CONTROLLER
+
+30-37H  YES   YES YES  9914 GPIB (IEEE 488)
+
+38-39H        YES YES  9513 SYSTEM TIMER,TIME OF DAY AND 3 SPARE TIMERS
+
+3A-3BH        YES YES  9519 INTERRUPT CONTROLLER, INTERRUPT 1-8
+
+3C-3DH        YES YES  9519 INTERRUPT CONTROLLER, INTERRUPT 9-16
+
+40-4FH        YES YES  9517 DMA CONTROLLER ,FLOPPY AND GPIB
+
+E0H     YES   YES YES  BAUD RATE SELECT SWITCH (READ)
+
+E8H     YES       YES  READ FLOPPY DISK STATUS AND SWITCHES (READ)
+
+E0H     YES       YES  FLOPPY DISK HEAD LOAD AND SELECT (WRITE)
+
+F0H     YES   YES YES  MISCELLANEOUS CONTROL BITS
+
+                         ACORN ESS HIP
+
+                    B7         YES YES  0=BOOT PROM ENABLED
+
+                    B6                  NOT USED
+
+                    B5                  NOT USED
+
+                    B4         YES YES  LOCAL I/O DEVICE RESET
+
+                    B3         YES YES  MULTIBUS RESET
+
+                    B2                  NOT USED
+
+                    B1   YES       YES  FLOPPY DISK IS SINGLE DENSITY
+
+                    B0   YES   YES YES  WRAP BACK SERIAL I/O
+
+F1H           YES YES  Z80 ADDRESS EXTEND PORT (READ/WRITE)
+
+F2H           YES YES  DMA ADDRESS EXTEND PORT (READ/WRITE)
+
+F3H           YES YES  GPIB ADDRESS SET SWITCHES (READ)
+
+
+
+
+
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
+.PA
+
+
+
+     The  baud rate select input port is configured as  follows.  OFF=1.
+
+     The maximum RS232 rate is 19.2K baud.
+
+
+
+                       SW2
+
+     RS449 RATE (DTE)   ! RS232 RATE (DTE)
+
+     BIT7 BIT6 BIT5 BIT4! BIT3 BIT2 BIT1 BIT0 BAUD
+
+     SW8  SW7  SW6  SW5 ! SW4  SW3  SW2  SW1
+
+     OFF  OFF  OFF  OFF ! OFF  OFF  OFF  OFF  110     -!
+
+     OFF  OFF  OFF  ON  ! OFF  OFF  OFF  ON   300      !
+
+     OFF  OFF  ON   OFF ! OFF  OFF  ON   OFF  600      !
+
+     OFF  OFF  ON   ON  ! OFF  OFF  ON   ON   1200     !
+
+     OFF  ON   OFF  OFF ! OFF  ON   OFF  OFF  2400     !RS232 RATE
+
+     OFF  ON   OFF  ON  ! OFF  ON   OFF  ON   4800     !
+
+     OFF  ON   ON   OFF ! OFF  ON   ON   OFF  9600     !
+
+     OFF  ON   ON   ON  ! OFF  ON   ON   ON   19.2K   _!
+
+     ON   OFF  OFF  OFF ! ON   OFF  OFF  OFF  38.4K
+
+     ON   OFF  OFF  ON  ! ON   OFF  OFF  ON   56K
+
+     ON   OFF  ON   OFF ! ON   OFF  ON   OFF  134.5
+
+     ON   OFF  ON   ON  ! ON   OFF  ON   ON   150
+
+     ON   ON   OFF  OFF ! ON   ON   OFF  OFF  76.8K
+
+     ON   ON   OFF  ON  ! ON   ON   OFF  ON   187.5K
+
+     ON   ON   ON   OFF ! ON   ON   ON   OFF  375K
+
+     ON   ON   ON   ON  ! ON   ON   ON   ON   750K
+
+
+
+     BAUD RATE DIVISOR PROGRAMMING TABLE
+
+
+
+The master mode register of timer 0 is programmed to 8000H
+
+BRATE   CALCULATED  TIME ACTUAL     COUNTER MODE  INPUT DIVISOR
+
+        16X CLOCK    uS  16X CLOCK  CTRL REG      FREQ  LOAD REG
+
+110     1760        568  1760.56    0533H         2MHZ  0568H
+
+134.5   2152        464  2152.08    0133H         6MHZ  1394H
+
+150     2400        416  2400       0133H         6MHZ  1250H
+
+300     4800        208  4800       0133H         6MHZ  0625H
+
+600     9600        104  9615.38    0B33H         1MHZ  0052H
+
+1200    19200       52   19230.7    0B33H         1MHZ  0026H
+
+2400    38400       26   38461.5    0B33H         1MHZ  0013H
+
+4800    76800       13   76923.07   0333H         4MHZ  0026H
+
+9600    153600      6.5  153846.15  0333H         4MHZ  0013H
+
+19.2K   307200      3.2  312500     0233H         5MHZ  0008H
+
+38.4K   614400      1.6  625000     0233H         5MHZ  0004H
+
+56K     896000      1.1  833333.3   0233H         5MHZ  0003H 6% ERROR
+
+76.8K   1228800     .813 1250000    0233H         5MHZ  0002H
+
+187.5K  X1 CLOCK    5.3  187500     0133H         6MHZ  0016H
+
+375K    X1 CLOCK    2.6  375000     0133H         6MHZ  0008H
+
+750K    X1 CLOCK    1.33 750000     0133H         6MHZ  0004H
+
+100MS INTERVAL           10HZ       0F33H         100HZ 0005H
+
+
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.PG
+
+PROM TRUTH TABLE FOR ADDRESS DECODES
+
+.SP 2
+
+.NF
+
+ADDRESS        !OUTPUTS
+
+HEX  BINARY    !B7 B6 B5 B4 B3 B2 B1 B0 !HEX
+
+00  !0 0 0 0 0 !0  0  0  1  1  0  0  0  !18
+
+01  !0 0 0 0 1 !1  0  0  1  1  0  0  0  !98
+
+02  !0 0 0 1 0 !1  0  0  1  1  0  0  0  !98
+
+03  !0 0 0 1 1 !1  0  0  1  1  0  0  0  !98
+
+04  !0 0 1 0 0 !1  0  0  1  1  0  0  0  !98
+
+05  !0 0 1 0 1 !1  0  0  1  1  0  0  0  !98
+
+06  !0 0 1 1 0 !1  0  0  1  1  0  0  0  !98
+
+07  !0 0 1 1 1 !1  0  0  1  1  0  0  0  !98
+
+08  !0 1 0 0 0 !1  0  0  1  1  0  0  0  !98
+
+09  !0 1 0 0 1 !1  0  0  1  1  0  0  0  !98
+
+0A  !0 1 0 1 0 !1  0  0  1  1  0  0  0  !98
+
+0B  !0 1 0 1 1 !1  0  0  1  1  0  0  0  !98
+
+0C  !0 1 1 0 0 !1  0  0  1  1  0  0  0  !98
+
+0D  !0 1 1 0 1 !1  0  0  1  1  0  0  0  !98
+
+0E  !0 1 1 1 0 !1  0  0  1  1  0  0  0  !98
+
+0F  !0 1 1 1 1 !1  0  0  1  1  0  0  1  !99
+
+10  !1 0 0 0 0 !0  1  0  0  1  0  0  0  !48
+
+11  !1 0 0 0 1 !0  1  1  1  1  0  0  0  !78
+
+12  !1 0 0 1 0 !0  1  1  1  1  0  0  0  !78
+
+13  !1 0 0 1 1 !0  1  1  1  1  0  0  0  !78
+
+14  !1 0 1 0 0 !0  1  1  1  1  0  0  0  !78
+
+15  !1 0 1 0 1 !0  1  1  1  1  0  0  0  !78
+
+16  !1 0 1 1 0 !0  1  1  1  1  0  0  0  !78
+
+17  !1 0 1 1 1 !0  1  1  1  1  0  0  0  !78
+
+18  !1 1 0 0 0 !0  1  1  1  1  0  0  0  !78
+
+19  !1 1 0 0 1 !0  1  1  1  1  0  0  0  !78
+
+1A  !1 1 0 1 0 !0  1  1  1  1  0  0  0  !78
+
+1B  !1 1 0 1 1 !0  1  1  1  1  0  0  0  !78
+
+1C  !1 1 1 0 0 !0  1  1  1  0  0  0  0  !70
+
+1D  !1 1 1 0 1 !0  1  1  1  1  0  0  0  !78
+
+1E  !1 1 1 1 0 !0  1  1  1  1  0  0  0  !78
+
+1F  !1 1 1 1 1 !0  0  0  1  1  0  0  1  !19
+
+     ! ! ! ! !  !  !  !  !  !  !  !  !----- SAD15     8086 ONLY
+
+     ! ! ! ! !  !  !  !  !  !  !  !--------
+
+     ! ! ! ! !  !  !  !  !  !  !-----------
+
+     ! ! ! ! !  !  !  !  !  !-------------- MONEN
+
+     ! ! ! ! !  !  !  !  !----------------- NEAR 0
+
+     ! ! ! ! !  !  !  !-------------------- MBD MEM DISABLE 1000H-EFFFH
+
+     ! ! ! ! !  !  !----------------------- MBD MEM DISABLE 0H-EFFFH
+
+     ! ! ! ! !  !-------------------------- MBD IO DISABLE 1000H-FFFFH
+
+     ! ! ! ! !----------------------------- SAD11
+
+     ! ! ! !------------------------------- SAD12
+
+     ! ! !--------------------------------- SAD13
+
+     ! !----------------------------------- SAD14
+
+     !------------------------------------- M/IO
+
+.FI
+
+
+
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+.PG
+
+PROM TRUTH TABLE FOR ADDRESS DECODES
+
+FOR 9516 STATIC RAM INT ACK DECODE PROM (82S23)
+
+ADDRESS        !OUTPUTS
+
+HEX  BINARY    !B7 B6 B5 B4 B3 B2 B1 B0 !HEX
+
+00  !0 0 0 0 0 !1  1  1  1  1  1  1  1  !FF
+
+01  !0 0 0 0 1 !1  1  1  1  1  1  1  1  !FF
+
+02  !0 0 0 1 0 !1  1  1  1  1  1  1  1  !FF
+
+03  !0 0 0 1 1 !1  1  1  1  1  1  1  1  !FF
+
+04  !0 0 1 0 0 !1  1  1  1  1  1  1  1  !FF
+
+05  !0 0 1 0 1 !1  1  1  1  1  1  1  1  !FF
+
+06  !0 0 1 1 0 !1  1  1  1  1  1  1  1  !FF
+
+07  !0 0 1 1 1 !1  1  1  1  1  1  1  1  !FF
+
+08  !0 1 0 0 0 !1  1  1  1  1  1  1  1  !FF
+
+09  !0 1 0 0 1 !1  1  1  1  1  1  1  1  !FF
+
+0A  !0 1 0 1 0 !1  1  1  1  1  1  1  1  !FF
+
+0B  !0 1 0 1 1 !1  1  1  1  1  1  1  1  !FF
+
+0C  !0 1 1 0 0 !1  1  1  1  1  1  1  1  !FF
+
+0D  !0 1 1 0 1 !1  1  1  1  1  1  1  1  !FF
+
+0E  !0 1 1 1 0 !1  1  1  1  1  1  1  1  !FF
+
+0F  !0 1 1 1 1 !1  1  1  1  1  1  1  1  !FF
+
+10  !1 0 0 0 0 !0  1  1  1  1  1  1  1  !7F
+
+11  !1 0 0 0 1 !1  0  1  1  1  1  1  1  !BF
+
+12  !1 0 0 1 0 !1  1  0  1  1  1  1  1  !DF
+
+13  !1 0 0 1 1 !1  1  1  0  1  1  1  1  !EF
+
+14  !1 0 1 0 0 !1  1  1  1  0  1  1  1  !F7
+
+15  !1 0 1 0 1 !1  1  1  1  1  0  1  1  !FB
+
+16  !1 0 1 1 0 !1  1  1  1  1  1  0  1  !FD
+
+17  !1 0 1 1 1 !1  1  1  1  1  1  1  0  !FE
+
+18  !1 1 0 0 0 !1  1  1  1  1  1  1  1  !FF
+
+19  !1 1 0 0 1 !1  1  1  1  1  1  1  1  !FF
+
+1A  !1 1 0 1 0 !1  1  1  1  1  1  1  1  !FF
+
+1B  !1 1 0 1 1 !1  1  1  1  1  1  1  1  !FF
+
+1C  !1 1 1 0 0 !1  1  1  1  1  1  1  1  !FF
+
+1D  !1 1 1 0 1 !1  1  1  1  1  1  1  1  !FF
+
+1E  !1 1 1 1 0 !1  1  1  1  1  1  1  1  !FF
+
+1F  !1 1 1 1 1 !1  1  1  1  1  1  1  1  !FF
+
+     ! ! ! ! !  !  !  !  !  !  !  !  !----- DAT0
+
+     ! ! ! ! !  !  !  !  !  !  !  !-------- DAT1
+
+     ! ! ! ! !  !  !  !  !  !  !----------- DAT2
+
+     ! ! ! ! !  !  !  !  !  !-------------- DAT3
+
+     ! ! ! ! !  !  !  !  !----------------- DAT4
+
+     ! ! ! ! !  !  !  !-------------------- DAT5
+
+     ! ! ! ! !  !  !----------------------- DAT6
+
+     ! ! ! ! !  !-------------------------- DAT7
+
+     ! ! ! ! !----------------------------- SW0
+
+     ! ! ! !------------------------------- SW1
+
+     ! ! !--------------------------------- SW2
+
+     ! !----------------------------------- WPMASK
+
+     !------------------------------------- WPINTST

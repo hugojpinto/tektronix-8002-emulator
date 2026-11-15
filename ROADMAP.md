@@ -18,6 +18,7 @@ Following FEASIBILITY.md §5.
 10. **Real-Time Prototype Analyzer**: both its manuals are here (070-2356 service, 070-2785 users); probably the C0–C7 board TEKDOS probes at start-up.
 11. **PROM programmer** (1702, 2704/2708 modules; the panel's sockets and PROM POWER switch): needs its manual first.
 12. **Maintenance Front Panel**: its interface is known from the A5 schematics (`notes/8002.md`), but its own manual (070-2725-00) is lost; waits for it or a photo.
+13. **The diagnostics** (`sources/bitsavers/disks/Millennium_internal_floppies/diag_4.4_5-23-79`): DIP 4.4 boots to its `$` prompt; its command syntax is to be read from its code, then each module's test run as the 8550's diagnostics were. **CP/M** (the `CPM/` discs there): needs the 64K Z80 slave that `CPM64K` (E380–FFFF) loads into.
 
 Open questions:
 - Port map of the C0–C7 board TEKDOS writes at start-up (Real Time Trace or RTPA?). TEKDOS's debug control reads C2 to see whether it is fitted and can take PC last/next from its C4–C7.
