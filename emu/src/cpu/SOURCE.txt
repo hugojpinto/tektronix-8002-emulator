@@ -20,3 +20,8 @@ Changes made in this project are marked [tek8002] and listed here:
                6800 and always read as 1 (MC6800 data sheet, "Condition Code Register").
                Upstream stores the byte as is, so a TAP of 00 made TPA read 00. Found by
                the 6800 board's real SYSTEM PROM, whose dump reads CC with TPA (2026-11-13).
+  s2650/s2650.cpp  RRL/RRR set or clear OVF only when rotating through the carry (WC=1); with
+               WC=0 OVF is left alone. Upstream changes it on every rotate, as the 1975
+               Signetics manual's note reads (p. 67-68). Millennium's MASTER CPU diagnostic
+               (DIP 4.4, D0141), written for real 2650s, checks both: no OVF from rotates with
+               WC=0 that flip bit 7, OVF from one with WC=1 (2026-11-15).

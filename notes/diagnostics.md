@@ -56,7 +56,7 @@ System Communications 1 and 2, 90/91 system and program memory.
 | DCA11 | SYS COMM 1 | pass, with the test fixture (below), then chains (CAL) to DCC11 |
 | DCC11 | SYS COMM 2 | fails: needs a cable between ports 1 and 2 ("SET BAUD RATE THE SAME FOR BOTH PORTS"), not modelled |
 | D1212 | TIMER REV 2C | pass, since the timer jumper is at 100 ms (it measured 10.0 where 100.0 was expected) |
-| D0141 | MASTER CPU | ends, with two unexpected interrupts (UIN, vector 0036) |
+| D0141 | MASTER CPU | pass. It checks the 2650's instructions, with a HALT after each check as a trap; it used to reach one ("UIN 0036", the slave-halted interrupt that followed): a rotate with WC = 0 that flips bit 7 set OVF in the core, which the real 2650 does only when WC = 1 (`emu/src/cpu/SOURCE.txt`) |
 | DE011, DE021, DA110 | 2650 DEBUG and FETCH, 1802 DEBUG | fail: those boards are not emulated |
 | D0411, D0811–D0831, D0C11–D0C31, D1411, D1A11, D1A22, D1C11, D3A21, D3A30 | paper tape, TTY, GPIO, RS-232, printer, PROM programmers (1702A, 2708/04, 82S), 8080 and 6800 hardware analysers | fail or bypass: not emulated |
 | D1613 | DISK1 | stops at once: "ALL DISKS TO BE TESTED MUST HAVE SCRATCH FORMATED DISKETTES" (to be run with formatted blanks in the drives) |
