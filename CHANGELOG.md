@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-11-15 — SYS COMM 2
+- Millennium's SYS COMM 2 test passes with a cable from System Communications port 1 to port 2, then to port 3 (the input `syscomm:cable`; wiring inferred from the test's expected statuses): `tests/dip.sh` checks 20 modules. The MC6850 model now carries each character's word format across such a cable, so mismatched formats give parity and framing errors; the ACIAs' interrupt levels are read at every access.
+
 ## 2026-11-15 — The 2650 Emulator Processor
 - A new board at port E0 (`tek8002_ep2650`), specified by Millennium's 2650 DEBUG and FETCH tests, which both pass (`tests/dip.sh`: 19 modules). Its RESET keeps the registers, PSW and return address stack (the 2650 manual: it clears the IAR and the interrupt inhibit); a breakpoint or single-cycle stop, made with the 2650's PAUSE, lets a two-cycle instruction at PC next run first (inferred from the manual's PAUSE timing and the FETCH test). TEKDOS 1.6 for the 2650 runs programs on it; its DEBUG needs the board's firmware, which is lost.
 

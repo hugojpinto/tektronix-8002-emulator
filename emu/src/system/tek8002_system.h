@@ -75,6 +75,9 @@ private:
 	bool m_breaking[tek8002_syscomm::PORTS] = {};   // a break being sent, on a wrap-back connector
 	bool m_strap_a[tek8002_syscomm::PORTS] = {};    // the ports' CTS straps: A (from the connector) or B
 	void loop_lines(int n);
+	int m_cable = 0;                         // System Communications port 1 cabled to port 2 or 3 (0: none)
+	void set_cable(int to);
+	void cable_lines();
 	FILE *logf = nullptr, *tracef = nullptr;
 	std::string m_disc[4];
 	bool m_power = true, m_held = false;

@@ -122,6 +122,12 @@ void tek8002_system::tick()
 	for (int n = 0; n < tek8002_syscomm::PORTS; n++) {
 		mc6850 &acia = m->syscomm.acia[n];
 		link[n].poll([&acia](u8 c) { acia.host_rx(c); });
+		if (m_cable && (n == 0 || n == m_cable - 1)) {        // a break crosses the cable
+			mc6850 &other = m->syscomm.acia[n == 0 ? m_cable - 1 : 0];
+			if (acia.sending_break() && !m_breaking[n]) other.host_break();
+			m_breaking[n] = acia.sending_break();
+			continue;
+		}
 		if (!link[n].loopback()) continue;
 		// a break held by the transmitter comes back as one null with a framing error: the
 		// receiver then waits for the line to return to mark before it looks for a start bit
@@ -206,6 +212,40 @@ void tek8002_system::loop_lines(int n)
 	acia.set_dcd(acia.rts());
 }
 
+// A cable between System Communications port 1 and port 2 or 3, as the diagnostics' SYS COMM 2
+// test asks ("CONNECT PORT 1 TO PORT 2 USING CONNECTOR CABLE", then port 3, with port 1's strap
+// at A). Its wiring, inferred from the statuses the test expects: transmit to the other port's
+// receive both ways; port 1's RTS to the other port's DCD; the other port's RTS, inverted, to
+// port 1's CTS (through strap A; strap B holds CTS active); port 1's DCD not driven. Nothing paces the
+// receivers, so they can overrun, and a break arrives as one null with a framing error.
+void tek8002_system::set_cable(int to)
+{
+	for (int n = 0; n < tek8002_syscomm::PORTS; n++) {      // back to what the ports had
+		mc6850 &acia = m->syscomm.acia[n];
+		acia.on_tx = [this, n](u8 c) { link[n].send(c); };
+		acia.on_control = link[n].loopback() ? std::function<void()>([this, n] { loop_lines(n); }) : nullptr;
+		acia.pace_rx = !link[n].loopback();
+	}
+	m_cable = to;
+	if (!to) return;
+	const int a = 0, b = to - 1;
+	mc6850 &pa = m->syscomm.acia[a], &pb = m->syscomm.acia[b];
+	pa.on_tx = [&pa, &pb](u8 c) { pb.host_rx_from(c, pa); };
+	pb.on_tx = [&pa, &pb](u8 c) { pa.host_rx_from(c, pb); };
+	pa.on_control = pb.on_control = [this] { cable_lines(); };
+	pa.pace_rx = pb.pace_rx = false;
+	cable_lines();
+}
+
+void tek8002_system::cable_lines()
+{
+	if (!m_cable) return;
+	const int a = 0, b = m_cable - 1;
+	mc6850 &pa = m->syscomm.acia[a], &pb = m->syscomm.acia[b];
+	pa.set_dcd(false); pb.set_dcd(pa.rts());
+	pa.set_cts(m_strap_a[a] && !pb.rts()); pb.set_cts(m_strap_a[b] && !pa.rts());
+}
+
 bool tek8002_system::input(const std::string &name, int value)
 {
 	if (name == "8002:power") {
@@ -222,6 +262,10 @@ bool tek8002_system::input(const std::string &name, int value)
 	} else if (name.size() == 14 && name.compare(0, 13, "syscomm:strap") == 0 && name[13] >= '1' && name[13] <= '3') {
 		m_strap_a[name[13] - '1'] = value;
 		loop_lines(name[13] - '1');
+		cable_lines();
+	} else if (name == "syscomm:cable") {
+		if (value != 0 && value != 2 && value != 3) return false;
+		set_cable(value);
 	} else return false;
 	out.set(name, value);
 	return true;

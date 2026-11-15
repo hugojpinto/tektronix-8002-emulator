@@ -109,7 +109,7 @@ u8 tek8002::io_read(offs_t port)
 	case 0xeb: v = fdu.data_in(); break;
 	default:
 		if (debug.decodes(u8(port))) { v = debug.read(u8(port)); break; }
-		if (syscomm.decodes(u8(port))) { v = syscomm.read(u8(port)); break; }
+		if (syscomm.decodes(u8(port))) { v = syscomm.read(u8(port)); syscomm_levels(); break; }
 		if (port >= 0xc0 && port <= 0xc7 && rtpa_board.present) { m_seconds = m_cycles / CPU_HZ; v = rtpa_board.read(int(port & 7)); break; }
 		{
 			bool slave = false;
@@ -135,7 +135,7 @@ void tek8002::io_write(offs_t port, u8 d)
 	case 0xee: m_bank = d & 3; break;
 	default:
 		if (debug.decodes(u8(port))) { debug.write(u8(port), d); break; }
-		if (syscomm.decodes(u8(port))) { syscomm.write(u8(port), d); break; }
+		if (syscomm.decodes(u8(port))) { syscomm.write(u8(port), d); syscomm_levels(); break; }
 		if (port >= 0xc0 && port <= 0xc7 && rtpa_board.present) { m_seconds = m_cycles / CPU_HZ; rtpa_board.write(int(port & 7), d); break; }
 		for (auto *s : m_slaves) if (s->decodes(u8(port))) s->command(u8(port), d);
 		break;
@@ -172,10 +172,7 @@ void tek8002::devices_tick(int c)
 	// the ACIAs' IRQ outputs are levels: the interrupt is pending exactly while one is
 	// asserted (a request the ACIA withdrew before INTACK is not taken: TEKDOS's printer
 	// driver, which writes ahead into the transmit buffer, otherwise overwrote characters)
-	for (int n = 0; n < tek8002_syscomm::PORTS; n++) {
-		const u32 bit = 1u << (tek8002_syscomm::FIRST_INT + n);
-		if (syscomm.irq(n)) m_pending |= bit; else m_pending &= ~bit;
-	}
+	syscomm_levels();
 	// TTY interrupt flip-flops are clocked by DA and TBMT going high, when enabled (E9 bit 2)
 	const bool tty_en = m_serial_ctl & 0x04;
 	if (term.da() && !m_da_was && tty_en) raise(INT_CONSOLE_IN);

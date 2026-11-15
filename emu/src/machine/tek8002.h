@@ -127,6 +127,17 @@ private:
 
 	void raise(int n) { m_pending |= 1u << n; }
 	void update_irq() { cpu.set_irq(m_pending ? 1 : 0); }
+	// the ACIAs' IRQ levels, read again at every access too: a handler that withdraws the request
+	// (a control write) must not see it taken again when it returns (the diagnostics' SYS COMM 2,
+	// subtest 3, counts one interrupt)
+	void syscomm_levels()
+	{
+		for (int n = 0; n < tek8002_syscomm::PORTS; n++) {
+			const u32 bit = 1u << (tek8002_syscomm::FIRST_INT + n);
+			if (syscomm.irq(n)) m_pending |= bit; else m_pending &= ~bit;
+		}
+		update_irq();
+	}
 	void devices_tick(int cycles);
 };
 #endif

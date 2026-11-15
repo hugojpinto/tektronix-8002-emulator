@@ -54,7 +54,7 @@ System Communications 1 and 2, 90/91 system and program memory.
 | DE211 | 6800 DEBUG | pass (since 2026-11-15: a RESET keeps CC, an unknown opcode halts the board, the interrupt mask lets SVCs through; `notes/emulators.md`, the 6800) |
 | DE221 | 6800 FETCH | pass with `-pmem 4` (its RTS and SWI steps use the stack at FFFD/FFFE): one instruction per step, PC next FFFF after an unknown opcode, operand bytes not steered |
 | DCA11 | SYS COMM 1 | pass, with the test fixture (below), then chains (CAL) to DCC11 |
-| DCC11 | SYS COMM 2 | fails: needs a cable between ports 1 and 2 ("SET BAUD RATE THE SAME FOR BOTH PORTS"), not modelled |
+| DCC11 | SYS COMM 2 | pass, with a cable from port 1 to port 2, then to port 3 (`syscomm:cable`, below) |
 | D1212 | TIMER REV 2C | pass, since the timer jumper is at 100 ms (it measured 10.0 where 100.0 was expected) |
 | D0141 | MASTER CPU | pass. It checks the 2650's instructions, with a HALT after each check as a trap; it used to reach one ("UIN 0036", the slave-halted interrupt that followed): a rotate with WC = 0 that flips bit 7 set OVF in the core, which the real 2650 does only when WC = 1 (`emu/src/cpu/SOURCE.txt`) |
 | DE011, DE021 | 2650 DEBUG, 2650 FETCH | pass (since 2026-11-15, the 2650 Emulator Processor: `notes/emulators.md`, the 2650) |
@@ -96,6 +96,10 @@ The strap is inferred: with A the fixture's RTS reaches CTS (0C), with B it does
 holds CTS active; the test ends in B, the operating position. In the emulator it is the input
 `syscomm:strap1`–`3` (1 = A; default B), moved with `-input SEC syscomm:strap1=...` when the test
 asks (`tests/dip.sh` does so).
+
+**SYS COMM 2 and its cable.** It asks for port 1 to be cabled to port 2, then to port 3, with port 1's strap at A. The input `syscomm:cable` = 2 or 3 makes that cable (0 none; `tests/dip.sh` moves it when the test asks). Its wiring, inferred from the statuses the test expects: transmit to receive both ways; port 1's RTS to the other port's DCD; the other port's RTS, inverted, to port 1's CTS (through strap A); port 1's DCD not driven. What the test established, in `machine/mc6850.h`:
+- a character crosses in the transmitter's word format and is read in the receiver's: a mismatch gives a parity error (status 49, C3 with an interrupt) or a framing error, as on the line;
+- the ACIAs' interrupt requests are levels read at every access, not only at the end of a scheduling slice (a handler that withdraws the request counted it twice).
 
 These are the next things to fix: they test exactly the Debug module and board behaviour that
 `notes/8002.md` and `notes/emulators.md` inferred from TEKDOS.
