@@ -56,7 +56,7 @@ protected:
 	void standard_irq_callback(int, u16) {}
 	void debugger_instruction_hook(u32) {}
 	void debugger_wait_hook() {}
-	template <typename... A> void logerror(const char *f, A... a) { if (log_illegal) fprintf(stderr, f, a...); }
+	template <typename... A> void logerror_(const char *f, A... a) { fprintf(stderr, f, a...); }
 
 	bus_interface &m_bus;
 	program_t m_program, m_cprogram;

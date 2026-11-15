@@ -16,6 +16,16 @@ Changes made in this project are marked [tek8002] and listed here:
   i8085/i8085.*  a constructor flag selects MAME's i8080 variant (is_8085() false, jmp_taken 0,
                call_taken 6: what MAME's i8080_cpu_device subclass overrides), for the
                8080 Emulator Processor (2026-11-13).
+  i8085/i8085.cpp  in 8080 mode a conditional jump or call that is not taken still reads its
+               two address bytes (it takes 3 machine cycles, 10/11 states, on the 8080A);
+               upstream skips them, so the bus showed no operand reads. Millennium's 8080
+               hardware analyzer test (DIP 4.4, D3A21) traces a JZ not taken with both
+               reads (2026-11-15).
+  m6800/m6800.*  generated: tools/port_m6800.py makes logerror() a macro that evaluates its
+               arguments only when log_illegal is set. Upstream's illegal-opcode messages pass
+               M_RDOP_ARG(PC-1), a bus read, which ran even with logging off and put a phantom
+               read in the RTPA's trace (Millennium's 6800 hardware analyzer test, D3A30,
+               2026-11-15). The TAP/RTI edit below is applied by the same script.
   m6800/6800ops.hxx  TAP and RTI keep CC bits 7-6 set: they are not implemented on the
                6800 and always read as 1 (MC6800 data sheet, "Condition Code Register").
                Upstream stores the byte as is, so a TAP of 00 made TPA read 00. Found by

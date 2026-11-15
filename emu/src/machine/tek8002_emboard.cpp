@@ -33,7 +33,7 @@ void tek8002_emboard::step()
 		// after the master halts again (the diagnostics' SVC test, DE310 subtest 8, with E3 <- 94)
 		if (m_svc >= 0 && firmware_mapped() && firmware_code(pc)) { m_prom_pc = cpu_pc(); m_in_prom = true; }
 	}
-	if (m_svc >= 0) m_bus.slave_out(u16(0xf0 + m_svc), 0);
+	if (m_svc >= 0) m_bus.slave_svc(u16((m_svc_a & 0xff00) | (0xf0 + m_svc)), m_svc_d, m_svc_cycle);
 }
 
 // GET/PUT (tek8002_emboard.h): the prototype's byte at block[1]:block[2] to block[0], or

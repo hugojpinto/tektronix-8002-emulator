@@ -23,6 +23,7 @@ bool tek8002_ep8080::load_firmware(const std::string &dir, std::string &err)
 
 u8 tek8002_ep8080::mem_read(u16 a, bool fetch)
 {
+	wait_state(a);
 	if (!m_prom.empty() && a >= PROM_BASE && a <= PROM_END && prom_visible()) return m_prom[a - PROM_BASE];
 	if (!fetch && to_prototype()) { m_bus.slave_watch(a, false); return target->mem_read(a); }
 	if (proto_mem(a)) return proto_read(a, fetch);
@@ -41,6 +42,7 @@ u8 tek8002_ep8080::fetch(u16 a)
 
 void tek8002_ep8080::write(u16 a, u8 d)
 {
+	wait_state(a);
 	if (!m_prom.empty() && a >= PROM_BASE && a <= PROM_END && prom_visible()) return;   // a PROM
 	if (to_prototype()) { m_bus.slave_watch(a, true); target->mem_write(a, d); return; }
 	if (proto_mem(a)) { proto_write(a, d); return; }
@@ -51,8 +53,10 @@ void tek8002_ep8080::write(u16 a, u8 d)
 // SVCs; the rest is the prototype's in modes 1/2 and nobody's in mode 0
 u8 tek8002_ep8080::io_read(u8 port)
 {
-	if (proto_io()) return proto_in(port);
-	return m_bus.slave_in(port);
+	// the 8080 puts the port on A15-A8 as well as A7-A0 (8080A data sheet; what the RTPA sees)
+	const u16 a = u16(port * 0x101);
+	if (proto_io()) return proto_in(a);
+	return m_bus.slave_in(a);
 }
 
 void tek8002_ep8080::io_write(u8 port, u8 d)
@@ -60,9 +64,10 @@ void tek8002_ep8080::io_write(u8 port, u8 d)
 	// SVCs only while the Debug module takes them, the firmware's too (the diagnostics' SVC
 	// mask test, DE211 subtest 0E, masks them around a firmware call; GET and PUT in modes 1
 	// and 2 still work: TEKDOS enables SVCs for the firmware's runs)
-	if ((port & 0xf8) == 0xf0 && m_bus.svcs_enabled()) svc(port);
-	else if (proto_io()) proto_out(port, d);
-	else m_bus.slave_out(port, d);
+	const u16 a = u16(port * 0x101);
+	if ((port & 0xf8) == 0xf0 && m_bus.svcs_enabled()) svc(port, a, d);
+	else if (proto_io()) proto_out(a, d);
+	else m_bus.slave_out(a, d);
 }
 
 void tek8002_ep8080::target_lines(bool reset_edge, bool, bool irq)

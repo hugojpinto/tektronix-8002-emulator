@@ -8,6 +8,10 @@
 #include <iterator>
 
 #define LOGIRQ(...) do { } while (0)   // [port] logmacro.h
+// [port] logerror's arguments are evaluated only when logging: the illegal-opcode handlers pass
+// M_RDOP_ARG(PC-1), a bus read that would otherwise reach the slave bus as an extra cycle (the
+// 8002 diagnostics' RTPA trace expects one cycle per undefined opcode, D3A30)
+#define logerror(...) do { if (log_illegal) logerror_(__VA_ARGS__); } while (0)
 
 #define pPPC    m_ppc
 #define pPC     m_pc

@@ -56,7 +56,7 @@ u8 tek8002_ep6800::read(u16 a, bool opcode)
 
 void tek8002_ep6800::write(u16 a, u8 d)
 {
-	if (svc_address(a)) { svc(a); return; }
+	if (svc_address(a)) { svc(a, a, d); return; }   // a store: the RTPA sees it (the 6800 hardware analyzer test arms on STAA FEF7)
 	if (steer() == 1) { m_bus.slave_write(0x0000, d); return; }
 	if (steer() == 2) { target->mem_write(a, d); return; }
 	if (proto_mem(a)) { proto_write(a, d); return; }

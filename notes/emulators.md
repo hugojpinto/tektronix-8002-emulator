@@ -106,7 +106,7 @@ above the opcode presumably unused or a state). Every opcode the 6800 lacks read
   board's schematic (its service manual is not on bitsavers).
 - `-ep6800 hle` keeps the earlier high-level routines (the same results; `tests/run6800.sh`).
 
-## 8080A (`tek8002_ep8080`, E1, 2 MHz)
+## 8080A (`tek8002_ep8080`, E1, 3 MHz)
 The 8080A/8085A Emulator Processor, as an 8080A, running its two PROMs (070-2702-01, the
 8080A/8085A Assembler and Emulator Users Manual, March 1979 revision, §11–12). Checked by
 `tests/run8080.sh` (15 checks) and `tests/prototype.sh` (7).
@@ -118,7 +118,8 @@ The 8080A/8085A Emulator Processor, as an 8080A, running its two PROMs (070-2702
 | Register block | 0000 L, 01 H, 02 E, 03 D, 04 C, 05 B, 06 A, 07 F, 08 scratch, 09/0A SP | the firmware; TEKDOS's trace and DSTAT match the manual's example; the 8550's 8085 board (sibling `notes/8301.md`) has the same layout, and its unknown byte 8 is this scratch |
 | PROMs visible | F800–FBFF during firmware calls and mode-0 user runs | *inferred*: P1's monitor needs SVCs, which modes 1/2 turn off |
 | GET/PUT in modes 1/2 | the firmware's `LDAX D` / `STAX D` reach the prototype | *inferred*: the only instructions GET and PUT use for it (as the 6800's FETCH PROM flags its own) |
-| Clock | 2 MHz in mode 0 | *inferred*: the 8080A's standard rate; no manual gives it |
+| Clock | 3 MHz in mode 0 (2 MHz was inferred until 2026-11-15) | 070-2785 (RTPA users guide) Appendix A, "8080A Emulator Processor: Mode 0 System Clock 3 MHz" (prototype clock up to 2.08 MHz); its worked example measures 2728 µs for 6404 clocks plus 1793 wait states; the guide's sample-program counts (17 and 36 µs) and the diagnostics' D3A21 agree |
+| Wait states | one per memory cycle in modes 0 and 1, none from prototype memory in mode 2 | 070-2785 Tables A-1 (one per machine cycle for the 8080A/8085A, two for the Z80, none for the 6800) and A-4 (8197 clocks measured for 6404); none on I/O cycles, inferred from D3A21 subtest 0D (694 clocks, exact) |
 
 ### The PROMs
 Read by Eelco Vriezekolk ([ztpe.nl](https://ztpe.nl/2650/)) on 2026-11-13: P1, 160-0028-00,

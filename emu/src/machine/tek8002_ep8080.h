@@ -29,11 +29,17 @@
 // - Modes 1 and 2: memory, I/O, INTR (with an RST from the data bus) and RESET through the
 //   probe (notes/prototype-link.md); the 8080 has no fetch pin of its own on the link (its
 //   SYNC status marks M1, sent as fetches).
-// - Clock: 2 MHz in mode 0 (inferred: the 8080A's standard rate; the manuals give none).
+// - Clock: 3 MHz in mode 0 (070-2785, the RTPA users guide, Appendix A: "Mode 0 System Clock
+//   ... 3 MHz"; its worked example measures 2728 us for 6404 clocks plus 1793 wait states).
+// - Wait states: one per machine cycle in modes 0 and 1, none from prototype memory in mode 2
+//   (070-2785 Tables A-1, A-4), as the Z80 board's two. Memory cycles only: the 8002
+//   diagnostics' 8080 hardware analyzer test (D3A21, subtest 0D) counts 694 clocks for 550
+//   states, 136 memory cycles and 16 I/O cycles, to the end of the fetch that breaks.
 #ifndef TEK_TEK8002_EP8080_H
 #define TEK_TEK8002_EP8080_H
 #include "machine/tek8002_emboard.h"
 #include "cpu/i8085/i8085.h"
+#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -44,14 +50,14 @@ public:
 
 	explicit tek8002_ep8080(slave_bus &bus) : tek8002_emboard(bus, 0xe1), cpu(*this, true) {}
 	const char *name() const override { return "8080A Emulator Processor"; }
-	double board_clock_hz() const override { return 2.0e6; }
+	double board_clock_hz() const override { return 3.0e6; }
 	i8085a_cpu_device cpu;
 	// P1 and P2 (512 bytes each) from DIR/8080_p1_160-0028-00.bin and 8080_p2_160-0027-00.bin
 	bool load_firmware(const std::string &dir, std::string &err);
 
 protected:
 	void cpu_reset() override { cpu.reset(); }
-	void cpu_step() override { m_cyc += u64(cpu.run(1)); }
+	void cpu_step() override { m_waits = 0; m_cyc += u64(cpu.run(1)) + u64(m_waits); }
 	void cpu_jump(u16 target) override { cpu.set_pc(target); }
 	u16 cpu_pc() const override { return cpu.pc(); }
 	bool cpu_halted() const override { return cpu.halted(); }
@@ -60,6 +66,7 @@ protected:
 	// control bit 2 does not gate the debug signals here: the diagnostics' 8080 DEBUG test
 	// (DE111) runs the board with E1 <- 90 and expects breakpoints and single cycle
 	bool debug_signals() const override { return true; }
+	void bus_states(int &f, int &m, int &io) const override { f = 4 + 1; m = 3 + 1; io = 3; }
 	bool firmware_code(u16 pc) const override { return !m_prom.empty() && pc >= PROM_BASE && pc <= PROM_END; }
 	bool prom_byte(u16 a, u8 &d) const override { if (!firmware_code(a)) return false; d = m_prom[a - PROM_BASE]; return true; }
 	u8 board_status() const override { return 0x00; }
@@ -78,6 +85,8 @@ private:
 	bool to_prototype() const { return firmware_mapped() && emulation_mode() != 0 && (m_op == 0x1a || m_op == 0x12); }
 	u8 mem_read(u16 a, bool fetch);
 	std::vector<u8> m_prom;                  // P1 then P2: F800-FBFF
+	int m_waits = 0;                         // this instruction's wait states: one per memory cycle
+	void wait_state(u16 a) { if (!proto_mem(a) || emulation_mode() == 1) m_waits++; }
 	u8 m_op = 0;                             // the opcode of the instruction running
 	u64 m_cyc = 0;
 };

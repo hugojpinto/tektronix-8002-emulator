@@ -101,6 +101,7 @@ public:
 	void slave_write(u16 a, u8 d) override;
 	u8 slave_in(u16 port) override;
 	void slave_out(u16 port, u8 d) override;
+	void slave_svc(u16 a, u8 d, bool cycle) override { if (cycle) slave_out(a, d); else debug.slave_out(a); }
 	bool user_block(u16 a) const override { return syscomm.map_bit(a); }
 	bool svcs_enabled() const override { return debug.svcs_enabled(); }
 	void slave_watch(u16 a, bool write) override { debug.slave_access(a, write); }

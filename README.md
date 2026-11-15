@@ -117,6 +117,7 @@ A headless check: `SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software build/tek800
 
 ## Documentation
 - [docs/TUTORIALS.md](docs/TUTORIALS.md): short recipes with pictures: boot, the Z80 and 6800 programs run and debugged, ASM and LINK, the printer and paper tape ports, FORMAT and DUP, modes 1 and 2, a ZX Spectrum as the prototype.
+- [docs/RTPA.md](docs/RTPA.md): the Real-Time Prototype Analyzer, step by step through its 1979 users guide's procedures, every count checked against the guide.
 - [docs/OPERATION.md](docs/OPERATION.md): the long tour: both front ends, every option, the monitor, discs, TEKDOS and its pitfalls (upper case and TTY LOCK, BACK SPACE, DEBUG ending with the program).
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): how the 8002A works, and how the code mirrors it.
 - [docs/INTEGRATION.md](docs/INTEGRATION.md): for implementers: the prototype link (v1–v4), the serial ports, panel bindings, adding an emulator board.

@@ -95,6 +95,8 @@ protected:
 
 private:
 	void wait_states(u16 a) { if (!proto_mem(a) || emulation_mode() == 1) cpu.cyc += 2; }
+	// cycle lengths with those waits (070-2785 Table A-1: two per machine cycle), for the RTPA
+	void bus_states(int &f, int &m, int &io) const override { const int w = emulation_mode() == 2 ? 0 : 2; f = 4 + w; m = 3 + w; io = 4; }
 	static u8 mem_rd(void *u, u16 a);
 	static void mem_wr(void *u, u16 a, u8 d);
 	static u8 port_in(z80 *z, u16 port);

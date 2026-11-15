@@ -607,6 +607,10 @@ void i8085a_cpu_device::op_jmp(int cond)
 		m_PC = read_arg16();
 		m_icount -= jmp_taken();
 	}
+	else if (m_8080)
+	{
+		read_arg16();   // [tek8002] the 8080 reads both address bytes whether or not it jumps
+	}
 	else
 	{
 		m_PC.w.l += 2;
@@ -621,6 +625,10 @@ void i8085a_cpu_device::op_call(int cond)
 		m_icount -= call_taken();
 		op_push(m_PC);
 		m_PC = p;
+	}
+	else if (m_8080)
+	{
+		read_arg16();   // [tek8002] as op_jmp
 	}
 	else
 	{

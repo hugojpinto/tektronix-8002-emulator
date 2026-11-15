@@ -126,7 +126,7 @@ void tek8002_debug::run_slave(tek8002_slave &s, int cycles2650, double master_hz
 		const u16 pc = s.pc();
 		m_events = 0;
 		const bool watch = rt && rt->present && s.rtpa_visible();
-		if (watch) { rt->instr_begin(pc); rt_watch = true; }
+		if (watch) { s.bus_states(rt->states_fetch, rt->states_mem, rt->states_io); rt->io_page = s.io_page(); rt->instr_begin(pc); rt_watch = true; }
 		s.step();
 		rt_watch = false;
 		m_frac -= double(s.cycles() - c0);

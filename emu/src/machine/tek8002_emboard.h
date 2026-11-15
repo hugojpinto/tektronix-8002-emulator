@@ -93,7 +93,11 @@ protected:
 	// the board's own status bits (7, 6, 3-0; bit 5 present and bit 4 halted are common)
 	virtual u8 board_status() const = 0;
 
-	void svc(int port) { if (m_svc < 0) m_svc = port & 7; }   // the board's SVC port, F0-F7 (one per instruction)
+	// the board's SVC port, F0-F7 (one per instruction); an OUT also gives the cycle's address
+	// and data, which the RTPA traces (the 8002 diagnostics' 8080 hardware analyzer test expects
+	// OUT F7 as address F7F7 with the accumulator)
+	void svc(int port) { svc(port, u16(0xf0 + (port & 7)), 0, false); }
+	void svc(int port, u16 a, u8 d, bool cycle = true) { if (m_svc < 0) { m_svc = port & 7; m_svc_a = a; m_svc_d = d; m_svc_cycle = cycle; } }
 	void get_put(bool put_entry);              // the firmware's GET or PUT on the block at 0000-0003
 	bool user_run() const { return (m_cmd & 0x82) == 0x82; }
 	bool proto_mem(u16 a) const { return user_run() && (emulation_mode() == 2 || (emulation_mode() == 1 && m_bus.user_block(a))); }
@@ -122,6 +126,8 @@ private:
 	bool m_in_prom = false;                // waiting in the firmware for a forced jump
 	u16 m_prom_pc = 0;
 	int m_svc = -1;
+	u16 m_svc_a = 0; u8 m_svc_d = 0;          // the SVC cycle's address and data
+	bool m_svc_cycle = false;
 	prototype_bus m_no_target;
 	bool m_trst = false, m_tnmi = false;
 	u64 m_link_last = 0;                  // cpu_cycles() at the last link poll

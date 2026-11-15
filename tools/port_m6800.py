@@ -95,7 +95,7 @@ protected:
 	void standard_irq_callback(int, u16) {}
 	void debugger_instruction_hook(u32) {}
 	void debugger_wait_hook() {}
-	template <typename... A> void logerror(const char *f, A... a) { if (log_illegal) fprintf(stderr, f, a...); }
+	template <typename... A> void logerror_(const char *f, A... a) { fprintf(stderr, f, a...); }
 
 	bus_interface &m_bus;
 	program_t m_program, m_cprogram;
@@ -161,6 +161,10 @@ body = LICENSE + NOTE + """#include "cpu/m6800/m6800.h"
 #include <iterator>
 
 #define LOGIRQ(...) do { } while (0)   // [port] logmacro.h
+// [port] logerror's arguments are evaluated only when logging: the illegal-opcode handlers pass
+// M_RDOP_ARG(PC-1), a bus read that would otherwise reach the slave bus as an extra cycle (the
+// 8002 diagnostics' RTPA trace expects one cycle per undefined opcode, D3A30)
+#define logerror(...) do { if (log_illegal) logerror_(__VA_ARGS__); } while (0)
 
 """ + macros + """/* include the opcode functions */
 #include "6800ops.hxx"
@@ -207,6 +211,15 @@ void m6800_cpu_device::step()
 	m_total += u64(-m_icount);
 }
 """
+
+# [tek8002] TAP and RTI keep CC bits 7-6 at 1: they are not implemented on the 6800 and read as 1
+# (MC6800 data sheet, "Condition Code Register"); the 6800 board's SYSTEM PROM reads CC with TPA
+# after a TAP (emu/src/cpu/SOURCE.txt, 2026-11-13). Kept here so that regenerating keeps them.
+def edit(text, old, new):
+    assert text.count(old) == 1, old
+    return text.replace(old, new)
+ops = edit(ops, "\tCC=A;\n\n\t// TAP temporarily", "\tCC=A|0xc0;\t// [tek8002] CC bits 7-6 are not implemented on the 6800 and read as 1\n\n\t// TAP temporarily")
+ops = edit(ops, "\tPULLBYTE(CC);\n\tPULLBYTE(B);", "\tPULLBYTE(CC);\n\tCC|=0xc0;\t// [tek8002] CC bits 7-6 read as 1, whatever was on the stack\n\tPULLBYTE(B);")
 
 os.makedirs(dst, exist_ok=True)
 open(os.path.join(dst, 'm6800.h'), 'w').write(header)

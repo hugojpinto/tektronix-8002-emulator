@@ -50,7 +50,7 @@ The mainframe is a card cage on one bus (070-2711; `notes/8002.md`).
 | **Debug and Front Panel I/O** (670-5299) | ports F8–FF: the master/slave hand-over, breakpoints, single cycle, SVCs, forced jumps, PC last/next | `tek8002_debug` |
 | **Assembler Processor** (670-5220) | a **Z80** at 2.5 MHz that runs ASM, LINK and the macro processor; port E7 | `tek8002_asmproc` |
 | **6800 Emulator Processor** | a **6800** at 1 MHz that runs your program; port E2 | `tek8002_ep6800` |
-| **8080A Emulator Processor** | an **8080A** at 2 MHz that runs your program; port E1; PROMs with an Intel MDS-800 monitor interface and the debug firmware | `tek8002_ep8080` |
+| **8080A Emulator Processor** | an **8080A** at 3 MHz that runs your program; port E1; PROMs with an Intel MDS-800 monitor interface and the debug firmware | `tek8002_ep8080` |
 | **Z80 Emulator Processor** | a **Z80** at 4 MHz; port E3 | `tek8002_epz80` |
 | **System Communications** (670-5219) | three MC6850 ACIAs (modem, printer, paper tape) and the memory map; ports C9–CF | `tek8002_syscomm` |
 

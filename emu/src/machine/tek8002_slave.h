@@ -19,6 +19,9 @@ public:
 	virtual void slave_write(u16 a, u8 d) = 0;
 	virtual u8 slave_in(u16 port) = 0;
 	virtual void slave_out(u16 port, u8 d) = 0;
+	// an SVC the board posts: the Debug module's SVC port (F0-F7 in the low byte of a), and
+	// with cycle the bus cycle the RTPA sees (an OUT, a 6800 store; a 6800 load was seen as one)
+	virtual void slave_svc(u16 a, u8 d, bool cycle) { if (cycle) slave_out(a, d); }
 	// what an emulator board needs besides (notes/emulators.md)
 	virtual bool user_block(u16 a) const = 0;      // the memory map: this 128-byte block is the prototype's (U)
 	virtual bool svcs_enabled() const = 0;         // the Debug module takes SVC ports (F9 bit 4)
@@ -35,6 +38,9 @@ public:
 	virtual ~tek8002_slave() = default;
 	virtual const char *name() const = 0;
 	virtual double clock_hz() const = 0;
+	// its bus cycles' lengths in clock periods, for the RTPA's time counts (rtpa.h); 0 unknown
+	virtual void bus_states(int &fetch, int &mem, int &io) const { fetch = mem = io = 0; }
+	virtual int io_page() const { return -1; }     // a memory page its board marks as I/O, for the RTPA
 
 	// its slave command port, as the System Processor writes it
 	virtual bool decodes(u8 port) const = 0;

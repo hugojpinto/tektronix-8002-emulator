@@ -11,6 +11,7 @@ Short recipes, a few minutes each. Every one is a command sequence from the sess
 7. [Modes 1 and 2 against a prototype](#7-modes-1-and-2-against-a-prototype)
 8. [A ZX Spectrum as the prototype](#8-a-zx-spectrum-as-the-prototype)
 9. [Scripted, headless runs](#9-scripted-headless-runs)
+10. [The Real-Time Prototype Analyzer](#10-the-real-time-prototype-analyzer)
 
 ---
 
@@ -276,3 +277,19 @@ python3 -I tools/render_screens.py --crt ldir.txt ldir.png
 - `-cycles N` caps the run: 1,250,000 cycles is one emulated second.
 
 The GUI takes the same options, plus `-shot SEC FILE.bmp`, and runs with no display under `SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software`. `tools/make_hero.sh` makes the README picture that way.
+
+## 10. The Real-Time Prototype Analyzer
+
+With `-rtpa` the lab has its hardware analyzer: two events on the emulated processor's bus, pass counts and delays, a counter for cycles, clocks or time, and a 128-transaction trace. It has a tutorial of its own, [RTPA.md](RTPA.md), which follows the RTPA users guide (070-2785) step by step on its 8080 sample program; `tests/rtpa_guide.sh` checks the emulator against every count and break line the guide printed. A first taste, on TEKDOS 8080 with the guide's program patched in (RTPA.md §2):
+```
+> DEB
+> EV 1 A=209 D=7D B=F P=20
+> BIF 1
+> CN C
+> G 200
+0209 7D     MOV   A,L       0000  87  63 00 00 02 75 02 63
+0209 BREAK
+> CN
+COUNT=00239 CYCL
+```
+The 20th pass of the loop at 0209 came 239 bus cycles after the start, as the guide says.

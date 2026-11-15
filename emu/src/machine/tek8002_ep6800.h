@@ -62,6 +62,9 @@ protected:
 	// control bit 2 does not gate the debug signals here: the diagnostics' 6800 DEBUG test
 	// (DE211) runs the board with E2 <- 90 and expects breakpoints and single cycle
 	bool debug_signals() const override { return true; }
+	// the SVC page FE00-FEFF ("the 6800 microprocessor uses memory mapped I/O", 070-2349 §10) is the
+	// board's I/O: the 8002 diagnostics' 6800 hardware analyzer test traces FE00 as I/O cycles
+	int io_page() const override { return 0xfe; }
 	bool firmware_code(u16 pc) const override { return !m_sys.empty() && pc >= 0xf800 && pc <= 0xf9ff; }
 	bool prom_byte(u16 a, u8 &d) const override { if (!firmware_code(a)) return false; d = m_sys[a - 0xf800]; return true; }
 	// Bit 7: TEKDOS's debug control resets the board and resumes at PC last when it reads 0
