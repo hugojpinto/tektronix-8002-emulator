@@ -32,6 +32,17 @@ Every disc was booted from drive 0 (`-fdc lle`, the TEKDOS boot PROM); the banne
 | `h2lasm`, `hazel_z80`, the three `com-ram-05` discs, `99901441-01` | not bootable: data discs with no system file |
 
 ## Of most interest here
+- **The 9508 sources** (`99900817`-`99900825`, `99900924`: S and L files for executive, I/O,
+  subroutines, emulator control, command line, real-time analyzer, memory, comm): Millennium's
+  9508, a 6800 system on 8002 boards, addressing their ports as memory at 20xx. They name the
+  Debug module's ports, the emulator boards' command latch bits and a real-time analyzer's
+  registers (`notes/emulators.md`, `notes/8002.md`).
+- `tekdos_1.9_bkup_8-7`: `FETCH`, the documented structure of the 6809 emulator's fetch predictor
+  PROM (2048 x 8, 8 pages, opcode on A0-A7, pages chosen through A8-A10), the same idea as the
+  6800 board's FETCH PROM; `99902585-01` holds its generator and maps (FPMAP, FPMICRO, FPLST).
+- `tekdos_v1.6_2650`: `SOURCE`, the "TOPS equates and data base definition" of the 2650 system.
+- `99901441-01`: MON68, a 6800 monitor, source and listing; `99901253`/`99901254`: the 9516 boot,
+  listing and source; the "Hazel" discs: Millennium's HZL assemblers and tables per processor.
 - **`diag_4.4_5-23-79`**: the 8002's hardware diagnostics, one file per module: MASTER CPU,
   SYS COMM 1/2, CMEM and MMEM (system and program memory), DISK1, TIMER, PRINTER, PROM 1702A,
   2708/04 and 82S, PROBE TEST, the 2650 DEBUG and FETCH tests, 8080 DEBUG/CHIP/HWA, 6800
