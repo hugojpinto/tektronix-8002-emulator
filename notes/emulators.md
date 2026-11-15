@@ -3,8 +3,9 @@
 `emu/src/machine/tek8002_emboard.*` holds what the boards share. Each board is its own class:
 `tek8002_ep6800` (port E2) and `tek8002_epz80` (port E3). Both run from program memory as
 slaves of the System Processor, under the Debug module. The 6800 board's two PROMs were dumped
-in 2026 and run as they are (below, "The 6800 board's PROMs"); the Z80 board's are not
-preserved, so its firmware is modelled from the manuals and from TEKDOS 3.1.
+in 2026 and run as they are (below, "The 6800 board's PROMs"). The Z80 board's firmware was
+never dumped; it is rebuilt from the copy Millennium's diagnostics carry (below, "The Z80
+board's firmware"), and runs on the Z80 too.
 The boards' own service manuals are not on bitsavers (070-2701 lists the 6800's).
 
 Sources:
@@ -221,7 +222,7 @@ P2 holds:
   - the table (FBDE–FBEF): two unused `JMP 0000`, then PUT, GET, restore and dump. GET's and
     restore's entries could equally be the NOP before them.
 
-## Z80 (`tek8002_epz80`, E3, 4.00 MHz)## Z80 (`tek8002_epz80`, E3, 4.00 MHz)
+## Z80 (`tek8002_epz80`, E3, 4.00 MHz)
 Mode 0 runs from the board's clock: jumper J1 gives 2 or 4 MHz on the Z80A board. The Z80B
 board's J3003 gives 4 or 6 MHz, but "only 4 MHz or below" in an 8002A (070-3665 §2). On
 8001/8002A systems "two wait states are inserted each time the program memory is accessed, or
@@ -238,6 +239,52 @@ jump sequences are firmware here).
 
 The 8550's DOS/50 keeps IM in byte 0 and IFF1/IFF2 in bits 7/6 of byte 1. That is the same
 entries with a different block, so the two firmware PROMs differ.
+
+## The Z80 board's firmware
+Never dumped. Millennium's diagnostic disc (`notes/diagnostics.md`) carries a copy: the Z80
+DEBUG test's PROM subtest (DE310 subtest 0E) compares the board's F9FF, F9FE … F800, as the
+System Processor reads them through program memory with the firmware mapped (E3 ← 80, bank 3),
+with a 512-byte table at 25B9. `tools/rebuild_z80_firmware.py` rebuilds the firmware from it
+(`roms/epz80/z80_firmware.bin`, `--report` for every byte it sets).
+- **The table is damaged.** Taken as it is, its code breaks at regular places (JP F860 lands in
+  the middle of an instruction; `LD (0018),SP` is followed by no `LD SP`; there is no `PUSH HL'`),
+  and TEKDOS's DEBUG fails on it (SP 2A00, registers 0). The damage is regular: the copy lacks
+  the byte at every address ending in 0, as if made from a listing of 16-byte lines that lost
+  each line's first byte, and its last 19 bytes (F80F down to F801) were stored after the
+  table's end. With a gap at each xxx0, the code is coherent from F800 to FA27: the firmware
+  is 1K (F800–FBFF; FA28 up FF, as an erased 2708). A real board could not pass this subtest
+  either. 35 bytes are set by reasoning: the 14 in the code are each forced by the code around
+  them (A, B), the 21 in the data after it are guesses (C).
+- **What it is:** a jump table with TEKDOS's four entries (F800 → F8CA PUT, F803 → F8BD GET,
+  F806 → F860 restore, F809 → F80C dump); the dump saves SP, sets SP to 0018 and pushes every
+  register into the block, swapping A/F and A′/F′ into the block's order, then ends in
+  `OUT (F1)` (debug SVC 1); the restore pops them back; GET and PUT end in `OUT (F0)`. The block
+  layout is exactly the one inferred from TEKDOS above, now confirmed. From F8DD on is data the
+  routines never read, then a table, mostly 30, from F900 to FA27 (probably the board's
+  instruction decoding; DE310 subtest 0F, "instruction decode", is still open).
+- **What it showed about the board** (each now modelled, `tek8002_epz80.h`):
+  - **The forced jump is an M1 cycle:** the Debug module jams a JP onto the bus. The dump's R
+    compensation (`SUB 18`) is the 24 M1 cycles from the break to its `LD A,R`, the jammed JP
+    included; the restore's (`SUB 9B; AND 7F`, i.e. less 1B) likewise. DSTAT's R follows: 05
+    in `tests/runz80.sh` where the high-level model gave 06.
+  - **A halted Z80 ignores a forced jump:** it reads no instructions until an interrupt ends the
+    halt. TEKDOS knows: for a halted board it sends NMI + jump (F9 ← F9, DEB 1490–14A4). The
+    NMI is taken first and pushes the PC; the jump replaces the fetch at 0066.
+  - **Block byte 1A:** the dump adds it to SP and clears it. After a break of a halted board
+    TEKDOS sets it to 2 in its copy of the block (154F; the copy at 1535–1550 is swapped with
+    the block by 1702), so that at the next break the next NMI's push is taken back off: SP stays
+    at FFFE (one NMI frame), as `tests/runz80.sh` shows, instead of falling by 2 each time.
+  - The restore takes IM from byte 1 bits 1–0 and IFF1 from bit 6 (EI or DI), and only when
+    byte 0 is non-zero; the dump writes 00 to byte 0.
+- **Modes 1 and 2:** the firmware's data cycles outside the register block (GET's and PUT's (HL)
+  accesses, the only ones) reach the prototype (*inferred*: the firmware keeps all its own data at
+  0000–001B; whether the table at F900 does the steering, as the 6800's FETCH PROM does, is not
+  known). `tests/prototype.sh` passes.
+- **The System Processor reads it:** while a board is active with its firmware mapped, its PROM
+  answers the System Processor's program-memory reads at those addresses (so do the 6800's and
+  8080's); this is how the diagnostics read it.
+- `-epz80 hle` keeps the high-level routines, brought in line with the firmware (the R
+  compensation, byte 1A): every session test gives the same output with either.
 
 ## Modes 1 and 2
 070-2701 §7 describes the modes. Mode 0 uses program memory, system I/O and the system clock.
@@ -261,10 +308,9 @@ and clock throughout. As modelled:
   halted" error (46). Select the mode again before the next run.
 
 ## Modelled at high level, or open
-- **Z80 firmware:** each routine is one step, with a guessed timing (40 cycles). The model saves
-  the true registers. How the real dump captured the Z80's IM is unknown (the model takes it from
-  the status). Where its PROM sits in the address space, beyond its entries, is unknown. The 6800
-  board's firmware runs from its dumped PROM (above).
+- **Z80 firmware:** rebuilt and run on the Z80 (above); 21 bytes of its data are guesses, and
+  what its table at F900 does is open. How the board captures the Z80's IM for its status bits is
+  unknown (the model follows the processor).
 - **The prototype's clock:** in modes 1 and 2 the processor runs from it. The probe takes it from
   the socket's clock pin (070-3665 §1: mode 1 "allows the prototype circuit's memory, I/O, and
   clock to be exercised"; §3, Fig. 3-9). The link carries its rate (v4, `K`), and the board then

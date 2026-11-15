@@ -54,8 +54,11 @@ u8 tek8002::peek(offs_t a) const
 		if (a < 0x100 && !m_prom.empty()) return m_prom[a];   // the PROM overrides the first 256 bytes of RAM
 		return m_sysram[a];
 	}
+	const u16 pm = u16(m_bank * 0x4000 + (a & 0x3fff));
+	u8 d;
+	for (const auto *s : m_slaves) if (s->master_read(pm, d)) return d;   // an emulator board's PROM
 	if (m_bank >= program_boards) return OPEN_BUS;           // no board answers
-	return m_progmem[m_bank * 0x4000 + (a & 0x3fff)];
+	return m_progmem[pm];
 }
 
 u8 tek8002::read(offs_t a)

@@ -61,6 +61,7 @@ protected:
 	// (DE111) runs the board with E1 <- 90 and expects breakpoints and single cycle
 	bool debug_signals() const override { return true; }
 	bool firmware_code(u16 pc) const override { return !m_prom.empty() && pc >= PROM_BASE && pc <= PROM_END; }
+	bool prom_byte(u16 a, u8 &d) const override { if (!firmware_code(a)) return false; d = m_prom[a - PROM_BASE]; return true; }
 	u8 board_status() const override { return 0x00; }
 	void target_lines(bool reset_edge, bool nmi_edge, bool irq) override;
 

@@ -125,6 +125,8 @@ tek8002 [-prom FILE] [-0..-3 IMG|new:FILE] [-rw] [-fdc hle|lle] [-ttylock on|off
 | `-fdc hle` | the high-level disc model instead: the same files, faster, and no real timing |
 | `-ep6800 prom` | the 6800 board runs its dumped SYSTEM and FETCH PROMs (`roms/ep6800/`, next to the bootstrap PROM; the default) |
 | `-ep6800 hle` | the 6800 board's firmware routines at high level instead (the same results) |
+| `-epz80 prom` | the Z80 board runs its firmware (`roms/epz80/z80_firmware.bin`, rebuilt by `tools/rebuild_z80_firmware.py`; the default) |
+| `-epz80 hle` | the Z80 board's firmware routines at high level instead (the same results) |
 | `-ttylock on\|off` | the CT8100's TTY LOCK key, on by default (§6.2) |
 
 **Scripting** (`SEC` is emulated seconds; the 2650 runs at 1,250,000 cycles a second)

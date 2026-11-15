@@ -47,6 +47,10 @@ public:
 	// forced interrupt: the Debug module's pulse on the slave's interrupt level zero line
 	// (Universal One Hardware Reference §4.2.3), "stored and processed on the Slave CPU card"
 	virtual void forced_interrupt() {}
+	// a System Processor read of program memory at a (the full 64K address): an active board
+	// whose firmware is mapped answers for its PROM there (the diagnostics' PROM tests read
+	// the boards' PROMs this way, DE310 subtest 0E)
+	virtual bool master_read(u16 a, u8 &d) const { (void)a; (void)d; return false; }
 	virtual void step() = 0;                     // one instruction
 	virtual u16 pc() const = 0;
 	virtual bool halted() const = 0;

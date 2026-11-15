@@ -86,6 +86,9 @@ protected:
 	virtual bool firmware(u16 entry) = 0;
 	// whether pc is in a firmware PROM that runs on the processor (the 6800's and 8080's)
 	virtual bool firmware_code(u16 pc) const { return false; }
+	// the PROM byte at a, if the board has a PROM there
+	virtual bool prom_byte(u16 a, u8 &d) const { (void)a; (void)d; return false; }
+	bool master_read(u16 a, u8 &d) const override { return active() && firmware_mapped() && prom_byte(a, d); }
 	virtual double board_clock_hz() const = 0;   // mode 0 (and modes 1/2 with no clock reported)
 	// the board's own status bits (7, 6, 3-0; bit 5 present and bit 4 halted are common)
 	virtual u8 board_status() const = 0;

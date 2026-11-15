@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-15 — The Z80 board's firmware, rebuilt from the diagnostics
+- The Z80 Emulator Processor's firmware was never dumped. Millennium's Z80 DEBUG diagnostic carries a copy for its PROM test, damaged: the byte at every address ending in 0 is lost, and the first 15 bytes sit after the table. With the gaps restored the code is coherent and holds TEKDOS's four entries; `tools/rebuild_z80_firmware.py` rebuilds it (`roms/epz80/z80_firmware.bin`, 1K), setting 35 bytes by reasoning: 14 in the code, each forced by the code around it, 21 guessed in data the code never reads.
+- It runs on the Z80, like the 6800 and 8080 boards' PROMs (`-epz80 hle` keeps the routines at high level, now matching it). TEKDOS's DEBUG gives the same output with either, and modes 1 and 2 work.
+- What it showed: the forced jump is a JP jammed onto the bus (an M1 cycle, which its R compensation counts); a halted Z80 ignores it, which is why TEKDOS reaches a halted board with NMI + jump; the dump adds block byte 1A to SP (TEKDOS sets it to 2 after such a break). DSTAT's R and the SP after a HALT break change accordingly (`tests/runz80.sh`, screenshot 13).
+- The emulator boards' PROMs answer the System Processor's program-memory reads while mapped, as the diagnostics read them.
+
 ## 2026-11-15 — Against the diagnostics: 13 modules pass
 - MASTER CPU: the 2650 core changed OVF on rotates with WC clear; the real 2650 does so only through the carry (`emu/src/cpu/SOURCE.txt`).
 - TIMER: the interval timer jumper is at 100 ms, as the test expects.

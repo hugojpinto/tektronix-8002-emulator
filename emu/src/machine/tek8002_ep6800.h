@@ -63,6 +63,7 @@ protected:
 	// (DE211) runs the board with E2 <- 90 and expects breakpoints and single cycle
 	bool debug_signals() const override { return true; }
 	bool firmware_code(u16 pc) const override { return !m_sys.empty() && pc >= 0xf800 && pc <= 0xf9ff; }
+	bool prom_byte(u16 a, u8 &d) const override { if (!firmware_code(a)) return false; d = m_sys[a - 0xf800]; return true; }
 	// Bit 7: TEKDOS's debug control resets the board and resumes at PC last when it reads 0
 	// (DEB CNTL 1550-155C, 1602-1607); what drives it is not known, so it reads 1. Bit 6: a
 	// 6802 fitted: DSTAT names the processor "6802" when it is set, "6800" when not (DSTAT

@@ -108,10 +108,10 @@ void tek8002_debug::run_slave(tek8002_slave &s, int cycles2650, double master_hz
 	master_running();                      // a slave holds the bus: no "slave halted" from the detector
 	if (m_host.master_interrupt_pending()) return;
 	if (m_reset_pending) { m_reset_pending = false; s.reset(); }
-	// a forced interrupt with a forced jump: the jump takes the slave, and the interrupt only
-	// ends a halt, which the jump does anyway (TEKDOS reaches a halted Z80 so, with F9 <- F9;
-	// whether the board's lost firmware undid the NMI's push is not known: the model keeps SP)
-	if (m_int_pending && m_jump_pending) m_int_pending = false;
+	// a forced interrupt is taken first, then a forced jump in the same command replaces its
+	// vector fetch (TEKDOS reaches a halted Z80 so, with F9 <- F9; the Z80 board's firmware takes
+	// the NMI's push back off SP: notes/emulators.md, the Z80 board's firmware)
+	if (m_int_pending && m_jump_pending) { m_int_pending = false; s.forced_interrupt(); }
 	if (m_jump_pending) {
 		m_jump_pending = m_jump_by_int = false;
 		if (trace) fprintf(stderr, "[debug: %s forced jump to %04x]\n", s.name(), jump_address());

@@ -51,6 +51,7 @@ bool tek8002_system::start(std::string &err)
 	if (!opt.fdc_hle && !m->fdu.use_controller(roms + "/fdc", err)) return false;
 	if (!opt.ep6800_hle && !m->ep6800.load_firmware(roms + "/ep6800", err)) return false;
 	if (!m->ep8080.load_firmware(roms + "/ep8080", err)) return false;
+	if (!opt.epz80_hle && !m->epz80.load_firmware(roms + "/epz80", err)) return false;
 	for (int d = 0; d < tek8002_fdu::DRIVES; d++)
 		if (!opt.disks[d].empty() && !mount(d, opt.disks[d], err)) return false;
 	// the prototype, for the emulator boards' modes 1 and 2 (notes/prototype-link.md)

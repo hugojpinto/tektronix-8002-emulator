@@ -3,7 +3,22 @@
 // The 8002 Z80 Emulator Processor -- see tek8002_epz80.h.
 #include "machine/tek8002_epz80.h"
 
+#include <cstdio>
+
 tek8002_epz80::tek8002_epz80(slave_bus &bus) : tek8002_emboard(bus, 0xe3) { cpu_reset(); }
+
+bool tek8002_epz80::load_firmware(const std::string &dir, std::string &err)
+{
+	const std::string path = dir + "/z80_firmware.bin";
+	FILE *f = fopen(path.c_str(), "rb");
+	if (!f) { err = "missing Z80 board firmware: " + path + " (tools/rebuild_z80_firmware.py makes it; -epz80 hle runs without)"; return false; }
+	std::vector<u8> p(1025);
+	p.resize(fread(p.data(), 1, p.size(), f));
+	fclose(f);
+	if (p.size() != 1024) { err = path + ": not a 1K PROM image"; return false; }
+	m_prom = p;
+	return true;
+}
 
 void tek8002_epz80::cpu_reset()
 {
@@ -21,6 +36,8 @@ u8 tek8002_epz80::mem_rd(void *u, u16 a)
 {
 	tek8002_epz80 &s = *static_cast<tek8002_epz80 *>(u);
 	s.wait_states(a);
+	if (s.prom_at(a)) return s.m_prom[a - 0xf800];
+	if (s.to_prototype(a)) { s.m_bus.slave_watch(a, false); return s.target->mem_read(a); }
 	if (s.proto_mem(a)) return s.proto_read(a, s.cpu.m1);
 	return s.m_bus.slave_read(a, s.cpu.m1);
 }
@@ -29,6 +46,8 @@ void tek8002_epz80::mem_wr(void *u, u16 a, u8 d)
 {
 	tek8002_epz80 &s = *static_cast<tek8002_epz80 *>(u);
 	s.wait_states(a);
+	if (s.prom_at(a)) return;
+	if (s.to_prototype(a)) { s.m_bus.slave_watch(a, true); s.target->mem_write(a, d); return; }
 	if (s.proto_mem(a)) s.proto_write(a, d);
 	else s.m_bus.slave_write(a, d);
 }
@@ -56,6 +75,17 @@ void tek8002_epz80::cpu_step()
 	if (proto_io()) cpu.cyc += target->take_wait();   // the prototype's WAIT states (link v3)
 }
 
+void tek8002_epz80::forced_interrupt()
+{
+	cpu.nmi_pending = 0; cpu.halted = false; cpu.iff1 = 0;
+	cpu.r = u8((cpu.r & 0x80) | ((cpu.r + 1) & 0x7f));
+	cpu.cyc += 11;
+	cpu.sp = u16(cpu.sp - 2);                // as the core's NMI: push PC, go to 0066
+	mem_wr(this, cpu.sp, u8(cpu.pc));
+	mem_wr(this, u16(cpu.sp + 1), u8(cpu.pc >> 8));
+	cpu.pc = 0x66;
+}
+
 void tek8002_epz80::target_lines(bool reset_edge, bool nmi_edge, bool irq)
 {
 	if (reset_edge) cpu_reset();
@@ -65,9 +95,15 @@ void tek8002_epz80::target_lines(bool reset_edge, bool nmi_edge, bool irq)
 
 bool tek8002_epz80::firmware(u16 entry)
 {
+	if (!m_prom.empty()) return false;   // the PROM runs on the Z80
 	z80 &z = cpu;
+	// as the PROM does (notes/emulators.md): R as the user left it (the jammed JP that brought
+	// the board here counted one M1), SP less what block byte 1A says (2 after TEKDOS's NMI),
+	// and bytes 0 and 1A cleared
+	auto r_less = [](u8 r, int n) { return u8((r & 0x80) | ((r - n) & 0x7f)); };
 	if (entry == FW_DUMP) {
-		put(2, z.r); put(3, z.i);
+		z.sp = u16(z.sp + mem(0x1a)); put(0x1a, 0); put(0, 0);
+		put(2, r_less(z.r, 1)); put(3, z.i);
 		put(4, z.l_); put(5, z.h_); put(6, z.e_); put(7, z.d_); put(8, z.c_); put(9, z.b_); put(10, z.a_); put(11, z.f_);
 		put(12, u8(z.iy)); put(13, u8(z.iy >> 8)); put(14, u8(z.ix)); put(15, u8(z.ix >> 8));
 		put(16, z.l); put(17, z.h); put(18, z.e); put(19, z.d); put(20, z.c); put(21, z.b); put(22, z.a);
@@ -78,8 +114,9 @@ bool tek8002_epz80::firmware(u16 entry)
 	} else if (entry == FW_RESTORE) {
 		dump_block("restore", entry, 0x1c);
 		const u8 b1 = mem(1);
-		z.interrupt_mode = b1 & 3; z.iff1 = b1 & 0x40; z.iff2 = b1 & 0x80;
-		z.r = mem(2); z.i = mem(3);
+		z.interrupt_mode = b1 & 3;
+		if (mem(0)) z.iff1 = z.iff2 = b1 & 0x40;   // EI or DI, only when byte 0 asks (the PROM's)
+		z.r = r_less(mem(2), 2); z.i = mem(3);   // the PROM's: the jammed JP to the user adds one
 		z.l_ = mem(4); z.h_ = mem(5); z.e_ = mem(6); z.d_ = mem(7); z.c_ = mem(8); z.b_ = mem(9); z.a_ = mem(10); z.f_ = mem(11);
 		z.iy = u16(mem(12) | mem(13) << 8); z.ix = u16(mem(14) | mem(15) << 8);
 		z.l = mem(16); z.h = mem(17); z.e = mem(18); z.d = mem(19); z.c = mem(20); z.b = mem(21); z.a = mem(22);

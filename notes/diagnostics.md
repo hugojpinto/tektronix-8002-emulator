@@ -50,7 +50,7 @@ System Communications 1 and 2, 90/91 system and program memory.
 | DE141 | 8080 CHIP REV 1.C | pass (reports itself as E140) |
 | D1E10 | PROBE TEST | pass (bypassed) |
 | DE111 | 8080 DEBUG | pass |
-| DE310 | Z80 DEBUG | subtests 1–D pass; E (the board's PROM checksum: its firmware was never dumped) and F (instruction decode, open) fail |
+| DE310 | Z80 DEBUG | subtests 1–D pass. E compares the board's PROM with a table the test carries: that table is the firmware, damaged (every 16th byte lost), and is where the emulator's Z80 firmware comes from (`notes/emulators.md`); the real firmware therefore fails E, as a real board would. F (instruction decode) is open |
 | DE211 | 6800 DEBUG | subtests 02 (slave reset: the 6800 starts at FEF1, not at the test's program), 0E (with SVCs masked the program runs away from FEF1), 0F and 10 fail; the others pass |
 | DE221 | 6800 FETCH | **fail**, see below |
 | DCA11 | SYS COMM 1 | pass, with the test fixture (below), then chains (CAL) to DCC11 |
