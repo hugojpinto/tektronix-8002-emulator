@@ -280,6 +280,17 @@ with a 512-byte table at 25B9. `tools/rebuild_z80_firmware.py` rebuilds the firm
   (1.06 bits against 0.92–1.06), in this frame and in the test's own (0.86). Of its 240 known
   entries 222 are 30: it marks about 18 entries, not each instruction's behaviour. What it
   indexes, and so its 21 missing bytes, stays open.
+- **The diagnostics' instruction decode test (DE310 subtest F) passes** (2026-11-15). It does not
+  use this table: it single-steps 762 instructions from 0000, one at a time, each after a forced
+  reset and a forced jump, and checks PC next and the interrupt raised. It established three
+  things, now modelled:
+  - **RESET keeps the registers** other than PC, I, R, the IFFs and the interrupt mode: the test
+    sets SP and the stack in earlier steps (`LD SP,0100; LD HL,0001; PUSH HL`) and expects each
+    RET to come back to 0001 after the resets in between. (The core's `z80_init` sets AF and SP
+    to FFFF, a behaviour reported for some later Z80s; this board's does not, by Tektronix's test.)
+  - **A halted Z80 fetches at the HALT's own address**: PC next after a HALT is the HALT (the core
+    keeps its PC past it, so the board reports PC − 1 while halted).
+  - **A single-cycle stop on a HALT raises single cycle, not the halt** (the Debug module).
 - **What it showed about the board** (each now modelled, `tek8002_epz80.h`):
   - **The forced jump is an M1 cycle:** the Debug module jams a JP onto the bus. The dump's R
     compensation (`SUB 18`) is the 24 M1 cycles from the break to its `LD A,R`, the jammed JP

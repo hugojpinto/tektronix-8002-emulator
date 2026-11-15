@@ -50,8 +50,8 @@ System Communications 1 and 2, 90/91 system and program memory.
 | DE141 | 8080 CHIP REV 1.C | pass (reports itself as E140) |
 | D1E10 | PROBE TEST | pass (bypassed) |
 | DE111 | 8080 DEBUG | pass |
-| DE310 | Z80 DEBUG | subtests 1–D pass. E compares the board's PROM, read linearly from F9FF down, with a table the test carries. The emulator's Z80 firmware is reconstructed from that table, which differs from working code by a regular pattern (a byte missing before every address ending in 0; `notes/emulators.md`); with the reconstruction E fails. Why the table differs, and whether a real board passes E, is open. F (instruction decode) is open |
-| DE211 | 6800 DEBUG | subtests 02 (slave reset: the 6800 starts at FEF1, not at the test's program), 0E (with SVCs masked the program runs away from FEF1), 0F and 10 fail; the others pass |
+| DE310 | Z80 DEBUG | subtests 1–D and F pass (F: 762 single-stepped instructions). E compares the board's PROM, read linearly from F9FF down, with a table the test carries. The emulator's Z80 firmware is reconstructed from that table, which differs from working code by a regular pattern (a byte missing before every address ending in 0; `notes/emulators.md`); with the reconstruction E fails. Why the table differs, and whether a real board passes E, is open |
+| DE211 | 6800 DEBUG | subtests 02 (slave reset: the 6800 starts at FEF1, not at the test's program), 0E (with SVCs masked the program runs away from FEF1) and 0F fail; the others pass |
 | DE221 | 6800 FETCH | **fail**, see below |
 | DCA11 | SYS COMM 1 | pass, with the test fixture (below), then chains (CAL) to DCC11 |
 | DCC11 | SYS COMM 2 | fails: needs a cable between ports 1 and 2 ("SET BAUD RATE THE SAME FOR BOTH PORTS"), not modelled |

@@ -53,6 +53,8 @@ public:
 	virtual bool master_read(u16 a, u8 &d) const { (void)a; (void)d; return false; }
 	virtual void step() = 0;                     // one instruction
 	virtual u16 pc() const = 0;
+	// the address its next fetch puts on the bus, which the Debug module latches as PC next
+	virtual u16 fetch_address() const { return pc(); }
 	virtual bool halted() const = 0;
 	virtual u64 cycles() const = 0;              // its own clock cycles so far
 

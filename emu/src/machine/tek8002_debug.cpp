@@ -133,10 +133,13 @@ void tek8002_debug::run_slave(tek8002_slave &s, int cycles2650, double master_hz
 		// mask test (DE211 subtest 0E) reads them while the slave runs on. TEKDOS disables
 		// debugging before it sends the slave into the emulator's dump routine, whose own
 		// instructions must not replace the user's PC (DEB CNTL; 070-2711 §1, step 39)
-		if (debugging()) { m_pc_last = pc; m_pc_next = s.pc(); }
+		if (debugging()) { m_pc_last = pc; m_pc_next = s.fetch_address(); }
 		// breakpoints and single cycle on the same instruction stop the slave for one reason:
 		// BP1, else BP2, else single cycle (the diagnostics' interrupt priority test, DE310
 		// subtest 7, expects BP1 alone, and BP2 alone once BP1 is disabled)
+		// a single-cycle stop on a HALT: the board stops at the first fetch after it, before the
+		// halt detector reports (DE310 subtest F expects single cycle alone)
+		if (m_events & (1u << INT_SINGLE_CYCLE)) m_events &= ~(1u << INT_SLAVE_HALTED);
 		if (m_events & (1u << INT_BP1)) m_events &= ~((1u << INT_BP2) | (1u << INT_SINGLE_CYCLE));
 		else if (m_events & (1u << INT_BP2)) m_events &= ~(1u << INT_SINGLE_CYCLE);
 		if (m_events) {

@@ -22,9 +22,16 @@ bool tek8002_epz80::load_firmware(const std::string &dir, std::string &err)
 
 void tek8002_epz80::cpu_reset()
 {
-	const unsigned long cyc = cpu.cyc;
+	// RESET clears PC, I, R, the IFFs and the interrupt mode, and leaves the other registers
+	// as they were (Zilog; the core's z80_init sets them all): the diagnostics' instruction
+	// decode test (DE310 subtest F) sets SP and the stack in one step and resets between steps
+	const z80 keep = cpu;
 	z80_init(&cpu);
-	cpu.cyc = cyc;                           // its clock keeps counting
+	cpu.cyc = keep.cyc;                      // its clock keeps counting
+	cpu.sp = keep.sp; cpu.ix = keep.ix; cpu.iy = keep.iy; cpu.mem_ptr = keep.mem_ptr;
+	cpu.a = keep.a; cpu.b = keep.b; cpu.c = keep.c; cpu.d = keep.d; cpu.e = keep.e; cpu.h = keep.h; cpu.l = keep.l;
+	cpu.a_ = keep.a_; cpu.b_ = keep.b_; cpu.c_ = keep.c_; cpu.d_ = keep.d_; cpu.e_ = keep.e_; cpu.h_ = keep.h_; cpu.l_ = keep.l_; cpu.f_ = keep.f_;
+	cpu.sf = keep.sf; cpu.zf = keep.zf; cpu.yf = keep.yf; cpu.hf = keep.hf; cpu.xf = keep.xf; cpu.pf = keep.pf; cpu.nf = keep.nf; cpu.cf = keep.cf;
 	cpu.read_byte = &mem_rd;
 	cpu.write_byte = &mem_wr;
 	cpu.port_in = &port_in;

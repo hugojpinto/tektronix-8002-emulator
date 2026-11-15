@@ -69,6 +69,9 @@ protected:
 		cpu.pc = target; cpu.r = u8((cpu.r & 0x80) | ((cpu.r + 1) & 0x7f)); cpu.cyc += 10;
 	}
 	u16 cpu_pc() const override { return cpu.pc; }
+	// a halted Z80 keeps fetching at the HALT's own address (the diagnostics' instruction decode
+	// test expects PC next = the HALT, DE310 subtest F; the core keeps PC past it)
+	u16 fetch_address() const override { return cpu.halted ? u16(cpu.pc - 1) : cpu.pc; }
 	bool cpu_halted() const override { return cpu.halted; }
 	u64 cpu_cycles() const override { return cpu.cyc; }
 	bool firmware(u16 entry) override;
