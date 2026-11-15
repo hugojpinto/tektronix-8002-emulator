@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-15 — Version 0.10.0
+Since 0.9.0, against the 8002's own diagnostics and manuals:
+- **The Real-Time Prototype Analyzer** (`-rtpa`), checked against its users guide's seven procedures (`tests/rtpa_guide.sh`, 81 checks) and Millennium's hardware analyzer tests; a tutorial, [docs/RTPA.md](docs/RTPA.md), with pictures.
+- **Millennium's diagnostics** (DIP 4.4): 20 modules pass (`tests/dip.sh`), among them the 2650, 8080 and 6800 DEBUG tests, the 2650 and 6800 FETCH tests, SYS COMM 1 and 2, MASTER CPU and both analyzer tests.
+- **The 2650 Emulator Processor** (port E0), new; the 8080 board at 3 MHz with its wait states; the Z80 board's firmware rebuilt from a diagnostic's table; the 6800 board's halts, I/O page and resets as the diagnostics show them.
+- **CPU core fixes**, each from a test written for real silicon: the 2650's rotates and OVF, the 8080's conditional jumps and calls, the 6800's TAP/CLI stepping and a phantom bus read.
+- `-pmem N` (program memory boards), `syscomm:cable` (a port-to-port cable), and the notes on everything established (`notes/`).
+
 ## 2026-11-15 — SYS COMM 2
 - Millennium's SYS COMM 2 test passes with a cable from System Communications port 1 to port 2, then to port 3 (the input `syscomm:cable`; wiring inferred from the test's expected statuses): `tests/dip.sh` checks 20 modules. The MC6850 model now carries each character's word format across such a cable, so mismatched formats give parity and framing errors; the ACIAs' interrupt levels are read at every access.
 
