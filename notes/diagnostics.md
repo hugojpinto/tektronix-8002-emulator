@@ -57,7 +57,8 @@ System Communications 1 and 2, 90/91 system and program memory.
 | DCC11 | SYS COMM 2 | fails: needs a cable between ports 1 and 2 ("SET BAUD RATE THE SAME FOR BOTH PORTS"), not modelled |
 | D1212 | TIMER REV 2C | pass, since the timer jumper is at 100 ms (it measured 10.0 where 100.0 was expected) |
 | D0141 | MASTER CPU | pass. It checks the 2650's instructions, with a HALT after each check as a trap; it used to reach one ("UIN 0036", the slave-halted interrupt that followed): a rotate with WC = 0 that flips bit 7 set OVF in the core, which the real 2650 does only when WC = 1 (`emu/src/cpu/SOURCE.txt`) |
-| DE011, DE021, DA110 | 2650 DEBUG and FETCH, 1802 DEBUG | fail: those boards are not emulated |
+| DE011, DE021 | 2650 DEBUG, 2650 FETCH | pass (since 2026-11-15, the 2650 Emulator Processor: `notes/emulators.md`, the 2650) |
+| DA110 | 1802 DEBUG | fails: the 1802 board is not emulated |
 | D3A21, D3A30 | 8080 HWA, 6800 HDWR ANA: the RTPA ("hardware analyzer"), with `-rtpa` | D3A21: all 14 runnable subtests pass; D3A30: all 16 (the 6800's I/O page as bus I/O cycles, one clock more per SVC-window access, cycle-resolution counting); the T-clip subtests are bypassed (probe). Reading their tables settled the status rule, data ≥/≤, the G.P. counter's sources, the 8080's wait states, its I/O address (A13 high on the bus) and the 6800's I/O page (`notes/rtpa.md`) |
 | D0411, D0811–D0831, D0C11–D0C31, D1411, D1A11, D1A22, D1C11 | paper tape, TTY, GPIO, RS-232, printer, PROM programmers (1702A, 2708/04, 82S), 8080 and 6800 hardware analysers | fail or bypass: not emulated |
 | D1613 | DISK1 | stops at once: "ALL DISKS TO BE TESTED MUST HAVE SCRATCH FORMATED DISKETTES" (to be run with formatted blanks in the drives) |

@@ -157,6 +157,8 @@ void tek8002_debug::run_slave(tek8002_slave &s, int cycles2650, double master_hz
 		if (m_events & (1u << INT_SINGLE_CYCLE)) m_events &= ~(1u << INT_SLAVE_HALTED);
 		if (m_events & (1u << INT_BP1)) m_events &= ~((1u << INT_BP2) | (1u << INT_SINGLE_CYCLE));
 		else if (m_events & (1u << INT_BP2)) m_events &= ~(1u << INT_SINGLE_CYCLE);
+		// a breakpoint or single-cycle stop on a 2650 board lets the instruction at PC next run first
+		if ((m_events & MASKABLE) && !s.halted()) s.finish_fetched();
 		if (m_events) {
 			// an SVC alone lets the slave continue where it stopped; anything else arms a
 			// forced jump to the address the master sets

@@ -43,6 +43,19 @@ PATCH, the trace line's instruction bytes (070-2711's "UGET"), and MOVE. MOVE se
 for U and D2 for P to steer that routine (MOVEO 18A3–18C6). The entries come from the board
 table at 24CB: F8 0B on the Z80 discs, F9 FF on the 6800's.
 
+## 2650 (`tek8002_ep2650`, E0, 1.25 MHz) — added 2026-11-15
+No manual, schematic or PROM dump of this board is known. Millennium's 2650 DEBUG and 2650 FETCH tests (DE011, DE021; `notes/diagnostics.md`) are the specification, and both pass. TEKDOS 1.6 for the 2650 (on the Millennium discs) runs programs on it (`GO`; a HALT gives its ERROR 46); its DEBUG needs the board's dump/restore firmware, which is lost (open).
+
+| Item | Behaviour | Established by |
+|---|---|---|
+| Processor | a Signetics 2650 on MAME's core (the System Processor's), 15-bit addresses, 1.25 MHz (inferred, as the System Processor) | — |
+| Fetches | the 2650 has no fetch pin; the board marks the first read of each instruction as its fetch | DE021's single steps |
+| RESET | clears the IAR, the interrupt inhibit and an interrupt waiting; the registers, the PSW and the return address stack stay. MAME's reset clears them all; the board uses a `[tek8002]` `reset_pin()` | Signetics 2650 manual (1975), "RESET"; DE021 steps a BCFA on the flags, BDRR on R0, and RETC/RETE through forced RESET + JUMPs |
+| Forced jump | loads the IAR (`[tek8002]` `set_pc`) | DE011, DE021 |
+| Stops (breakpoint, single cycle) | the board stops the 2650 with PAUSE when it sees the next fetch; PAUSE counts at the start of an instruction's last cycle, so a **two-cycle instruction at PC next runs before the stop** (one of three or four cycles does not). Inferred | the manual's PAUSE ("finishes the instruction in progress ... If PAUSE is turned on then off again before the last cycle of the current instruction begins, program execution continues"); DE021 follows each instruction with a NOP and a HALT, and expects the IORZ a BIRR branches to to have run, and the BDRR a BCFA branches to not to have |
+| SVCs | an extended output (WRTE) to F0–F7 while the Debug module takes them (inferred, as the other boards' OUT); DE011's SVC subtests pass | DE011 |
+| Firmware | none modelled: the lab's dump/restore PROM is not known | open |
+
 ## 6800 (`tek8002_ep6800`, E2, 1.00 MHz)
 | Item | Behaviour | Established by |
 |---|---|---|

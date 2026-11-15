@@ -24,6 +24,7 @@
 #include "machine/tek8002_fdu.h"
 #include "machine/tek8002_debug.h"
 #include "machine/tek8002_asmproc.h"
+#include "machine/tek8002_ep2650.h"
 #include "machine/tek8002_ep6800.h"
 #include "machine/tek8002_ep8080.h"
 #include "machine/tek8002_epz80.h"
@@ -64,6 +65,7 @@ public:
 	double m_seconds = 0;           // for the RTPA's trace
 	tek8002_syscomm syscomm;        // System Communications: modem, printer, paper tape ACIAs; memory map
 	tek8002_asmproc asmproc{*this}; // Assembler Processor (Z80)
+	tek8002_ep2650 ep2650{*this};   // 2650 Emulator Processor
 	tek8002_ep6800 ep6800{*this};   // 6800 Emulator Processor
 	tek8002_ep8080 ep8080{*this};   // 8080A Emulator Processor
 	tek8002_epz80 epz80{*this};     // Z80 Emulator Processor
@@ -111,7 +113,7 @@ public:
 	bool master_interrupt_pending() const override { return m_pending != 0; }
 
 private:
-	std::vector<tek8002_slave *> m_slaves{ &asmproc, &ep8080, &ep6800, &epz80 };   // every slave board, each decoding its own command port
+	std::vector<tek8002_slave *> m_slaves{ &asmproc, &ep2650, &ep8080, &ep6800, &epz80 };   // every slave board, each decoding its own command port
 	std::vector<u8> m_prom;                 // bootstrap PROM, in CPU address order
 	std::vector<u8> m_sysram, m_progmem;
 	std::vector<bool> m_sysbad, m_progbad;  // bytes holding bad parity

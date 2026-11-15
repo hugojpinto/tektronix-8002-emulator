@@ -60,12 +60,12 @@ bool tek8002_system::start(std::string &err)
 	// the prototype, for the emulator boards' modes 1 and 2 (notes/prototype-link.md)
 	if (!opt.targetspec.empty()) {
 		if (!target.open(opt.targetspec, err)) return false;
-		m->ep8080.target = m->ep6800.target = m->epz80.target = &target;
+		m->ep2650.target = m->ep8080.target = m->ep6800.target = m->epz80.target = &target;
 	}
 	m->trace_io = opt.io || getenv("TEK_IOTRACE");
 	m->fdu.trace = opt.fdutrace || getenv("TEK_FDCTRACE");
 	m->debug.trace = getenv("TEK_EPTRACE");
-	m->ep8080.trace = m->ep6800.trace = m->epz80.trace = getenv("TEK_EPTRACE");
+	m->ep2650.trace = m->ep8080.trace = m->ep6800.trace = m->epz80.trace = getenv("TEK_EPTRACE");
 	if (!opt.logfile.empty() && !(logf = fopen(opt.logfile.c_str(), "wb"))) { err = opt.logfile + ": cannot write"; return false; }
 	if (!opt.tracefile.empty()) {
 		if (!(tracef = fopen(opt.tracefile.c_str(), "w"))) { err = opt.tracefile + ": cannot write"; return false; }

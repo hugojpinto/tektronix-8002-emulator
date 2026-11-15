@@ -49,6 +49,7 @@ The mainframe is a card cage on one bus (070-2711; `notes/8002.md`).
 | **Program Memory** (670-5298) | 16K per board, two in the 8002A, up to four. The 2650 sees one bank at a time at 4000–7FFF; the slaves see them all as one space | `tek8002` |
 | **Debug and Front Panel I/O** (670-5299) | ports F8–FF: the master/slave hand-over, breakpoints, single cycle, SVCs, forced jumps, PC last/next | `tek8002_debug` |
 | **Assembler Processor** (670-5220) | a **Z80** at 2.5 MHz that runs ASM, LINK and the macro processor; port E7 | `tek8002_asmproc` |
+| **2650 Emulator Processor** | a **2650** at 1.25 MHz that runs your program; port E0 (no firmware known: no DEBUG) | `tek8002_ep2650` |
 | **6800 Emulator Processor** | a **6800** at 1 MHz that runs your program; port E2 | `tek8002_ep6800` |
 | **8080A Emulator Processor** | an **8080A** at 3 MHz that runs your program; port E1; PROMs with an Intel MDS-800 monitor interface and the debug firmware | `tek8002_ep8080` |
 | **Z80 Emulator Processor** | a **Z80** at 4 MHz; port E3 | `tek8002_epz80` |

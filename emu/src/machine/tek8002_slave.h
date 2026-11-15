@@ -40,7 +40,10 @@ public:
 	virtual double clock_hz() const = 0;
 	// its bus cycles' lengths in clock periods, for the RTPA's time counts (rtpa.h); 0 unknown
 	virtual void bus_states(int &fetch, int &mem, int &io) const { fetch = mem = io = 0; }
-	virtual int io_page() const { return -1; }     // a memory page its board marks as I/O, for the RTPA
+	virtual int io_page() const { return -1; }
+	// a board that stops its processor with a pause the processor honours only after finishing the
+	// instruction it has just fetched (the 2650's PAUSE): run that instruction (tek8002_ep2650)
+	virtual void finish_fetched() {}     // a memory page its board marks as I/O, for the RTPA
 
 	// its slave command port, as the System Processor writes it
 	virtual bool decodes(u8 port) const = 0;

@@ -34,7 +34,7 @@ PATHS_OBJ := $(BUILD)/host/paths.o
 DASM_OBJ := $(BUILD)/cpu/s2650/2650dasm.o $(BUILD)/cpu/z80/z80dasm.o $(BUILD)/cpu/m6800/6800dasm.o $(BUILD)/cpu/i8085/8085dasm.o
 HOST     := $(PATHS_OBJ) $(BUILD)/host/serial_link.o $(BUILD)/host/net.o $(BUILD)/host/ipc_target.o $(BUILD)/host/ct8100.o
 SYSTEM   := $(BUILD)/system/tek8002_system.o $(BUILD)/system/options.o
-M8002    := $(BUILD)/machine/tek8002.o $(BUILD)/machine/tek8002_fdu.o $(BUILD)/machine/tek8002_fdc.o $(BUILD)/machine/tek8002_fdd.o $(BUILD)/machine/tek8002_debug.o $(BUILD)/machine/rtpa.o $(BUILD)/machine/tek8002_asmproc.o $(BUILD)/machine/tek8002_emboard.o $(BUILD)/machine/tek8002_ep6800.o $(BUILD)/machine/tek8002_ep8080.o $(BUILD)/machine/tek8002_epz80.o $(BUILD)/cpu/m6800/m6800.o $(BUILD)/cpu/i8085/i8085.o $(BUILD)/machine/tek8002_syscomm.o $(BUILD)/cpu/z80/superzazu/z80.o $(BUILD)/cpu/s2650/s2650.o
+M8002    := $(BUILD)/machine/tek8002.o $(BUILD)/machine/tek8002_fdu.o $(BUILD)/machine/tek8002_fdc.o $(BUILD)/machine/tek8002_fdd.o $(BUILD)/machine/tek8002_debug.o $(BUILD)/machine/rtpa.o $(BUILD)/machine/tek8002_asmproc.o $(BUILD)/machine/tek8002_emboard.o $(BUILD)/machine/tek8002_ep2650.o $(BUILD)/machine/tek8002_ep6800.o $(BUILD)/machine/tek8002_ep8080.o $(BUILD)/machine/tek8002_epz80.o $(BUILD)/cpu/m6800/m6800.o $(BUILD)/cpu/i8085/i8085.o $(BUILD)/machine/tek8002_syscomm.o $(BUILD)/cpu/z80/superzazu/z80.o $(BUILD)/cpu/s2650/s2650.o
 
 all: $(BUILD)/dasm$(EXE) $(BUILD)/tek8002$(EXE)
 

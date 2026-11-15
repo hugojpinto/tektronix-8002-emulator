@@ -31,6 +31,11 @@ public:
 	void set_irq(int state) { m_irq_state = u8(state); }
 
 	u16 pc() const { return u16(m_page + m_iar); }
+	void set_pc(u16 a) { m_page = u16(a & 0x6000); m_iar = u16(a & 0x1fff); m_halt = 0; }   // [tek8002] a forced jump (the 2650 Emulator Processor)
+	// [tek8002] the RESET pin: it clears the IAR (and a halt); the registers, the PSW and the return
+	// address stack stay (Millennium's 2650 FETCH test steps a branch on the flags, a BDRR on R0 and
+	// RETC/RETE through forced RESET + JUMPs). reset() is the power-on state
+	void reset_pin() { m_page = 0; m_iar = 0; m_ppc = 0; m_halt = 0; m_irq_state = CLEAR_LINE; }
 	u16 ppc() const { return m_ppc; }
 	u8  reg(int n) const { return m_reg[n]; }
 	u8  psl() const { return m_psl; }

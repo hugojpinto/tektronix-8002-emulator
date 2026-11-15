@@ -10,7 +10,7 @@ EMU=emu/build/tek8002 SEC=${SEC:-400}
 DISC=sources/bitsavers/disks/Millennium_internal_floppies/diag_4.4_5-23-79/diag_4.4_5-23-79.img
 [ -x "$EMU" ] || { echo "build first: make -C emu"; exit 1; }
 V=; [ "$1" = -v ] && { V=1; shift; }
-PASSING="0141 9012 9112 9912 9921 9931 9981 E141 E710 1E10 1212 CA11 E111 E211 E221 3A21 3A30"
+PASSING="0141 9012 9112 9912 9921 9931 9981 E141 E710 1E10 1212 CA11 E011 E021 E111 E211 E221 3A21 3A30"
 W=$(mktemp -d); trap 'rm -rf "$W"' EXIT
 fail=0
 for m in ${*:-$PASSING}; do
