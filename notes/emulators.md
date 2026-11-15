@@ -268,20 +268,26 @@ with a 512-byte table at 25B9. `tools/rebuild_z80_firmware.py` rebuilds the firm
   F806 → F860 restore, F809 → F80C dump); the dump saves SP, sets SP to 0018 and pushes every
   register into the block, swapping A/F and A′/F′ into the block's order, then ends in
   `OUT (F1)` (debug SVC 1); the restore pops them back; GET and PUT end in `OUT (F0)`. The block
-  layout is exactly the one inferred from TEKDOS above, now confirmed. From F8DD on is data the
-  routines never read, then a table, mostly 30, from F900 to FA27 (probably the board's
-  instruction decoding; DE310 subtest 0F, "instruction decode", is still open).
-- **The table from F900 is not an opcode-indexed decode table** (tested 2026-11-15,
+  layout is exactly the one inferred from TEKDOS above, now confirmed. The code ends at F8DC.
+- **After the code, fill with bit noise, not data.** F8DD–F8FF is FF with bits cleared (DF, FD,
+  DB, FB, and a few with more: 66, 6E, 4E, 24, 08, 20); F900–FA27 is 30 (ASCII "0") with 18
+  scattered single- or double-bit flips (31, 32, 34, 38, 35, 36 gain bits, B0 and 70 gain bit 7
+  or 6, 20, 10, 00 lose bit 4 or 5). Nothing reads it, and its departures from the fill have no
+  structure. In a real 2708 everything past the code would most likely read FF (erased); the
+  table's content looks like the memory it was made in. The 21 missing bytes there are set to
+  the fill around them (FF, then 30); their exact values cannot be known and do not matter to
+  anything but subtest E.
+- **Not an opcode-indexed decode table either** (tested 2026-11-15, before the region was read as
+  fill; it agrees,
   `tools/z80_decode/`): if the opcode drove A7–A0 in any order, any lines inverted (10,321,920
   wirings), the stored value would tell what each instruction does. `props.c` measures each
   opcode on the Z80 core (length, M1s, data and I/O cycles, T-states, flow, prefix, stack,
   HALT); `search.c` scores every wiring by the mutual information between PROM value and each
   property. The best wiring scores no better than the same values shuffled into random places
   (1.06 bits against 0.92–1.06), in this frame and in the test's own (0.86). Of its 240 known
-  entries 222 are 30: it marks about 18 entries, not each instruction's behaviour. What it
-  indexes, and so its 21 missing bytes, stays open.
+  entries 222 are 30, and the rest are 30 with bits flipped (above).
 - **The diagnostics' instruction decode test (DE310 subtest F) passes** (2026-11-15). It does not
-  use this table: it single-steps 762 instructions from 0000, one at a time, each after a forced
+  use this region: it single-steps 762 instructions from 0000, one at a time, each after a forced
   reset and a forced jump, and checks PC next and the interrupt raised. It established three
   things, now modelled:
   - **RESET keeps the registers** other than PC, I, R, the IFFs and the interrupt mode: the test
@@ -307,8 +313,7 @@ with a 512-byte table at 25B9. `tools/rebuild_z80_firmware.py` rebuilds the firm
     byte 0 is non-zero; the dump writes 00 to byte 0.
 - **Modes 1 and 2:** the firmware's data cycles outside the register block (GET's and PUT's (HL)
   accesses, the only ones) reach the prototype (*inferred*: the firmware keeps all its own data at
-  0000–001B; whether the table at F900 does the steering, as the 6800's FETCH PROM does, is not
-  known). `tests/prototype.sh` passes.
+  0000–001B; nothing in the PROM marks instructions, as the 6800's FETCH PROM does). `tests/prototype.sh` passes.
 - **The System Processor reads it:** while a board is active with its firmware mapped, its PROM
   answers the System Processor's program-memory reads at those addresses (so do the 6800's and
   8080's); this is how the diagnostics read it.
@@ -337,8 +342,8 @@ and clock throughout. As modelled:
   halted" error (46). Select the mode again before the next run.
 
 ## Modelled at high level, or open
-- **Z80 firmware:** rebuilt and run on the Z80 (above); 21 bytes of its data are guesses, and
-  what its table at F900 does is open. How the board captures the Z80's IM for its status bits is
+- **Z80 firmware:** reconstructed and run on the Z80 (above). Past the code (F8DD on) the table
+  holds fill with bit noise, so what a real chip holds there (most likely FF) is not known from it. How the board captures the Z80's IM for its status bits is
   unknown (the model follows the processor).
 - **The prototype's clock:** in modes 1 and 2 the processor runs from it. The probe takes it from
   the socket's clock pin (070-3665 §1: mode 1 "allows the prototype circuit's memory, I/O, and

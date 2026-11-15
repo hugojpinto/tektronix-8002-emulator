@@ -43,10 +43,12 @@ s(0xF8A0, 0xD1, 'A', 'POP DE\' between POP HL\' and POP BC\' (the block\'s 04-09
 s(0xF8B0, 0xC1, 'A', 'POP BC between POP DE and the AF pop (the block\'s 10-17)')
 s(0xF8C0, 0x5C, 'B', 'GET: LD E,H of the address swap (block bytes 1, 2 are high, low), as PUT does at F8CD')
 s(0xF8D0, 0x3A, 'B', 'PUT: LD A,(0000), then LD (HL),A; LD A,(HL); XOR B; LD (0003),A: 00 when the byte reads back')
-for a, why in ((0xF8E0, 'between FF FF FF and 08: FF'), (0xF8F0, 'between FF and FD: FF')):
-    s(a, 0xFF, 'C', 'data after the code, never read by it; ' + why)
+# past the code (F8DC) the table holds fill with bit noise, read by nothing: FF with bits cleared
+# to F8FF, then 30 with single or double bits flipped; a missing byte there takes the fill
+for a in (0xF8E0, 0xF8F0):
+    s(a, 0xFF, 'C', 'fill after the code: FF with scattered cleared bits around it; FF')
 for a in range(0xF900, 0xFA28, 16):
-    s(a, 0x30, 'C', 'the table from F900 (mostly 30, likely the board\'s instruction decoding; not read by the firmware): 30, as around it')
+    s(a, 0x30, 'C', 'fill: 30 with scattered flipped bits around it, read by nothing; 30')
 
 
 def extract_de310():
