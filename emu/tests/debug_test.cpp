@@ -121,12 +121,21 @@ int main()
 		r.run();
 		CHECK(r.host.ints.size() == 1 && r.pc_last() == 3 && r.pc_next() == 6);
 	}
-	{	// the interrupt mask (F9 bit 3 low) holds debug interrupts; releasing it raises them
+	{	// the interrupt mask (F9 bit 3 low) holds the Debug hardware's interrupts (breakpoints,
+		// single cycle) and lets SVCs through (070-2711 §6; the diagnostics' DE211 subtest 0F)
 		rig r; r.dbg.write(0xf9, 0xf7); r.s.prog[1].out = 0xf7; r.s.prog[2].out = 0xf6;
 		r.run(12);
+		CHECK(r.host.ints.size() == 1 && r.host.ints[0] == 16);   // the SVC stops the slave, mask or not
+		r.dbg.write(0xf9, 0xf7);                                  // the master lets it go on
+		r.run(12);
+		CHECK(r.host.ints.size() == 2 && r.host.ints[1] == 17);
+	}
+	{	// single cycle under the mask is held, and raised when the mask is released
+		rig r; r.dbg.write(0xf9, 0xf7); r.dbg.write(0xf8, 0xcf);
+		r.run();
 		CHECK(r.host.ints.empty());
 		r.dbg.write(0xf9, 0xff);
-		CHECK(r.host.ints.size() == 2 && r.host.ints[0] == 16 && r.host.ints[1] == 17);
+		CHECK(!r.host.ints.empty() && r.host.ints[0] == 26);
 	}
 	{	// a command byte with forced reset or jump low arms it, once, for the next hand-over;
 		// every such write arms again (070-2711 §6; TEKDOS's 6800 probe retries this way)

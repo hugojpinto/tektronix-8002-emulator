@@ -10,17 +10,20 @@ EMU=emu/build/tek8002 SEC=${SEC:-400}
 DISC=sources/bitsavers/disks/Millennium_internal_floppies/diag_4.4_5-23-79/diag_4.4_5-23-79.img
 [ -x "$EMU" ] || { echo "build first: make -C emu"; exit 1; }
 V=; [ "$1" = -v ] && { V=1; shift; }
-PASSING="0141 9012 9112 9912 9921 9931 9981 E141 E710 1E10 1212 CA11 E111"
+PASSING="0141 9012 9112 9912 9921 9931 9981 E141 E710 1E10 1212 CA11 E111 E211 E221 3A21 3A30"
 W=$(mktemp -d); trap 'rm -rf "$W"' EXIT
 fail=0
 for m in ${*:-$PASSING}; do
 	cp "$DISC" "$W/d.img"; chmod u+w "$W/d.img"
 	# what a module needs fitted, and the operator's answers (SO 02: an operator is present)
+	sec=$SEC
 	case $m in
+	E221) set -- -pmem 4 ;;    # its RTS and SWI steps use the stack at FFFD/FFFE: four program memory boards
+	3A21|3A30) set -- -rtpa; sec=1500 ;;   # the hardware analyzer tests (notes/rtpa.md)
 	CA11) set -- -rem loop -input 1 syscomm:strap1=1 -type 12 'SO 02 00\r' -type 40 'C\r' -input 60 syscomm:strap1=0 -type 70 'C\r' ;;
 	*) set -- ;;
 	esac
-	"$EMU" -fdc lle -prom roms/tekdos_boot.bin -0 "$W/d.img" -cycles $((SEC * 1250000)) "$@" -type 15 "LO $m\r" </dev/null 2>/dev/null |
+	"$EMU" -fdc lle -prom roms/tekdos_boot.bin -0 "$W/d.img" -cycles $((sec * 1250000)) "$@" -type 15 "LO $m\r" </dev/null 2>/dev/null |
 		LC_ALL=C tr -cd '\12\15\40-\176' | tr '\r' '\n' | grep -v '^ *$' > "$W/$m.txt"
 	name=$(grep -A1 "LO $m" "$W/$m.txt" | sed -n 2p)
 	if [ -n "$V" ]; then cat "$W/$m.txt"; fi

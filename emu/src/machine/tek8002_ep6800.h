@@ -36,6 +36,7 @@
 #include "cpu/m6800/m6800.h"
 #include <string>
 #include <vector>
+#include <cstdlib>
 
 class tek8002_ep6800 : public tek8002_emboard, private m6800_cpu_device::bus_interface
 {
@@ -52,12 +53,30 @@ public:
 	bool prom_firmware() const { return !m_sys.empty(); }
 
 protected:
-	void cpu_reset() override { cpu.reset(); }
+	// RESET sets the I mask and loads the PC; the other registers and CC bits stay (MC6800 data
+	// sheet; the core's reset clears CC). Millennium's 6800 FETCH test (DE221) sets CC with TAP,
+	// then steps a BMI with RESET + JUMP and expects it taken
+	void cpu_reset() override { const u8 cc = cpu.cc(); m_unknown_op = false; cpu.reset(); cpu.set_cc(u8(cc | 0x10)); }
 	void cpu_step() override { cpu.step(); }
-	void cpu_jump(u16 target) override { cpu.clear_wait(); cpu.set_pc(target); }
+	void cpu_jump(u16 target) override { cpu.clear_wait(); m_unknown_op = false; cpu.set_pc(target); }
+	// An opcode the 6800 lacks reads 00 in the FETCH PROM, and the board halts the processor on
+	// it: Millennium's 6800 DEBUG test (DE211, slave reset) runs CLI; JMP 0064 onto an 04 and
+	// expects the halt interrupt with PC last 0064, and its FETCH test (DE221) ends each block with
+	// an 04 and expects PC next FFFF after every unknown opcode, the bus idle while halted
+	u16 fetch_address() const override { return m_unknown_op ? 0xffff : pc(); }
 	u16 cpu_pc() const override { return cpu.pc(); }
-	bool cpu_halted() const override { return cpu.waiting(); }
-	u64 cpu_cycles() const override { return cpu.total_cycles(); }
+	// one clock per bus cycle, for the RTPA's time counts (the 6800 runs at 1 MHz without waits)
+	void bus_states(int &f, int &m, int &io) const override { f = m = io = 1; }
+	bool cpu_halted() const override { return cpu.waiting() || m_unknown_op; }
+	u64 cpu_cycles() const override { return cpu.total_cycles() + m_stretch; }
+	// An access to the SVC window FEF0-FEF7 takes one clock more (inferred): Millennium's 6800
+	// hardware analyzer test (D3A30) counts one clock more per loop than the instructions take,
+	// in two loops that each read FE00 and write FEF7 (TRACE I/O, TRACE I/O READS). A stretch of
+	// the whole I/O page would give two; the SVC decode, which must decide whether to divert the
+	// cycle, is the one path the write takes and the read does not. A stretch of I/O-page reads
+	// only, or writes only, fits the test as well (notes/rtpa.md)
+	u64 m_stretch = 0;
+	void svc_window_stretch(u16 a) { if ((a & 0xfff8) == 0xfef0) m_stretch++; }
 	bool firmware(u16 entry) override;
 	// control bit 2 does not gate the debug signals here: the diagnostics' 6800 DEBUG test
 	// (DE211) runs the board with E2 <- 90 and expects breakpoints and single cycle
@@ -65,6 +84,11 @@ protected:
 	// the SVC page FE00-FEFF ("the 6800 microprocessor uses memory mapped I/O", 070-2349 §10) is the
 	// board's I/O: the 8002 diagnostics' 6800 hardware analyzer test traces FE00 as I/O cycles
 	int io_page() const override { return 0xfe; }
+	// In mode 0 the board turns that page into I/O cycles on the 8002 bus, not program memory
+	// (070-2349 §10: "the 6800 microprocessor uses memory mapped I/O, the memory region FE00
+	// through FEFF is reserved"): D3A30's trace expects a read of FE00 to return the idle I/O
+	// bus's 00 with four program memory boards fitted, where memory at FE00 holds other data
+	static bool io_page_address(u16 a) { return (a >> 8) == 0xfe; }
 	bool firmware_code(u16 pc) const override { return !m_sys.empty() && pc >= 0xf800 && pc <= 0xf9ff; }
 	bool prom_byte(u16 a, u8 &d) const override { if (!firmware_code(a)) return false; d = m_sys[a - 0xf800]; return true; }
 	// Bit 7: TEKDOS's debug control resets the board and resumes at PC last when it reads 0
@@ -85,5 +109,11 @@ private:
 	u8 m_op = 0;                              // the opcode of the instruction running
 	// a firmware data cycle steered by the FETCH PROM: 0 none, 1 to 0000 (bit 7), 2 to the prototype (bit 6)
 	int steer() const;
+	// the instruction's own operand bytes are not steered, only its data cycles (FETCH PROM bit 4
+	// marks the instructions with operands): Millennium's 6800 FETCH test (DE221) single-steps a
+	// JSR extended, flagged to 0000 like PSHA and PULA, and expects it to reach its target
+	bool operand(u16 a) const { return !m_fetch.empty() && !(m_fetch[m_op] & 0x10) && u16(a - m_op_pc) >= 1 && u16(a - m_op_pc) <= 2; }
+	u16 m_op_pc = 0;
+	bool m_unknown_op = false;               // halted on an opcode the FETCH PROM does not know
 };
 #endif

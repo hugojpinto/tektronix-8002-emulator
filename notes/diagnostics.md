@@ -51,14 +51,14 @@ System Communications 1 and 2, 90/91 system and program memory.
 | D1E10 | PROBE TEST | pass (bypassed) |
 | DE111 | 8080 DEBUG | pass |
 | DE310 | Z80 DEBUG | subtests 1–D and F pass (F: 762 single-stepped instructions). E compares the board's PROM, read linearly from F9FF down, with a table the test carries. The emulator's Z80 firmware is reconstructed from that table, which differs from working code by a regular pattern (a byte missing before every address ending in 0; `notes/emulators.md`); with the reconstruction E fails. Why the table differs, and whether a real board passes E, is open |
-| DE211 | 6800 DEBUG | subtests 02 (slave reset: the 6800 starts at FEF1, not at the test's program), 0E (with SVCs masked the program runs away from FEF1) and 0F fail; the others pass |
-| DE221 | 6800 FETCH | **fail**, see below |
+| DE211 | 6800 DEBUG | pass (since 2026-11-15: a RESET keeps CC, an unknown opcode halts the board, the interrupt mask lets SVCs through; `notes/emulators.md`, the 6800) |
+| DE221 | 6800 FETCH | pass with `-pmem 4` (its RTS and SWI steps use the stack at FFFD/FFFE): one instruction per step, PC next FFFF after an unknown opcode, operand bytes not steered |
 | DCA11 | SYS COMM 1 | pass, with the test fixture (below), then chains (CAL) to DCC11 |
 | DCC11 | SYS COMM 2 | fails: needs a cable between ports 1 and 2 ("SET BAUD RATE THE SAME FOR BOTH PORTS"), not modelled |
 | D1212 | TIMER REV 2C | pass, since the timer jumper is at 100 ms (it measured 10.0 where 100.0 was expected) |
 | D0141 | MASTER CPU | pass. It checks the 2650's instructions, with a HALT after each check as a trap; it used to reach one ("UIN 0036", the slave-halted interrupt that followed): a rotate with WC = 0 that flips bit 7 set OVF in the core, which the real 2650 does only when WC = 1 (`emu/src/cpu/SOURCE.txt`) |
 | DE011, DE021, DA110 | 2650 DEBUG and FETCH, 1802 DEBUG | fail: those boards are not emulated |
-| D3A21, D3A30 | 8080 HWA, 6800 HDWR ANA: the RTPA ("hardware analyzer"), with `-rtpa` | D3A21: all 14 runnable subtests pass; D3A30: 16 of 18 (TRACE I/O and TRACE I/O READS: 2 µs and 6 clocks); the T-clip subtests are bypassed (probe). Reading their tables settled the status rule, data ≥/≤, the G.P. counter's sources, the 8080's wait states, its I/O address (A13 high on the bus) and the 6800's I/O page (`notes/rtpa.md`) |
+| D3A21, D3A30 | 8080 HWA, 6800 HDWR ANA: the RTPA ("hardware analyzer"), with `-rtpa` | D3A21: all 14 runnable subtests pass; D3A30: all 16 (the 6800's I/O page as bus I/O cycles, one clock more per SVC-window access, cycle-resolution counting); the T-clip subtests are bypassed (probe). Reading their tables settled the status rule, data ≥/≤, the G.P. counter's sources, the 8080's wait states, its I/O address (A13 high on the bus) and the 6800's I/O page (`notes/rtpa.md`) |
 | D0411, D0811–D0831, D0C11–D0C31, D1411, D1A11, D1A22, D1C11 | paper tape, TTY, GPIO, RS-232, printer, PROM programmers (1702A, 2708/04, 82S), 8080 and 6800 hardware analysers | fail or bypass: not emulated |
 | D1613 | DISK1 | stops at once: "ALL DISKS TO BE TESTED MUST HAVE SCRATCH FORMATED DISKETTES" (to be run with formatted blanks in the drives) |
 

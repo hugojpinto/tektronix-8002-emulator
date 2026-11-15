@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-15 — The 6800 board against its diagnostics
+- **6800 DEBUG (DE211) and 6800 FETCH (DE221) pass**, and with them the 6800 hardware analyzer test (D3A30, all 16 runnable subtests): `tests/dip.sh` now checks 17 modules.
+- What they established about the board (`notes/emulators.md`, the 6800): a RESET keeps the registers and CC but for the I mask (MAME cleared CC); TAP and CLI no longer run the next instruction inside themselves (`tools/port_m6800.py`); an opcode the FETCH PROM does not know halts the board, with PC next FFFF; the PROM's steering leaves operand bytes alone; the I/O page FE00–FEFF becomes I/O cycles on the 8002 bus in mode 0; and an SVC-window access takes one clock more (inferred from the analyzer test's counts).
+- **The Debug interrupt mask** holds breakpoints and single cycle only; SVCs go through ("prevents any Debug hardware interrupt", 070-2711 §6; DE211 subtest 0F).
+- `-pmem N`: the number of 16K program memory boards (1–4).
+
 ## 2026-11-15 — The 8080's I/O cycles drive A13
 - On the 8002 bus an 8080 I/O cycle carries A13 high, the line the 2650's E/NE (extended I/O) takes there and the bus peripherals decode with the port (070-2711 §3, §5). Millennium's 8080 hardware analyzer test traces IN 00 as address 2000; with it, D3A21 passes all 14 runnable subtests. The prototype still sees the 8080's own pins.
 

@@ -41,25 +41,29 @@ int tek8002_ep6800::steer() const
 // as a NOP. The 6800 has no instruction-fetch pin, so the prototype sees reads and writes only.
 u8 tek8002_ep6800::read(u16 a, bool opcode)
 {
+	svc_window_stretch(a);
 	if (svc_address(a)) { svc(a); return opcode && firmware_mapped() ? 0x01 : m_bus.slave_read(a, false); }
 	u8 d;
 	// the SYSTEM PROM: F800-F9FF while the firmware is mapped (its entries are F9F4-F9FD;
 	// whether it is mirrored elsewhere is not known)
 	if (!m_sys.empty() && firmware_mapped() && a >= 0xf800 && a <= 0xf9ff) d = m_sys[a & 0x1ff];
-	else if (!opcode && steer() == 1) d = m_bus.slave_read(0x0000, false);
-	else if (!opcode && steer() == 2) d = target->mem_read(a);
+	else if (!opcode && !operand(a) && steer() == 1) d = m_bus.slave_read(0x0000, false);
+	else if (!opcode && !operand(a) && steer() == 2) d = target->mem_read(a);
 	else if (proto_mem(a)) d = proto_read(a, false);
+	else if (!opcode && io_page_address(a)) d = m_bus.slave_in(a);
 	else d = m_bus.slave_read(a, opcode);
-	if (opcode) m_op = d;
+	if (opcode) { m_op = d; m_op_pc = a; if (!m_fetch.empty() && m_fetch[d] == 0x00 && !firmware_code(a)) m_unknown_op = true; }
 	return d;
 }
 
 void tek8002_ep6800::write(u16 a, u8 d)
 {
+	svc_window_stretch(a);
 	if (svc_address(a)) { svc(a, a, d); return; }   // a store: the RTPA sees it (the 6800 hardware analyzer test arms on STAA FEF7)
 	if (steer() == 1) { m_bus.slave_write(0x0000, d); return; }
 	if (steer() == 2) { target->mem_write(a, d); return; }
 	if (proto_mem(a)) { proto_write(a, d); return; }
+	if (io_page_address(a)) { m_bus.slave_out(a, d); return; }
 	m_bus.slave_write(a, d);
 }
 

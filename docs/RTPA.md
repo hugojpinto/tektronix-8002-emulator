@@ -413,8 +413,8 @@ ADDR DATA MNEMONIC  EXTERNAL  BUS
 ## In the emulator
 
 - **Options:** `-rtpa` fits the board; `-rtpa probe` loops the probe back to A0–A7 (a diagnostic fixture). The probe cannot be fed from outside yet.
-- **Timing:** the 8080 board runs at 3 MHz with one wait state per memory cycle, the Z80 board at 4 MHz with two, the 6800 at 1 MHz with none, as the guide's Appendix A gives them; the analyzer counts them cycle by cycle.
+- **Timing:** the 8080 board runs at 3 MHz with one wait state per memory cycle, the Z80 board at 4 MHz with two, the 6800 at 1 MHz with none, as the guide's Appendix A gives them; the analyzer counts them cycle by cycle. On the 6800 the page FE00–FEFF is I/O, and an access to its SVC window takes one clock more (inferred from Millennium's analyzer test).
 - **The pictures** are made by `tools/make_rtpa_shots.sh` from a scripted run of this session (the commands above, in order), so they come out the same on every run.
 - **Trace of a run:** `TEK_RTPATRACE=1` logs every register access, match and break on stderr.
-- **Known differences** from the real lab (`notes/rtpa.md`, "Open"): microsecond delays can expire one instruction early; the 6800's timing in SVC-heavy loops is a few cycles off; the trace before a program does not show the board firmware's last fetch.
+- **Known differences** from the real lab (`notes/rtpa.md`, "Open"): microsecond delays can expire one instruction early; the trace before a program does not show the board firmware's last fetch.
 - **The same session on the 8550:** the sibling 8550 emulator has the same board, under DOS/50 (`../tektronix-8550-emulator/docs/RTPA.md`).

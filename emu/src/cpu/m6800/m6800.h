@@ -76,6 +76,7 @@ protected:
 	PAIR m_ea;          // effective address (temporary variable)
 	u8 m_cc;            // Condition codes
 	u8 m_wai_state;     // WAI opcode state (or sleep opcode state)
+	bool m_irq_shadow = false;   // [tek8002] TAP/CLI: no IRQ before the next instruction (which runs as a step of its own)
 	u8 m_nmi_state;     // NMI line state
 	u8 m_nmi_pending;   // NMI pending
 	u8 m_irq_state[5];  // IRQ line state [IRQ1,TIN,IS3,..]

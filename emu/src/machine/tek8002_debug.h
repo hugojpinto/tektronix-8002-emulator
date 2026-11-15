@@ -101,6 +101,7 @@ private:
 
 	bool debugging() const { return !(m_control & 0x20); }
 	bool masked() const { return !(m_command & 0x08); }
+	static constexpr u32 MASKABLE = (1u << INT_BP1) | (1u << INT_BP2) | (1u << INT_SINGLE_CYCLE);
 	void raise(u32 events);                // to the master, or held while masked
 };
 #endif

@@ -402,7 +402,8 @@ int m6800_cpu_device::run(int cycles)
 void m6800_cpu_device::step()
 {
 	m_icount = 0;
-	check_irq_lines();
+	if (m_irq_shadow) m_irq_shadow = false;   // [tek8002] the instruction after TAP/CLI: IRQs wait for it
+	else check_irq_lines();
 	if (m_wai_state & (M6800_WAI | M6800_SLP))
 		increment_counter(1);
 	else

@@ -45,7 +45,9 @@ check "SET reached memory"  "0320=00 00 14 14 03 30 1A 00 00 00 00 00 00 00 C4 2
 run -type prompt 'ASSIGN 1 CONO\r' -type prompt 'LOAD RUN68;L\r' -type prompt 'PATCH 319 01010101\r' -type prompt 'GO 300\r' \
 	-type prompt 'DEBUG\r' -type prompt 'GO 300\r' -type prompt 'DSTAT\r' > "$W/wai.txt"
 check "WAI: emulator halted" "*DOS* ERROR 46"              "$W/wai.txt"
-check "WAI under DEBUG"     "031D 3E     WAI                      C4 04 0344 FFF9 D0" "$W/wai.txt"
+# CC keeps N through the RESET + JUMP TEKDOS gives after restoring the registers: a 6800 RESET
+# sets only I (MC6800 data sheet; Millennium's 6800 FETCH test steps a BMI after a TAP so)
+check "WAI under DEBUG"     "031D 3E     WAI                      C4 04 0344 FFF9 D8" "$W/wai.txt"
 check "WAI: resume at WAI"  "PC=031D"                      "$W/wai.txt"
 for f in go trace bkpt; do grep -q "ERROR [0-9]" "$W/$f.txt" && { echo "FAIL $f: TEKDOS reported $(grep "ERROR [0-9]" "$W/$f.txt" | head -1)"; fail=1; }; done
 exit $fail

@@ -83,8 +83,7 @@ OP_HANDLER( tap )
 
 	// TAP temporarily sets the I flag and blocks IRQ until the next opcode
 	// (if the next opcode is TAP, IRQ is blocked again)
-	execute_one();
-	check_irq_lines();
+	m_irq_shadow = true;	// [tek8002] the next instruction runs as its own step
 }
 
 /* $07 TPA inherent ----- */
@@ -138,8 +137,8 @@ OP_HANDLER( cli )
 	CLI;
 
 	// pending IRQ won't be triggered until next machine cycle
-	if (i) execute_one();
-	check_irq_lines();
+	if (i) m_irq_shadow = true;	// [tek8002] the next instruction runs as its own step
+	else check_irq_lines();
 }
 
 /* $0f SEI */

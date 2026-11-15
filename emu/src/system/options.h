@@ -16,6 +16,7 @@ struct tek8002_options
 	bool fdc_hle = false;              // -fdc hle|lle
 	bool ep6800_hle = false;           // -ep6800 hle|prom: the 6800 board's firmware at high level, or its SYSTEM PROM
 	bool epz80_hle = false;
+	int program_boards = 2;                    // -pmem N: 16K program memory boards (1-4; the 8002A has two as standard)
 	bool rtpa_on = false, rtpa_probe = false;   // -rtpa [probe]: the Real-Time Prototype Analyzer (probe: RTPA.TST's loopback)            // -epz80 hle|prom: the Z80 board's firmware at high level, or the rebuilt PROM
 	bool tty_lock = true;              // -ttylock on|off: the CT8100's TTY LOCK key
 	long long max_cycles = -1;         // -cycles (2650 cycles at 1.25 MHz)

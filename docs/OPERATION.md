@@ -127,6 +127,7 @@ tek8002 [-prom FILE] [-0..-3 IMG|new:FILE] [-rw] [-fdc hle|lle] [-ttylock on|off
 | `-ep6800 hle` | the 6800 board's firmware routines at high level instead (the same results) |
 | `-epz80 prom` | the Z80 board runs its firmware (`roms/epz80/z80_firmware.bin`, rebuilt by `tools/rebuild_z80_firmware.py`; the default) |
 | `-epz80 hle` | the Z80 board's firmware routines at high level instead (the same results) |
+| `-pmem N` | program memory boards fitted, 1–4 (16K each; default 2, the 8002A's standard). Millennium's 6800 FETCH test needs 4 |
 | `-rtpa [probe]` | fit the Real-Time Prototype Analyzer at C0–C7 (`probe`: its Data Acquisition Probe looped back, for the 8550 diagnostic's option 7). Tutorial: [RTPA.md](RTPA.md); TEKDOS's `BIF`, `RTT` and `DRT` work only after `DEBUG` |
 | `-ttylock on\|off` | the CT8100's TTY LOCK key, on by default (§6.2) |
 

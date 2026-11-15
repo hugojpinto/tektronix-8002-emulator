@@ -69,7 +69,11 @@ u8 tek8002_debug::read(u8 port) const
 
 void tek8002_debug::raise(u32 events)
 {
-	if (masked()) { m_held |= events; return; }
+	// the mask holds the Debug hardware's own interrupts, breakpoints and single cycle ("This bit
+	// prevents any Debug hardware interrupt from occurring", 070-2711 §6); SVCs and the rest go
+	// through (the diagnostics' debug interrupt mask test, DE211 subtest 0F: SVC2 with
+	// breakpoints and single cycle masked on the same instruction)
+	if (masked()) { m_held |= events & MASKABLE; events &= ~MASKABLE; }
 	for (int n = 16; n < 32; n++)
 		if (events & (1u << n)) {
 			if (trace) fprintf(stderr, "[debug: interrupt %d]\n", n);
@@ -162,7 +166,7 @@ void tek8002_debug::run_slave(tek8002_slave &s, int cycles2650, double master_hz
 			const u32 e = m_events;
 			m_events = 0;
 			raise(e);
-			if (masked()) { m_jump_pending = false; if (s.halted()) break; continue; }   // held: the slave runs on
+			if (masked() && !(e & ~MASKABLE)) { m_jump_pending = false; if (s.halted()) break; continue; }   // held: the slave runs on
 			break;
 		}
 		if (m_host.master_interrupt_pending() || (rt && rt->stopped())) break;

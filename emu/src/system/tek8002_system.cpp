@@ -52,6 +52,7 @@ bool tek8002_system::start(std::string &err)
 	if (!opt.ep6800_hle && !m->ep6800.load_firmware(roms + "/ep6800", err)) return false;
 	if (!m->ep8080.load_firmware(roms + "/ep8080", err)) return false;
 	if (!opt.epz80_hle && !m->epz80.load_firmware(roms + "/epz80", err)) return false;
+	m->program_boards = opt.program_boards;
 	m->rtpa_board.present = opt.rtpa_on;
 	m->rtpa_board.probe_loopback = opt.rtpa_probe;
 	for (int d = 0; d < tek8002_fdu::DRIVES; d++)

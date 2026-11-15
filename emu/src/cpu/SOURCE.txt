@@ -26,6 +26,10 @@ Changes made in this project are marked [tek8002] and listed here:
                M_RDOP_ARG(PC-1), a bus read, which ran even with logging off and put a phantom
                read in the RTPA's trace (Millennium's 6800 hardware analyzer test, D3A30,
                2026-11-15). The TAP/RTI edit below is applied by the same script.
+               TAP and CLI no longer run the next instruction inside themselves (upstream's
+               way of holding off an IRQ for one instruction, execute_one()); step() honours a
+               flag instead, so that each instruction is one step for the 6800 board's Debug
+               logic (Millennium's 6800 FETCH test, DE221: PC next = PC + 1 after TAP and CLI).
   m6800/6800ops.hxx  TAP and RTI keep CC bits 7-6 set: they are not implemented on the
                6800 and always read as 1 (MC6800 data sheet, "Condition Code Register").
                Upstream stores the byte as is, so a TAP of 00 made TPA read 00. Found by

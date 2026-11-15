@@ -115,6 +115,7 @@ protected:
 	PAIR m_ea;          // effective address (temporary variable)
 	u8 m_cc;            // Condition codes
 	u8 m_wai_state;     // WAI opcode state (or sleep opcode state)
+	bool m_irq_shadow = false;   // [tek8002] TAP/CLI: no IRQ before the next instruction (which runs as a step of its own)
 	u8 m_nmi_state;     // NMI line state
 	u8 m_nmi_pending;   // NMI pending
 	u8 m_irq_state[5];  // IRQ line state [IRQ1,TIN,IS3,..]
@@ -203,7 +204,8 @@ int m6800_cpu_device::run(int cycles)
 void m6800_cpu_device::step()
 {
 	m_icount = 0;
-	check_irq_lines();
+	if (m_irq_shadow) m_irq_shadow = false;   // [tek8002] the instruction after TAP/CLI: IRQs wait for it
+	else check_irq_lines();
 	if (m_wai_state & (M6800_WAI | M6800_SLP))
 		increment_counter(1);
 	else
@@ -219,6 +221,12 @@ def edit(text, old, new):
     assert text.count(old) == 1, old
     return text.replace(old, new)
 ops = edit(ops, "\tCC=A;\n\n\t// TAP temporarily", "\tCC=A|0xc0;\t// [tek8002] CC bits 7-6 are not implemented on the 6800 and read as 1\n\n\t// TAP temporarily")
+# [tek8002] TAP and CLI hold off IRQs for one instruction; upstream runs that instruction inside
+# theirs (execute_one), which made one single-cycle step of the two. The 6800 board's Debug
+# logic steps each by its fetch: Millennium's 6800 FETCH test (DE221) expects PC next = PC+1 for
+# both. step() honours the hold-off instead (m_irq_shadow).
+ops = edit(ops, "\t// (if the next opcode is TAP, IRQ is blocked again)\n\texecute_one();\n\tcheck_irq_lines();", "\t// (if the next opcode is TAP, IRQ is blocked again)\n\tm_irq_shadow = true;\t// [tek8002] the next instruction runs as its own step")
+ops = edit(ops, "\tif (i) execute_one();\n\tcheck_irq_lines();", "\tif (i) m_irq_shadow = true;\t// [tek8002] the next instruction runs as its own step\n\telse check_irq_lines();")
 ops = edit(ops, "\tPULLBYTE(CC);\n\tPULLBYTE(B);", "\tPULLBYTE(CC);\n\tCC|=0xc0;\t// [tek8002] CC bits 7-6 read as 1, whatever was on the stack\n\tPULLBYTE(B);")
 
 os.makedirs(dst, exist_ok=True)
