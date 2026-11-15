@@ -217,7 +217,7 @@ Find, for the new board:
 5. **Validate** with TEKDOS for that processor: ASM, LINK, LOAD, GO, the SVCs, then DEBUG's TRACE ALL and STEP, BKPT, DSTAT, SET, and the halt instruction (ERROR 46 outside DEBUG, a break inside). Write a session test like `tests/runz80.sh` and `tests/run6800.sh`, and add modes 1 and 2 to `tests/prototype.sh`. `TEK_EPTRACE=1` logs every firmware call with its block, and every forced jump.
 6. **Record** what was established in `notes/emulators.md`, each fact with how it was found; label what is inferred. Add a `CHANGELOG.md` entry and update `ROADMAP.md` and the README.
 
-A new board's firmware PROM will most likely not have been dumped, so its routines start as a high-level model. Say so plainly in the notes. Then look for a copy: the 6800 board's PROMs were dumped in 2026, and the Z80 board's firmware turned up inside a diagnostic's PROM test; each time the real firmware replaced the model, which stays behind `-ep6800 hle` / `-epz80 hle`.
+A new board's firmware PROM will most likely not have been dumped, so its routines start as a high-level model. Say so plainly in the notes. Then look for a copy: the 6800 board's PROMs were dumped in 2026, and the Z80 board's firmware could be reconstructed from a diagnostic's PROM-test table (not byte for byte: say what is reconstructed, and what is not known); each time the real firmware replaced the model, which stays behind `-ep6800 hle` / `-epz80 hle`.
 
 ---
 

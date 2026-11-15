@@ -4,7 +4,7 @@
 `tek8002_ep6800` (port E2) and `tek8002_epz80` (port E3). Both run from program memory as
 slaves of the System Processor, under the Debug module. The 6800 board's two PROMs were dumped
 in 2026 and run as they are (below, "The 6800 board's PROMs"). The Z80 board's firmware was
-never dumped; it is rebuilt from the copy Millennium's diagnostics carry (below, "The Z80
+never dumped; it is reconstructed from a table Millennium's diagnostics carry (below, "The Z80
 board's firmware"), and runs on the Z80 too.
 The boards' own service manuals are not on bitsavers (070-2701 lists the 6800's).
 
@@ -241,20 +241,29 @@ The 8550's DOS/50 keeps IM in byte 0 and IFF1/IFF2 in bits 7/6 of byte 1. That i
 entries with a different block, so the two firmware PROMs differ.
 
 ## The Z80 board's firmware
-Never dumped. Millennium's diagnostic disc (`notes/diagnostics.md`) carries a copy: the Z80
+Never dumped. Millennium's diagnostic disc (`notes/diagnostics.md`) carries a table it can be
+reconstructed from: the Z80
 DEBUG test's PROM subtest (DE310 subtest 0E) compares the board's F9FF, F9FE … F800, as the
 System Processor reads them through program memory with the firmware mapped (E3 ← 80, bank 3),
 with a 512-byte table at 25B9. `tools/rebuild_z80_firmware.py` rebuilds the firmware from it
 (`roms/epz80/z80_firmware.bin`, `--report` for every byte it sets).
-- **The table is damaged.** Taken as it is, its code breaks at regular places (JP F860 lands in
-  the middle of an instruction; `LD (0018),SP` is followed by no `LD SP`; there is no `PUSH HL'`),
-  and TEKDOS's DEBUG fails on it (SP 2A00, registers 0). The damage is regular: the copy lacks
-  the byte at every address ending in 0, as if made from a listing of 16-byte lines that lost
-  each line's first byte, and its last 19 bytes (F80F down to F801) were stored after the
-  table's end. With a gap at each xxx0, the code is coherent from F800 to FA27: the firmware
-  is 1K (F800–FBFF; FA28 up FF, as an erased 2708). A real board could not pass this subtest
-  either. 35 bytes are set by reasoning: the 14 in the code are each forced by the code around
-  them (A, B), the 21 in the data after it are guesses (C).
+- **The table is not the firmware byte for byte.** Read as a straight image of F800–F9FF (the
+  test compares one table byte per read, linearly: 2574–25AF, pointer step at 296F), its code
+  breaks at regular places (JP F860 lands in the middle of an instruction; `LD (0018),SP` is
+  followed by no `LD SP`; there is no `PUSH HL'`), and TEKDOS's DEBUG fails on it in the emulator
+  (SP 2A00, registers 0). The difference is regular: with one byte inserted before every address
+  ending in 0, and the 19 bytes stored just after the table taken as F80F down to F801, the code
+  is coherent from F800 to FA27, holds TEKDOS's entries and runs TEKDOS's DEBUG. That is the
+  reconstruction used here; it implies a 1K firmware (F800–FBFF; FA28 up FF, as an erased 2708).
+- **Open, and not to be assumed either way:** why the table differs so. It may be a faulty copy
+  (for instance made from a 16-byte-per-line listing that lost a byte per line), or the System
+  Processor's view of the PROM through program memory may differ from the Z80's in a way not
+  modelled here (address wiring alone cannot drop exactly the xxx0 bytes, but other board logic
+  might), or the test may be an early version that never passed. Whether a real board passes
+  subtest E is therefore unknown; the emulator, with the reconstruction, does not. A dump of a
+  real board's PROM, or its schematic, would settle it. 35 bytes are set by reasoning: the 14
+  in the code are each forced by the code around them (A, B), the 21 in the data after it are
+  guesses (C).
 - **What it is:** a jump table with TEKDOS's four entries (F800 → F8CA PUT, F803 → F8BD GET,
   F806 → F860 restore, F809 → F80C dump); the dump saves SP, sets SP to 0018 and pushes every
   register into the block, swapping A/F and A′/F′ into the block's order, then ends in

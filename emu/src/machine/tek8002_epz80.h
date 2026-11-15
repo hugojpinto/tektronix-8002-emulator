@@ -16,7 +16,7 @@
 //   RESET and WAIT through the probe, over the same link the 8550 emulator's Z80 board uses
 //   (notes/prototype-link.md).
 // - Firmware: 1K at F800-FBFF while the firmware is mapped, run on the Z80 (roms/epz80/, rebuilt
-//   from the copy in Millennium's diagnostics: notes/emulators.md, "The Z80 board's firmware").
+//   from a table in Millennium's diagnostics: notes/emulators.md, "The Z80 board's firmware").
 //   With -epz80 hle the routines run at high level, as before the rebuild, matching it; the
 //   entries are TEKDOS's Z80 DEB INIT's (1958-1969):
 //     F806  restore: load the registers from the block at 0000-001B, then debug SVC 1
@@ -51,7 +51,7 @@ public:
 	double board_clock_hz() const override { return 4.0e6; }   // J1 at 4 MHz (070-3665 §2: 2 or 4 MHz; 4 MHz at most in an 8002A)
 	z80 cpu{};
 	// the firmware, 1K at F800-FBFF, from DIR/z80_firmware.bin (rebuilt from the diagnostics'
-	// copy by tools/rebuild_z80_firmware.py); without it, the routines run at high level
+	// table by tools/rebuild_z80_firmware.py); without it, the routines run at high level
 	bool load_firmware(const std::string &dir, std::string &err);
 	std::vector<u8> m_prom;
 

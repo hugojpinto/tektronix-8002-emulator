@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2026 Hugo José Pinto <hugo.pinto@gmail.com>
-# Rebuild the 8002 Z80 Emulator Processor's firmware (F800-FBFF; never dumped) from the copy
+# Rebuild the 8002 Z80 Emulator Processor's firmware (F800-FBFF; never dumped) from the table
 # Millennium's diagnostics carry (notes/emulators.md, "The Z80 board's firmware").
 #
 # The diagnostic disc's Z80 DEBUG test (file DE310, DIP 4.4) holds a table at 25B9 that its
-# PROM subtest compares with the board's F9FF, F9FE, ... F800. The table is the firmware,
-# address-descending, but damaged as if it had been made from a listing of 16-byte lines
-# that lost the first byte of every line: every byte at an address ending in 0 is missing,
-# and the 19 bytes stored after the table hold F80F down to F801 (the remnant). Reversed,
-# with a gap at each xxx0, it is coherent Z80 code from F800, with the four entries TEKDOS
-# calls (F800 PUT, F803 GET, F806 restore, F809 dump), and runs to FA27: a 1K PROM.
+# PROM subtest compares, one byte per read, with the board's F9FF, F9FE, ... F800. Read as a
+# straight image the table is not working code. Reversed, with a byte inserted before every
+# address ending in 0, and with the 19 bytes stored after the table taken as F80F down to
+# F801, it is coherent Z80 code from F800, with the four entries TEKDOS calls (F800 PUT,
+# F803 GET, F806 restore, F809 dump), running to FA27 (so a 1K PROM). Why the table differs
+# from the code in that way is not known (a faulty copy, or a view of the PROM through the
+# System Processor's path that the emulator does not model): notes/emulators.md.
 # The missing bytes are set below, each with its reason and a confidence; FA28-FBFF are FF.
 # usage: tools/rebuild_z80_firmware.py [DIAG_DISC] [OUT] [--report]
 import os, subprocess, sys, tempfile
