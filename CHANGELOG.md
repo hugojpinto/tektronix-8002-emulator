@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-15 — Against the diagnostics: 13 modules pass
+- MASTER CPU: the 2650 core changed OVF on rotates with WC clear; the real 2650 does so only through the carry (`emu/src/cpu/SOURCE.txt`).
+- TIMER: the interval timer jumper is at 100 ms, as the test expects.
+- SYS COMM 1, run with an operator (`SO 02`) and its wrap-back fixture (`-rem loop`, the CTS strap as `-input SEC syscomm:strap1=1`): the MC6850's RTS, CTS, DCD and break, its character time from the control register, and an overrun that shows only after the previous character is read.
+- 8080 DEBUG passes, Z80 DEBUG to subtest D: PC last/next follow every instruction while debugging; coinciding breakpoints and single cycle raise one interrupt; the forced interrupt reaches the slave (the Z80's NMI); a reset or interrupt without a jump cancels a jump a stop had armed; SVCs only while enabled; control bit 2 gates the debug signals on the Z80 board only.
+- Findings that touch the sibling 8550 emulator are listed in its ROADMAP, "To verify".
+
 ## 2026-11-15 — Millennium's internal floppies
 - 80 disc images from bitsavers (`bits/Millennium/Millennium_internal_floppies.zip`), Millennium Systems' own discs for the 8002 hardware, in `sources/bitsavers/disks/Millennium_internal_floppies/` with their imaging logs (the `.a2r` flux files left in the zip).
 - Every one was booted on the emulator unchanged: TEKDOS 1.6 for the 2650 (the earliest seen, with a source file), 1.9 for the 6800, 2.2 Z80, 3.1 for the Z80, 6800, 6801 and 8048, TEKTIP 1.5, UCSD Pascal's PMON, and the Diagnostic Interpreter Program 4.4 with one test file per module (master CPU, memories, disc, Debug, the 8080/6800/Z80 boards...). The CP/M discs stop where they hand over to a 64K Z80 slave; 14 are data discs with no system, and one is not in FDU geometry. The README lists them all.
