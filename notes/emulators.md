@@ -271,6 +271,15 @@ with a 512-byte table at 25B9. `tools/rebuild_z80_firmware.py` rebuilds the firm
   layout is exactly the one inferred from TEKDOS above, now confirmed. From F8DD on is data the
   routines never read, then a table, mostly 30, from F900 to FA27 (probably the board's
   instruction decoding; DE310 subtest 0F, "instruction decode", is still open).
+- **The table from F900 is not an opcode-indexed decode table** (tested 2026-11-15,
+  `tools/z80_decode/`): if the opcode drove A7–A0 in any order, any lines inverted (10,321,920
+  wirings), the stored value would tell what each instruction does. `props.c` measures each
+  opcode on the Z80 core (length, M1s, data and I/O cycles, T-states, flow, prefix, stack,
+  HALT); `search.c` scores every wiring by the mutual information between PROM value and each
+  property. The best wiring scores no better than the same values shuffled into random places
+  (1.06 bits against 0.92–1.06), in this frame and in the test's own (0.86). Of its 240 known
+  entries 222 are 30: it marks about 18 entries, not each instruction's behaviour. What it
+  indexes, and so its 21 missing bytes, stays open.
 - **What it showed about the board** (each now modelled, `tek8002_epz80.h`):
   - **The forced jump is an M1 cycle:** the Debug module jams a JP onto the bus. The dump's R
     compensation (`SUB 18`) is the 24 M1 cycles from the break to its `LD A,R`, the jammed JP
