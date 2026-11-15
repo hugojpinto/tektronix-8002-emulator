@@ -51,7 +51,7 @@ void tek8002_ep8080::write(u16 a, u8 d)
 // SVCs; the rest is the prototype's in modes 1/2 and nobody's in mode 0
 u8 tek8002_ep8080::io_read(u8 port)
 {
-	if (proto_io()) return target->io_read(port);
+	if (proto_io()) return proto_in(port);
 	return m_bus.slave_in(port);
 }
 
@@ -61,7 +61,7 @@ void tek8002_ep8080::io_write(u8 port, u8 d)
 	// mask test, DE211 subtest 0E, masks them around a firmware call; GET and PUT in modes 1
 	// and 2 still work: TEKDOS enables SVCs for the firmware's runs)
 	if ((port & 0xf8) == 0xf0 && m_bus.svcs_enabled()) svc(port);
-	else if (proto_io()) target->io_write(port, d);
+	else if (proto_io()) proto_out(port, d);
 	else m_bus.slave_out(port, d);
 }
 

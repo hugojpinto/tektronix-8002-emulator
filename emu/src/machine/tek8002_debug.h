@@ -36,6 +36,7 @@
 #define TEK_TEK8002_DEBUG_H
 #include "emu.h"
 #include "machine/tek8002_slave.h"
+#include "machine/rtpa.h"
 
 // what the Debug module needs of the mainframe
 class debug_host
@@ -50,8 +51,12 @@ class tek8002_debug
 {
 public:
 	static constexpr int INT_SVC1 = 16, INT_BP1 = 24, INT_BP2 = 25, INT_SINGLE_CYCLE = 26,
-	                     INT_SLAVE_HALTED = 27, INT_DIAG = 28;
+	                     INT_SLAVE_HALTED = 27, INT_DIAG = 28, INT_RTPA = 29;
 
+	// the Real-Time Prototype Analyzer, when fitted: it sees the slave's cycles while rt_watch is
+	// set (the mainframe passes them on), holds the slave after a break, and raises INT 29
+	rtpa *rt = nullptr;
+	bool rt_watch = false;
 	explicit tek8002_debug(debug_host &h) : m_host(h) {}
 	void reset();
 	bool decodes(u8 port) const { return port >= 0xf8; }

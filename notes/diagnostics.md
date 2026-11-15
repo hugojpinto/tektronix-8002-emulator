@@ -58,7 +58,8 @@ System Communications 1 and 2, 90/91 system and program memory.
 | D1212 | TIMER REV 2C | pass, since the timer jumper is at 100 ms (it measured 10.0 where 100.0 was expected) |
 | D0141 | MASTER CPU | pass. It checks the 2650's instructions, with a HALT after each check as a trap; it used to reach one ("UIN 0036", the slave-halted interrupt that followed): a rotate with WC = 0 that flips bit 7 set OVF in the core, which the real 2650 does only when WC = 1 (`emu/src/cpu/SOURCE.txt`) |
 | DE011, DE021, DA110 | 2650 DEBUG and FETCH, 1802 DEBUG | fail: those boards are not emulated |
-| D0411, D0811–D0831, D0C11–D0C31, D1411, D1A11, D1A22, D1C11, D3A21, D3A30 | paper tape, TTY, GPIO, RS-232, printer, PROM programmers (1702A, 2708/04, 82S), 8080 and 6800 hardware analysers | fail or bypass: not emulated |
+| D3A21, D3A30 | 8080 HWA, 6800 HDWR ANA: the RTPA ("hardware analyzer"), with `-rtpa` | stop at subtest 1. The board answers, is programmed as Millennium's 9508 documents it, and breaks with PC last/next and the G.P. counter as expected; only the status byte differs (11 for 13: event 2's "detected" bit). Its rule is open: the tests' expectations fit "the events that match on the breaking cycle" except where an event has no address compare (C7 = 00), which the 8550's model, from DOS/50, treats as "any address". With a test-driven rule (not kept) the 8080 test reaches its last subtest with three subtests failing |
+| D0411, D0811–D0831, D0C11–D0C31, D1411, D1A11, D1A22, D1C11 | paper tape, TTY, GPIO, RS-232, printer, PROM programmers (1702A, 2708/04, 82S), 8080 and 6800 hardware analysers | fail or bypass: not emulated |
 | D1613 | DISK1 | stops at once: "ALL DISKS TO BE TESTED MUST HAVE SCRATCH FORMATED DISKETTES" (to be run with formatted blanks in the drives) |
 
 The Debug tests, as they first reported them (before the fixes listed in `notes/8002.md`, Debug module) (each sets the jump register, breakpoints, the command

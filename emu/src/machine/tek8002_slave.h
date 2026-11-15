@@ -23,6 +23,9 @@ public:
 	virtual bool user_block(u16 a) const = 0;      // the memory map: this 128-byte block is the prototype's (U)
 	virtual bool svcs_enabled() const = 0;         // the Debug module takes SVC ports (F9 bit 4)
 	virtual void slave_watch(u16 a, bool write) = 0;   // a cycle on the probe: the breakpoint comparators see it
+	// a bus cycle of the user's program that does not go through slave_read/write/in/out (the
+	// prototype's, in modes 1 and 2), for the Real-Time Prototype Analyzer
+	virtual void slave_cycle(u16 a, u8 d, bool fetch, bool write, bool io) { (void)a; (void)d; (void)fetch; (void)write; (void)io; }
 };
 
 class tek8002_slave
@@ -41,6 +44,9 @@ public:
 	// logic (an emulator board's control bit 2)
 	virtual bool debug_signals() const { return true; }
 	virtual bool active() const = 0;             // selected: the one the Debug module runs
+	// whether the RTPA sees its cycles: it watches the slave bus, whoever drives it (software
+	// decides what it records: C3's run enable). A board's own PROM fetches stay on the board.
+	virtual bool rtpa_visible() const { return active(); }
 
 	virtual void reset() = 0;                    // forced reset (and activation)
 	virtual void jump(u16 target) = 0;           // forced jump

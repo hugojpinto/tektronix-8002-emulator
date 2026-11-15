@@ -98,8 +98,16 @@ protected:
 	bool user_run() const { return (m_cmd & 0x82) == 0x82; }
 	bool proto_mem(u16 a) const { return user_run() && (emulation_mode() == 2 || (emulation_mode() == 1 && m_bus.user_block(a))); }
 	bool proto_io() const { return user_run() && emulation_mode() != 0; }
-	u8 proto_read(u16 a, bool fetch) { m_bus.slave_watch(a, false); return fetch ? target->mem_fetch(a) : target->mem_read(a); }
-	void proto_write(u16 a, u8 d) { m_bus.slave_watch(a, true); target->mem_write(a, d); }
+	u8 proto_read(u16 a, bool fetch)
+	{
+		m_bus.slave_watch(a, false);
+		const u8 d = fetch ? target->mem_fetch(a) : target->mem_read(a);
+		m_bus.slave_cycle(a, d, fetch, false, false);
+		return d;
+	}
+	void proto_write(u16 a, u8 d) { m_bus.slave_watch(a, true); m_bus.slave_cycle(a, d, false, true, false); target->mem_write(a, d); }
+	u8 proto_in(u16 port) { const u8 d = target->io_read(port); m_bus.slave_cycle(port, d, false, false, true); return d; }
+	void proto_out(u16 port, u8 d) { m_bus.slave_cycle(port, d, false, true, true); target->io_write(port, d); }
 	// before each instruction in modes 1/2: time to the target (in 4 MHz units, as the link
 	// counts), its RESET and its interrupt lines
 	virtual void target_lines(bool reset_edge, bool nmi_edge, bool irq) = 0;

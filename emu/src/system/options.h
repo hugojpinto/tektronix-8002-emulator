@@ -15,7 +15,8 @@ struct tek8002_options
 	bool writeback = false;            // -rw
 	bool fdc_hle = false;              // -fdc hle|lle
 	bool ep6800_hle = false;           // -ep6800 hle|prom: the 6800 board's firmware at high level, or its SYSTEM PROM
-	bool epz80_hle = false;            // -epz80 hle|prom: the Z80 board's firmware at high level, or the rebuilt PROM
+	bool epz80_hle = false;
+	bool rtpa_on = false, rtpa_probe = false;   // -rtpa [probe]: the Real-Time Prototype Analyzer (probe: RTPA.TST's loopback)            // -epz80 hle|prom: the Z80 board's firmware at high level, or the rebuilt PROM
 	bool tty_lock = true;              // -ttylock on|off: the CT8100's TTY LOCK key
 	long long max_cycles = -1;         // -cycles (2650 cycles at 1.25 MHz)
 	std::vector<timed_t> typed;        // -type SECONDS|prompt TEXT

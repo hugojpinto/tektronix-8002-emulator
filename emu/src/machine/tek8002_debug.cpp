@@ -33,6 +33,7 @@ void tek8002_debug::write(u8 port, u8 d)
 		// and 3, FE and FD after a halt) expect the slave at its reset address or NMI vector,
 		// not at the jump register's. (Inferred. Other writes leave it armed: TEKDOS's DEBUG
 		// relies on that after a HALT; a jump the command armed stays armed until taken.)
+		if (rt) rt->release();               // the master takes over from an RTPA break
 		if (!(d & 0x01)) m_reset_pending = true;
 		if (!(d & 0x02)) m_int_pending = true;
 		if (!(d & 0x04)) { m_jump_pending = true; m_jump_by_int = false; }
@@ -107,6 +108,7 @@ void tek8002_debug::run_slave(tek8002_slave &s, int cycles2650, double master_hz
 {
 	master_running();                      // a slave holds the bus: no "slave halted" from the detector
 	if (m_host.master_interrupt_pending()) return;
+	if (rt && rt->stopped()) return;       // an RTPA break holds it (until the next command, F9)
 	if (m_reset_pending) { m_reset_pending = false; s.reset(); }
 	// a forced interrupt is taken first, then a forced jump in the same command replaces its
 	// vector fetch (TEKDOS reaches a halted Z80 so, with F9 <- F9; the Z80 board's firmware takes
@@ -123,8 +125,17 @@ void tek8002_debug::run_slave(tek8002_slave &s, int cycles2650, double master_hz
 		const u64 c0 = s.cycles();
 		const u16 pc = s.pc();
 		m_events = 0;
+		const bool watch = rt && rt->present && s.rtpa_visible();
+		if (watch) { rt->instr_begin(pc); rt_watch = true; }
 		s.step();
+		rt_watch = false;
 		m_frac -= double(s.cycles() - c0);
+		// an RTPA break latches PC last/next and arms a forced jump like a breakpoint (the
+		// sibling 8550 emulator's model, notes/rtpa.md there)
+		if (watch) {
+			rt->instr_end(s.pc(), int(s.cycles() - c0), s.clock_hz());
+			if (rt->take_irq()) m_events |= 1u << INT_RTPA;
+		}
 		if (debugging() && !(m_control & 0x10)) m_events |= 1u << INT_SINGLE_CYCLE;
 		if (!s.debug_signals()) m_events &= ~((1u << INT_BP1) | (1u << INT_BP2) | (1u << INT_SINGLE_CYCLE));
 		if (s.halted()) m_events |= 1u << INT_SLAVE_HALTED;
@@ -154,7 +165,7 @@ void tek8002_debug::run_slave(tek8002_slave &s, int cycles2650, double master_hz
 			if (masked()) { m_jump_pending = false; if (s.halted()) break; continue; }   // held: the slave runs on
 			break;
 		}
-		if (m_host.master_interrupt_pending()) break;
+		if (m_host.master_interrupt_pending() || (rt && rt->stopped())) break;
 	}
 	if (m_frac > 0) m_frac = 0;
 }

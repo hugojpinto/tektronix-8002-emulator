@@ -64,7 +64,7 @@ void tek8002_epz80::mem_wr(void *u, u16 a, u8 d)
 u8 tek8002_epz80::port_in(z80 *z, u16 port)
 {
 	tek8002_epz80 &s = *static_cast<tek8002_epz80 *>(z->userdata);
-	if (s.proto_io()) return s.target->io_read(port);
+	if (s.proto_io()) return s.proto_in(port);
 	return s.m_bus.slave_in(port);
 }
 
@@ -72,7 +72,7 @@ void tek8002_epz80::port_out(z80 *z, u16 port, u8 d)
 {
 	tek8002_epz80 &s = *static_cast<tek8002_epz80 *>(z->userdata);
 	if ((port & 0xf8) == 0xf0 && s.m_bus.svcs_enabled()) s.svc(port);
-	else if (s.proto_io()) s.target->io_write(port, d);
+	else if (s.proto_io()) s.proto_out(port, d);
 	else s.m_bus.slave_out(port, d);
 }
 

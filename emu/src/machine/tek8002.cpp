@@ -5,7 +5,12 @@
 #include <cstdio>
 #include <cstdlib>
 
-tek8002::tek8002() : cpu(*this), m_sysram(0x4000, 0), m_progmem(4 * 0x4000, 0), m_sysbad(0x4000, false), m_progbad(4 * 0x4000, false) {}
+tek8002::tek8002() : cpu(*this), m_sysram(0x4000, 0), m_progmem(4 * 0x4000, 0), m_sysbad(0x4000, false), m_progbad(4 * 0x4000, false)
+{
+	debug.rt = &rtpa_board;
+	rtpa_board.stop_status_08 = false;     // the 8002 diagnostics expect status bit 3 clear after a break
+	rtpa_board.clock = &m_seconds;
+}
 
 // The bootstrap PROM (U6010, a 1702A) sits behind inverting address buffers
 // (U6030/U6040): CPU address a reads PROM location 0xFF - a. Its published
@@ -105,6 +110,7 @@ u8 tek8002::io_read(offs_t port)
 	default:
 		if (debug.decodes(u8(port))) { v = debug.read(u8(port)); break; }
 		if (syscomm.decodes(u8(port))) { v = syscomm.read(u8(port)); break; }
+		if (port >= 0xc0 && port <= 0xc7 && rtpa_board.present) { m_seconds = m_cycles / CPU_HZ; v = rtpa_board.read(int(port & 7)); break; }
 		{
 			bool slave = false;
 			for (auto *s : m_slaves) if (s->decodes(u8(port))) { v = s->status(u8(port)); slave = true; break; }
@@ -130,6 +136,7 @@ void tek8002::io_write(offs_t port, u8 d)
 	default:
 		if (debug.decodes(u8(port))) { debug.write(u8(port), d); break; }
 		if (syscomm.decodes(u8(port))) { syscomm.write(u8(port), d); break; }
+		if (port >= 0xc0 && port <= 0xc7 && rtpa_board.present) { m_seconds = m_cycles / CPU_HZ; rtpa_board.write(int(port & 7), d); break; }
 		for (auto *s : m_slaves) if (s->decodes(u8(port))) s->command(u8(port), d);
 		break;
 	}
@@ -218,29 +225,36 @@ tek8002_slave *tek8002::active_slave() const
 	return nullptr;
 }
 
-u8 tek8002::slave_read(u16 a, bool)
+u8 tek8002::slave_read(u16 a, bool fetch)
 {
 	debug.slave_access(a, false);
 	const int board = a >> 14;
-	if (board >= program_boards) return OPEN_BUS;
-	if (m_progbad[a]) { raise(INT_PROGMEM_PARITY); update_irq(); }   // a Program Memory parity error, whoever reads
-	return m_progmem[a];
+	u8 d = OPEN_BUS;
+	if (board < program_boards) {
+		if (m_progbad[a]) { raise(INT_PROGMEM_PARITY); update_irq(); }   // a Program Memory parity error, whoever reads
+		d = m_progmem[a];
+	}
+	if (debug.rt_watch) rtpa_board.bus(a, d, fetch, false, false);
+	return d;
 }
 
 void tek8002::slave_write(u16 a, u8 d)
 {
 	debug.slave_access(a, true);
+	if (debug.rt_watch) rtpa_board.bus(a, d, false, true, false);
 	if ((a >> 14) < program_boards) { m_progmem[a] = d; m_progbad[a] = false; }
 }
 
 u8 tek8002::slave_in(u16 port)
 {
+	if (debug.rt_watch) rtpa_board.bus(port, OPEN_BUS, false, false, true);
 	if (trace_io) fprintf(stderr, "[%.4f slave IN  %04x -> unmapped]\n", m_cycles / CPU_HZ, unsigned(port));
 	return OPEN_BUS;
 }
 
 void tek8002::slave_out(u16 port, u8 d)
 {
+	if (debug.rt_watch) rtpa_board.bus(port, d, false, true, true);
 	if (debug.slave_out(port)) return;
 	if (trace_io) fprintf(stderr, "[%.4f slave OUT %04x <- %02x unmapped]\n", m_cycles / CPU_HZ, unsigned(port), d);
 }

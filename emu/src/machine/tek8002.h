@@ -60,6 +60,8 @@ public:
 	ay31015 term;                   // system terminal
 	tek8002_fdu fdu;                // Flexible Disc Unit (drives 0-3)
 	tek8002_debug debug{*this};     // Debug and Front Panel I/O module
+	rtpa rtpa_board;                // Real-Time Prototype Analyzer option (ports C0-C7; -rtpa)
+	double m_seconds = 0;           // for the RTPA's trace
 	tek8002_syscomm syscomm;        // System Communications: modem, printer, paper tape ACIAs; memory map
 	tek8002_asmproc asmproc{*this}; // Assembler Processor (Z80)
 	tek8002_ep6800 ep6800{*this};   // 6800 Emulator Processor
@@ -102,6 +104,7 @@ public:
 	bool user_block(u16 a) const override { return syscomm.map_bit(a); }
 	bool svcs_enabled() const override { return debug.svcs_enabled(); }
 	void slave_watch(u16 a, bool write) override { debug.slave_access(a, write); }
+	void slave_cycle(u16 a, u8 d, bool fetch, bool write, bool io) override { if (debug.rt_watch) rtpa_board.bus(a, d, fetch, write, io); }
 	// debug_host
 	void debug_interrupt(int n) override { raise(n); update_irq(); }
 	bool master_interrupt_pending() const override { return m_pending != 0; }
