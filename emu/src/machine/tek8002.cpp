@@ -197,6 +197,7 @@ void tek8002::devices_tick(int c)
 	// reports SLAVE HALTED
 	if (cpu.halted()) {
 		if (tek8002_slave *s = active_slave()) {
+			m_seconds = m_cycles / CPU_HZ;          // the RTPA's time base follows the master between runs
 			debug.run_slave(*s, c, CPU_HZ);
 			bus_slave += u64(c);
 			if (!s->halted()) run_slave += u64(c);

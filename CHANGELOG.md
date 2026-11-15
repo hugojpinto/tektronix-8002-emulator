@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-15 — The 9508 sources: the RTPA's counters
+- Millennium's 9508 real-time analyzer source maps the RTPA's subaddresses to its 8253 counters: the model had counters 1 and 2 swapped, so the delays now run as mode-1 one-shots, the G.P. counter as mode 0, and the msec divider as a mode-2 rate generator clocked by the free-running 1 µs time base and restarted when loaded. Millennium's analyzer tests pass whole with two or four program memory boards (the msec counts no longer depend on the configuration); the guide test allows the time base's phase one more µs and one ms.
+- 8085 mode of the shared i8085 core: a conditional jump or call not taken reads its low address byte (from the 8550).
+
 ## 2026-11-15 — The 6800 board against its diagnostics
 - **6800 DEBUG (DE211) and 6800 FETCH (DE221) pass**, and with them the 6800 hardware analyzer test (D3A30, all 16 runnable subtests): `tests/dip.sh` now checks 17 modules.
 - What they established about the board (`notes/emulators.md`, the 6800): a RESET keeps the registers and CC but for the I mask (MAME cleared CC); TAP and CLI no longer run the next instruction inside themselves (`tools/port_m6800.py`); an opcode the FETCH PROM does not know halts the board, with PC next FFFF; the PROM's steering leaves operand bytes alone; the I/O page FE00–FEFF becomes I/O cycles on the 8002 bus in mode 0; and an SVC-window access takes one clock more (inferred from the analyzer test's counts).

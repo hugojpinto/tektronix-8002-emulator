@@ -5,9 +5,11 @@
 # Prototype Analyzer Users Guide", 1979), Section 3: "How to use the RTPA commands". Its seven
 # procedures run on the 8080A sample program of Figs. 3-1 to 3-3 (it clears 0250-0275, then
 # 0350 down to 0325, and halts at 0301) under TEKDOS 8080, and print what a real 8002A showed:
-# the break lines and the counts. Each check below is one of those displays. Microsecond counts
-# are allowed the guide's own tolerance ("may vary one or two microseconds"); bus-cycle counts,
-# pass counts and break lines must match exactly. docs/RTPA.md walks through the same session.
+# the break lines and the counts. Each check below is one of those displays. Bus-cycle counts,
+# pass counts and break lines must match exactly. Time counts depend on where the free-running
+# 1 us time base and the msec divider stand when the run starts (set by how long the setup took:
+# notes/rtpa.md), so they get the guide's own tolerance ("may vary one or two microseconds")
+# plus one, and one count in milliseconds. docs/RTPA.md walks through the same session.
 # Run from the repository root; KEEP=1 keeps the transcripts.
 cd "$(dirname "$0")/.." || exit 1
 EMU=emu/build/tek8002 FDC=${FDC:-lle}
@@ -46,8 +48,8 @@ check "1.C.4 BIF 2: break at 0300" "0300 00     NOP             0000  56  25 03 
 check "1.C.5 DR 5: the JMP"        "0382  C3  JMP       00000000  M R F" "$P"
 count "1.C.6 CN C before a run: 0" 1 "$P" 0 0
 count "1.C.6 996 bus cycles"       2 "$P" 996 0
-count "1.C.6 1 msec"               3 "$P" 1 0
-count "1.C.6 1546 us"              4 "$P" 1546 2
+count "1.C.6 1 msec"               3 "$P" 1 1
+count "1.C.6 1546 us"              4 "$P" 1546 3
 check "1.D.3 RT F: fetches only"   "037F  C2  JNZ       00000000  M R F" "$P"
 
 # Procedure 2: counting options with BIF 1 and BIF 2
@@ -56,8 +58,8 @@ P=$W/p2.txt
 check "2.A.1 EVT display"          "EVT1  A=0209 D=007D B=F" "$P"
 check "2.A.3 break at 0209"        "0209 7D     MOV   A,L" "$P"
 count "2.A.3 11 bus cycles"        1 "$P" 11 0
-count "2.A.3 17 us"                2 "$P" 17 2
-count "2.A.4 P=2: 36 us"           3 "$P" 36 2
+count "2.A.3 17 us"                2 "$P" 17 3
+count "2.A.4 P=2: 36 us"           3 "$P" 36 3
 count "2.A.4 P=2: 23 bus cycles"   4 "$P" 23 0
 count "2.A.5 P=20: 239"            5 "$P" 239 0
 check "2.B.1 C=500: break line"    "037F C28503 JNZ   0385      0000  12  3A 03 25 02 75 03 3A" "$P"
@@ -79,7 +81,7 @@ count "2.E.3 CNT 2: 44"            15 "$P" 44 0
 run p3 "EV CLR|EV 1 A=201 D=11|EV 2 A=300 D=00|BIF ARM|EV|CN U|G 200|CN|CN C|G 200|CN|EV 1 CLR A=207 D=36|EV 2 CLR A=37B D=36|G 200|CN|EV 1 P=10|G 200|CN|EV 2 P=20|G 200|CN|EV 1 C=100|G 200|CN|EV 1 C=0|EV 2 C=100|G 200|CN|EV 1 CLR A=207 D=36|EV 2 CLR A=207 D=36|G 200|CN|CN U|G 200|CN|DR 25"
 P=$W/p3.txt
 check "3.A.1 BIF-ARM S"            "BIF-ARM S" "$P"
-count "3.A.1 1541 us"              1 "$P" 1541 2
+count "3.A.1 1541 us"              1 "$P" 1541 3
 count "3.A.1 994 bus cycles"       2 "$P" 994 0
 check "3.B.1 break at 037B"        "037B 3600   MVI   M,00      0000  56  75 03 25 02 75 03 50" "$P"
 count "3.B.1 461"                  3 "$P" 461 0
@@ -91,7 +93,7 @@ check "3.B.5 EVT2 C=100: break"    "037E B9     CMP   C         0000  12  35 03 
 count "3.B.5 681"                  7 "$P" 681 0
 check "3.B.6 same address: next pass" "0207 3600   MVI   M,00      0000  87  50 03 25 02 75 02 51" "$P"
 count "3.B.6 12 bus cycles"        8 "$P" 12 0
-count "3.B.6 20 us"                9 "$P" 20 2
+count "3.B.6 20 us"                9 "$P" 20 3
 check "3.B.7 DR 25: from the arming pass" "0251  00            00000000  M W" "$P"
 
 # Procedure 4: BIF IND with the return option C (break, print, go on). The guide's run in
@@ -106,7 +108,7 @@ check "4.A.1 EVT1, 30th pass"      "0212 C30702 JMP   0207      0000  97  6E 03 
 check "4.A.1 EVT2, 10th pass"      "0386 C37B03 JMP   037B      0000  12  3B 03 25 02 75 03 3A" "$P"
 check "4.A.1 EVT2, 30th pass"      "0386 C37B03 JMP   037B      0000  12  27 03 25 02 75 03 26" "$P"
 check "4.A.1 then the HLT"         "0301 BREAK" "$P"
-count "4.A.1 CN U: 1541 us"        1 "$P" 1541 8
+count "4.A.1 CN U: 1541 us"        1 "$P" 1541 10
 count "4.A.1 995"                  2 "$P" 995 0
 
 # Procedure 5: BIF FRZ (as ARM; the trace stops at event 1 and runs again after event 2)
@@ -115,10 +117,10 @@ P=$W/p5.txt
 check "5.A.1 BIF-FRZ S"            "BIF-FRZ S" "$P"
 check "5.A.1 DR 11 ends at EVT1"   "0209  7D  MOV   A,L 00000000  M R F" "$P"
 count "5.A.1 985"                  1 "$P" 985 0
-count "5.A.1 1529 us"              2 "$P" 1529 2
+count "5.A.1 1529 us"              2 "$P" 1529 3
 check "5.A.2 break"                "037B 3600   MVI   M,00      0000  16  4C 03 25 02 75 03 4B" "$P"
-count "5.A.2 732 us"               3 "$P" 732 2
-count "5.A.3 FRZ C: still 732 us"  4 "$P" 732 2
+count "5.A.2 732 us"               3 "$P" 732 3
+count "5.A.3 FRZ C: still 732 us"  4 "$P" 732 3
 check "5.A.4 every pass"           "0212 C30702 JMP   0207      0000  83  54 03 25 02 75 02 55" "$P"
 check "5.A.5 the trace runs again from 0207" "0207  36  MVI   M   00000000  M R F" "$P"
 

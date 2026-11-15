@@ -613,7 +613,8 @@ void i8085a_cpu_device::op_jmp(int cond)
 	}
 	else
 	{
-		m_PC.w.l += 2;
+		read_arg();   // [tek8550] the 8085 reads the low address byte and skips the high one
+		m_PC.w.l += 1;   // (2 machine cycles; Intel 8085 data sheet); from the sibling 8550 emulator
 	}
 }
 
@@ -632,7 +633,8 @@ void i8085a_cpu_device::op_call(int cond)
 	}
 	else
 	{
-		m_PC.w.l += 2;
+		read_arg();   // [tek8550] the 8085 reads the low address byte and skips the high one
+		m_PC.w.l += 1;   // (2 machine cycles; Intel 8085 data sheet); from the sibling 8550 emulator
 	}
 }
 

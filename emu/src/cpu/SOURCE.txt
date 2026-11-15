@@ -20,7 +20,8 @@ Changes made in this project are marked [tek8002] and listed here:
                two address bytes (it takes 3 machine cycles, 10/11 states, on the 8080A);
                upstream skips them, so the bus showed no operand reads. Millennium's 8080
                hardware analyzer test (DIP 4.4, D3A21) traces a JZ not taken with both
-               reads (2026-11-15).
+               reads (2026-11-15). In 8085 mode (unused here) the same instructions read the
+               low address byte only, as the 8085 does (from the sibling 8550 emulator).
   m6800/m6800.*  generated: tools/port_m6800.py makes logerror() a macro that evaluates its
                arguments only when log_illegal is set. Upstream's illegal-opcode messages pass
                M_RDOP_ARG(PC-1), a bus read, which ran even with logging off and put a phantom

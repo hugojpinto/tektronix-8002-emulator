@@ -29,11 +29,13 @@ What happens:
 2. **About 12 s:** the 16K of TEKDOS is in memory, and the banner and the `>` prompt appear.
 
 ![Power-up: the bootstrap PROM reads TEKDOS from drive 0](screenshots/tutorials/t1_boot.png)
+
 *Four seconds in: the screen is still blank; drive 0 is busy. SYS, RUN and PWR are lit: the 2650 is the bus master, and it runs. The lamps follow the service manual's schematics (`notes/8002.md`).*
 
 Click into the terminal and type `ldir` and Return. TTY LOCK is down by default, so TEKDOS receives `LDIR`; TEKDOS takes upper case only.
 
 ![LDIR in the graphical lab](screenshots/tutorials/t1_ldir.png)
+
 *The directory of the TEKDOS 3.3 system disc: TEKDOS itself, "." (the overlays: ASM, LINK, DEBUG…), COPYSYS and NEWDISC, and two more files.*
 
 The same in your terminal: `build/tek8002 -0 ../sources/bitsavers/disks/TekDOS_3.3_6800_cpy1.img`, and Ctrl-] then `q` to quit.
@@ -76,6 +78,7 @@ LOOP   ADD     A,(HL)          ; ADD BYTE FROM TABLE
 ```
 
 ![ASM, LINK, LOAD, GO](screenshots/10_z80_build.png)
+
 *ASM and LINK run on the Z80 Assembler Processor; GO runs the DEMO on the Z80 Emulator Processor. `*DOS* EOJ` is the program's exit: `OUT (0F7H),A` is SVC 1, and its request block at 0040 (function 1A) asks TEKDOS to end the program.*
 
 **Trace it.** Enter the debug system, turn on tracing, run:
@@ -85,6 +88,7 @@ LOOP   ADD     A,(HL)          ; ADD BYTE FROM TABLE
 > GO 100
 ```
 ![TRACE ALL](screenshots/11_z80_trace.png)
+
 *Each line is one instruction and the registers after it: SP, then F A B C D E H L, IX, IY. A builds up 01, 03, 06, 0A, 0F while B counts down; at B = 0 the Z flag (F = 42) ends the loop.*
 
 The program's exit also ends DEBUG. A debug command after `*DOS* EOJ` gives ERROR 03, so type `DEBUG` again each time.
@@ -103,6 +107,7 @@ The program's exit also ends DEBUG. A debug command after `*DOS* EOJ` gives ERRO
 > GO
 ```
 ![BKPT, DSTAT, SET, STEP](screenshots/13_z80_debug.png)
+
 *The break comes after DEC B (PC=0109). DSTAT shows the main set, IM and the IFFs, the alternate set, IX, IY, I and R. After `SET RA 77` each `GO` runs one instruction: JP NZ, then ADD A,(HL) makes A = 77 + 2 = 79.*
 
 `ABORT DEBUG` leaves the debug system. Try a HALT where the SVC was (`PATCH 10C 76`): `GO 100` ends in `*DOS* ERROR 46`, "emulator halted", and under DEBUG it is a break at the HALT.
@@ -124,11 +129,13 @@ HELLO FROM THE 6800
 > DUMP 32E 32F               its sum, C4 04, at 032E
 ```
 ![A 6800 program runs](screenshots/20_m68_run.png)
+
 *The 6800's SVCs are memory-mapped: `STA A 0FEF7H` is SVC 1, which writes the message, and `STA A 0FEF6H` SVC 2, which exits. The request blocks' addresses are at 0040.*
 
 Traced, with `DEBUG`, `TRACE ALL`, `GO 300` (after `ASSIGN 1 CONO` and `LOAD RUN68;L`):
 
 ![The 6800 traced](screenshots/21_m68_trace.png)
+
 *The 6800 trace line: the instruction, its effective address (`X/PC EADD`), then A, B, X, SP and CC. The last line is the SVC store to FEF7.*
 
 And a breakpoint, a register change and a step:
@@ -144,6 +151,7 @@ And a breakpoint, a register change and a step:
 > DUMP 32E 32F               C4 22
 ```
 ![6800 debugging](screenshots/22_m68_debug.png)
+
 *DSTAT names the processor (6800; a 6802 would show as 6802) and the emulation mode. The SET reached memory: 032F now holds 22.*
 
 ## 4. ASM and LINK on the Assembler Processor
@@ -157,12 +165,14 @@ emu/build/tek8002 -rw -0 disks/asm.img
 > LINK HELLO;L HELLO;K HELLO;O
 ```
 ![ASM and LINK](screenshots/30_asm_link.png)
+
 *Tektronix's 6800/01/02 assembler V3.4 and the linker, both running on the Z80. About 120 SVCs serve a 10-line module.*
 
 ```
 > COPY HELLO;A CONO
 ```
 ![The listing](screenshots/31_asm_listing.png)
+
 *The listing: 6800 code (86 41 for LDA A #41H), and the symbol table.*
 
 ## 5. The printer and paper tape ports
@@ -176,6 +186,7 @@ emu/build/tek8002 -0 sources/bitsavers/disks/TekDOS_3.3_6800_cpy1.img -1 sources
 > COPY V;S/1 PPTP            the same file, punched on paper tape
 ```
 ![LDIR to LPT1, COPY to REMO and PPTP](screenshots/40_syscomm.png)
+
 *Nothing on the console but the commands: the output went to the ports.*
 
 `printer.txt` now holds the directory listing, and `modem.txt` and `tape.txt` the source file, byte for byte:
@@ -198,6 +209,7 @@ emu/build/tek8002 -rw -0 disks/work.img -1 new:disks/backup.img
 > LDIR 1
 ```
 ![FORMAT, DUP, LDIR](screenshots/50_format_dup.png)
+
 *The copy: the same six files. It has no bad blocks; the original system disc has eight.*
 
 This takes about 15 minutes of machine time at the real disc speed; a batch run (stdin not a terminal) takes under a minute. With `-rw`, `disks/backup.img` is saved on exit. Check it with `../tekmato/tekmato -open disks/backup.img -check -info`:
@@ -234,6 +246,7 @@ emu/build/tek8002 -target tcp:127.0.0.1:18002 -rw -0 disks/z80.img          # te
 > DUMP 300 30F
 ```
 ![Mode 1: prototype I/O and a mapped block](screenshots/60_mode1.png)
+
 *The store to 8000 went to the prototype; MOVE UP brought it back (5A), with FF where the prototype's RAM was never written.*
 
 **Mode 2:** everything is the prototype's. PATCH writes into its memory, and the program runs from there, traced:
@@ -247,6 +260,7 @@ emu/build/tek8002 -target tcp:127.0.0.1:18002 -rw -0 disks/z80.img          # te
 > GO 100                                   "MODE 2" appears in terminal 1
 ```
 ![Mode 2: the program runs from the prototype, traced](screenshots/61_mode2_trace.png)
+
 *Every fetch, read and write of the program, and its OUT (10),A, went over the link. Run the target with `--log` to see them: `[F 0100 00 -> 21]` is the first fetch.*
 
 With `--clock 2` the prototype reports a 2 MHz clock (link version 4), and in modes 1 and 2 the board runs at it, as a real probe takes the prototype's clock. The protocol is in [INTEGRATION.md §1](INTEGRATION.md#1-the-prototype-link).
