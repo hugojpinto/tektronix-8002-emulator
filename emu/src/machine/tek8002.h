@@ -67,7 +67,7 @@ public:
 	tek8002_epz80 epz80{*this};     // Z80 Emulator Processor
 	tek8002_slave *active_slave() const;   // the slave the Debug module runs, if any
 	int program_boards = 2;         // 8002A: two 16K program memory boards standard (up to 4)
-	bool timer_100ms = false;       // interval timer jumper: 10 ms (default) or 100 ms
+	bool timer_100ms = true;        // interval timer jumper: 100 ms (as the diagnostics expect) or 10 ms
 	bool trace_io = false;
 
 	u64 cycles() const { return m_cycles; }

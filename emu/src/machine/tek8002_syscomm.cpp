@@ -5,7 +5,8 @@
 
 tek8002_syscomm::tek8002_syscomm()
 {
-	for (auto &a : acia) a.char_cycles = 5208;   // 10 bits at 2400 baud, in 1.25 MHz 2650 clocks
+	// 16 x 2400 baud from the Baud Rate Logic (070-2711 §5, the 2400 jumpers); in 1.25 MHz 2650 clocks
+	for (auto &a : acia) { a.char_cycles = 5208; a.clock_hz = 38400; a.cpu_hz = 1.25e6; }
 }
 
 u8 tek8002_syscomm::read(u8 port)

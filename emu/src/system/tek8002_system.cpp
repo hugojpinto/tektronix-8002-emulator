@@ -86,7 +86,14 @@ bool tek8002_system::start(std::string &err)
 	for (int n = 0; n < tek8002_syscomm::PORTS; n++) {
 		if (spec[n]->empty()) continue;
 		if (!link[n].open(*spec[n], err, port_name[n])) return false;
-		m->syscomm.acia[n].on_tx = [this, n](u8 c) { link[n].send(c); };
+		mc6850 &acia = m->syscomm.acia[n];
+		acia.on_tx = [this, n](u8 c) { link[n].send(c); };
+		if (link[n].loopback()) {
+			// the wrap-back connector (the diagnostics' test fixture): RTS back to CTS and DCD, at
+			// once; and nothing paces what comes back, so the receiver can overrun as on the chip
+			acia.on_control = [this, n] { loop_lines(n); };
+			acia.pace_rx = false;
+		}
 	}
 	for (auto &t : opt.typed) if (t.at < 0) { m_prompt_typed.push_back(t); m_prompts_used = true; }
 	out.set("8002:power", 1); out.set("fdu:power", 1); out.set("8002:restart", 0); out.set("8002:diag", 0);
@@ -108,7 +115,15 @@ bool tek8002_system::finished() const
 void tek8002_system::tick()
 {
 	scripted_events();
-	for (int n = 0; n < tek8002_syscomm::PORTS; n++) link[n].poll([this, n](u8 c) { m->syscomm.acia[n].host_rx(c); });
+	for (int n = 0; n < tek8002_syscomm::PORTS; n++) {
+		mc6850 &acia = m->syscomm.acia[n];
+		link[n].poll([&acia](u8 c) { acia.host_rx(c); });
+		if (!link[n].loopback()) continue;
+		// a break held by the transmitter comes back as one null with a framing error: the
+		// receiver then waits for the line to return to mark before it looks for a start bit
+		if (acia.sending_break() && !m_breaking[n]) acia.host_break();
+		m_breaking[n] = acia.sending_break();
+	}
 	if (m_power && !m_held) m->run_slice(SLICE);
 	else m_held_cycles += SLICE;
 	update_outputs(SLICE);
@@ -176,6 +191,17 @@ void tek8002_system::update_outputs(int slice)
 	for (int d = 0; d < tek8002_fdu::DRIVES; d++) out.set("fdu:drive" + std::to_string(d), m->fdu.activity(d));
 }
 
+// A wrap-back connector on System Communications port n (the diagnostics' test fixture) ties RTS
+// to CTS and DCD. The port's strap (inferred from the diagnostics' SYS COMM test, which asks
+// for position A, then B, and ends in B): A passes CTS from the connector, B holds it active.
+void tek8002_system::loop_lines(int n)
+{
+	if (!link[n].loopback()) return;
+	mc6850 &acia = m->syscomm.acia[n];
+	acia.set_cts(m_strap_a[n] && acia.rts());
+	acia.set_dcd(acia.rts());
+}
+
 bool tek8002_system::input(const std::string &name, int value)
 {
 	if (name == "8002:power") {
@@ -189,6 +215,9 @@ bool tek8002_system::input(const std::string &name, int value)
 		m_held = value;
 	} else if (name == "8002:diag") {
 		if (value && !out.get(name)) m->debug.diag_switch();
+	} else if (name.size() == 14 && name.compare(0, 13, "syscomm:strap") == 0 && name[13] >= '1' && name[13] <= '3') {
+		m_strap_a[name[13] - '1'] = value;
+		loop_lines(name[13] - '1');
 	} else return false;
 	out.set(name, value);
 	return true;

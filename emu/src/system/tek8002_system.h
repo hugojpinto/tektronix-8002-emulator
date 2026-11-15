@@ -72,6 +72,9 @@ private:
 	ct8100 ct;
 	ipc_target target;
 	serial_link link[tek8002_syscomm::PORTS];
+	bool m_breaking[tek8002_syscomm::PORTS] = {};   // a break being sent, on a wrap-back connector
+	bool m_strap_a[tek8002_syscomm::PORTS] = {};    // the ports' CTS straps: A (from the connector) or B
+	void loop_lines(int n);
 	FILE *logf = nullptr, *tracef = nullptr;
 	std::string m_disc[4];
 	bool m_power = true, m_held = false;
