@@ -108,7 +108,7 @@ test: all $(BUILD)/debug_test$(EXE) $(BUILD)/fdc_test$(EXE) $(BUILD)/ct8100_test
 	$(BUILD)/ct8100_test$(EXE)
 	$(BUILD)/fdc_test$(EXE) ../roms/fdc
 	$(BUILD)/fdc_test$(EXE) ../roms/fdc ../disks/TekDOS_3.3_6800_cpy1.img
-	cd .. && tests/boot_ldir.sh && tests/asm_link.sh && FDC=hle tests/asm_link.sh && tests/run6800.sh && tests/run8080.sh && tests/runz80.sh && tests/prototype.sh && tests/parity.sh
+	cd .. && tests/boot_ldir.sh && tests/asm_link.sh && FDC=hle tests/asm_link.sh && tests/run6800.sh && tests/run8080.sh && tests/runz80.sh && tests/prototype.sh && tests/parity.sh && tests/rtpa.sh
 
 clean:
 	rm -rf $(BUILD)
